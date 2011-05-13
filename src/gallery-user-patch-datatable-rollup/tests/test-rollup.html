@@ -20,8 +20,20 @@
                         'fullpath' : '../../../build/gallery-user-patch-datatable-rollup/gallery-user-patch-datatable-rollup-debug.js',
                         'requires' : ['datatable', 'datasource']
                     }
+                    , 'gallery-user-patch-2529808' : {
+                        'fullpath' : '../../../build/gallery-user-patch-2529808/gallery-user-patch-2529808.js',
+                        'requires' : ['datatable', 'datatable-scroll']
+                    }
+                    , 'gallery-user-patch-2529975' : {
+                        'fullpath' : '../../../build/gallery-user-patch-2529975/gallery-user-patch-2529975.js',
+                        'requires' : ['datatable', 'datatable-scroll']
+                    }
                 }
-            }).use("console", "test", "dump", "datatable", "gallery-user-patch-datatable-rollup", function(Y) {
+            //}).use("console", "test", "dump", "datatable", "gallery-user-patch-datatable-rollup", function(Y) {
+        }).use("console", "test", "dump", "datatable"
+            , "gallery-user-patch-2529808"
+            , "gallery-user-patch-2529975"
+            , function(Y) {
 
                 var BTNRUN = Y.one("#btnRun");
                 BTNRUN.set("disabled", false);
@@ -38,9 +50,9 @@
                         this.mockresponse = {
                             response: {
                                 results: [
-                                    { "id" : "1", "name" : "Joe" },
-                                    { "id" : "2", "name" : "Mark" },
-                                    { "id" : "3", "name" : "Andrew" }
+                                    { "id" : "1", "name" : "Joe", "last":"Johnson"},
+                                    { "id" : "2", "name" : "Mark", "last":"Smith" },
+                                    { "id" : "3", "name" : "Andrew", "last":"Newton" }
                                 ]
                             }
                         };
@@ -48,11 +60,12 @@
                         this.testDataSource = new Y.DataSource.Local({ source: this.mockresponse.response.results });
 
                         this.testDataTable = new Y.DataTable.Base({
-                            columnset : [ { key: "id", sortable: true }, { key: "name", sortable: true }],
+                            columnset : [ { key: "id", sortable: true }, { key: "name", sortable: true }, { key: "last", sortable: true }],
                             summary : "User patched DataTable Instance",
                             plugins : [
                                 { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } },
                                 { fn: Y.Plugin.DataTableScroll, cfg: { width: '500px', height: '200px' } },
+                                //{ fn: Y.Plugin.DataTableScroll, cfg: { height: '200px' } },
                                 { fn: Y.Plugin.DataTableSort }
                             ]
                         });
@@ -63,16 +76,9 @@
                         delete this.testDataTable;
                     },
                     
-                    "test column header and body cell widths match" : function() {
+                    "test scroll+sort+datasource causes column mismatch" : function() {
                         this.testDataTable.render();
                         this.testDataTable.datasource.load();
-                        
-                        var nameHeading = Y.Node.one('.yui3-datatable-columns').all('.yui3-datatable-liner').item(1),
-                            nameData = Y.Node.one('.yui3-datatable-data').all('.yui3-datatable-liner').item(1),
-                            nameHeadingWidth = nameHeading.get('clientWidth'),
-                            nameDataWidth = nameData.get('clientWidth');
-                            
-                        Y.Assert.areEqual(nameHeadingWidth, nameDataWidth);
                     }
                 });
 
