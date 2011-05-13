@@ -1,0 +1,161 @@
+@CHARSET "UTF-8";
+
+
+
+.yui3-dp-table {
+    
+}
+
+/* dp-table-headers */
+
+.yui3-js-enabled .yui3-dp-table-headers-loading {
+    display: none;
+}
+
+.yui3-dp-table-headers-column {
+	padding: 0em;
+	height: 30px;
+	text-align: center;
+	background-image: url('/img/DP/Widget/tbl-header.png');
+	border-style: solid;
+	border-width: 0px 0px 1px 0px;
+	border-color: #888888;
+}
+
+.yui3-dp-table-headers-label {
+	padding: 0.25em;
+	font-family: arial;
+	font-size: 12pt;
+}
+
+.yui3-dp-table-headers-column-over {
+	background-image: url('/img/DP/Widget/tbl-header-over.png');
+	cursor:pointer;
+}
+
+.yui3-dp-table-headers-column-rightcorner {
+	-moz-border-radius: 0px 5px 0px 0px;
+	-webkit-border-radius: 0px 5px 0px 0px;
+	border-radius: 0px 5px 0px 0px;
+	margin-left: 5px;
+}
+
+.yui3-dp-table-headers-column-leftcorner {
+	-moz-border-radius: 5px 0px 0px 0px;
+	-webkit-border-radius: 5px 0px 0px 0px;
+	border-radius: 5px 0px 0px 0px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.yui3-dp-table-headers-sort {
+	float: right;
+	width: 10px;
+	height: 10px;
+}
+
+.yui3-dp-table-headers-sort-asc {
+	padding: 0.1em;
+	background-image: url('/img/DP/Widget/sort-up.png');
+	background-repeat: no-repeat;
+}
+
+.yui3-dp-table-headers-sort-desc {
+	padding: 0.1em;
+	background-image: url('/img/DP/Widget/sort-down.png');
+	background-repeat: no-repeat;
+}
+
+
+/* dptable-body */
+
+.yui3-js-enabled .yui3-dp-table-body-loading {
+    display: none;
+}
+
+.yui3-dp-table-body {
+	margin: 0.25em;
+	font-family: arial;
+	font-size: 12pt;
+}
+
+tbody.yui3-dp-table-body {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #dddddd;
+        overflow: scroll;
+}
+
+.yui3-dp-table-body-row {
+	background-color: #ffffff;
+	padding: 0.25em;
+}
+
+.yui3-dp-table-body-row-alt {
+	background-color: #eeeeee;
+}
+
+.yui3-dp-table-body-row-over {
+	background-color: #c5ddfb;
+	color: #ffffff;
+	cursor:pointer;
+}
+
+.yui3-dp-table-body-row-selected {
+	color: #ffffff;
+	background-color: #6ea1e2;
+}
+
+.yui3-dp-table-body-cell {
+	padding: 0.25em;
+}
+
+/* cell renderer specific */
+
+.yui3-dp-cellrenderer-progress {
+    background-image: url('/img/DP/Widget/progress-fill.png');
+    /* background-color: #114499; */
+    
+    -moz-border-radius: 5px 0px 0px 5px;
+    -webkit-border-radius: 5px 0px 0px 5px;
+    border-radius: 5px 0px 0px 5px;
+}
+
+.yui3-dp-cellrenderer-progress-wrap {
+    position: relative;
+    background-image: url('/img/DP/Widget/progress-background.png');
+    /* background-color: #BBBBBB; */
+    
+    -moz-border-radius: 5px 5px 5px 5px;
+    -webkit-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+}
+
+.yui3-dp-cellrenderer-progress-text {
+    position: absolute;
+    top: 0; left: 0;
+    padding-top: 2px;
+    font-size: 9pt;
+    font-weight: 500;
+    color: #222222;
+    text-align: center;
+    width: 100%;
+}
+
+.yui3-dp-cellrenderer-progress, .yui3-dp-cellrenderer-progress-wrap, .yui3-dp-cellrenderer-progress-text {
+    height: 18px;
+}
+
+
+/* disused */
+.yui3-table-header-sep {
+	float: right;
+	width: 3px;
+}
+
+
+.yui3-dp-table-column-sep {
+	background-image: url('/img/DP/Widget/tbl-header-sep.png');
+	background-repeat: no-repeat;
+	width: 3px;
+}

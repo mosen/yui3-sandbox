@@ -1,0 +1,33 @@
+#editor {
+    position: absolute;
+    z-index: 99;
+    background-color: #ffffff;
+
+    border: 1px solid #888888;
+    border-radius: 4px;
+    box-shadow: 2px 2px 2px #888;
+    
+    font-family: sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+#editor #bubble {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin-left: 5px;
+    margin-top: -10px;
+}
+
+#editor .yui3-widget-hd {
+    padding: 0.5em;
+}
+
+#editor .yui3-widget-bd {
+    padding: 1em;
+}
+
+#editor .yui3-widget-ft {
+    padding: 0.5em;
+}

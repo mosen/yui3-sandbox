@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test for ticket #2529968</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <h2>Test defect ticket #2529968</h2>
+        <p>Creating a table without a caption still creates a caption node with 1em padding.</p>
+        <p><input type="button" value="Run Tests" id="btnRun" disabled=true></p>
+        <script type="text/javascript">
+        (function() {
+            YUI({
+                filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                allowRollup: false,
+                   modules : {
+                    'gallery-user-patch-2529968' : {
+                       'fullpath' : '../../../build/gallery-user-patch-2529968/gallery-user-patch-2529968.js',
+                       'requires' : ['datatable']
+                    }
+                }
+            }).use("console", "test", "dump", "datatable", "gallery-user-patch-2529968", function(Y) {
+
+                var BTNRUN = Y.one("#btnRun");
+                BTNRUN.set("disabled", false);
+                Y.on("click", function(e){
+                    Y.Test.Runner.run();
+                }, BTNRUN);
+                var myConsole = new Y.Console().render();
+
+                var testBasic = new Y.Test.Case({ 
+                    name: "Patch Ticket 2529968 Test",
+                    
+                    setUp: function() {
+                        
+                        this.mockresponse = {
+                            response: {
+                                results: [
+                                    { "id" : "1", "name" : "Joe" },
+                                    { "id" : "2", "name" : "Bob" },
+                                    { "id" : "3", "name" : "Andrew" }
+                                ]
+                            }
+                        };
+                        
+                        this.testDataTable = new Y.DataTable.Base({
+                            /* caption: "test", */
+                            columnset : [ 
+                                { key:"id", sortable: true },
+                                { key:"name", sortable: true }
+                            ],
+                            summary : "User patched DataTable Instance",
+                            recordset : this.mockresponse.response.results
+                        });
+                        
+                        this.testDataTable.render();
+                    },
+                    
+                    tearDown: function() {
+                        this.testDataTable.destroy();
+                        delete this.testDataTable;
+                    },
+                    
+                    "test no caption does not create caption node" : function() {
+                        var captionNode = Y.one('caption');
+                        Y.Assert.isNull(captionNode);
+                    },
+                    
+                    "test setting caption after construction creates node" : function() {
+                        this.testDataTable.set('caption', 'testcaption');
+                        var captionNode = Y.one('caption');
+                        Y.Assert.isNotNull(captionNode);
+                    },
+                    
+                    "test setting caption then unsetting deletes node" : function() {
+                        this.testDataTable.set('caption', 'testcaption');
+                        this.testDataTable.set('caption', null);
+                        var captionNode = Y.one('caption');
+                        Y.Assert.isNull(captionNode);                        
+                    }
+                });
+
+                var suite = new Y.Test.Suite({name:"Patch Ticket 2529968 Test Suite"});
+                suite.add(testBasic);
+
+                Y.Test.Runner.setName("Test Runner");
+                Y.Test.Runner.add(suite);
+                Y.Test.Runner.run();
+            });
+        })();
+        </script>
+    </body>
+</html>

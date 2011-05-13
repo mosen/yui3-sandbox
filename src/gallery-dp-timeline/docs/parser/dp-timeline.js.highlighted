@@ -1,0 +1,704 @@
+<div class="highlight"><pre><span class="c1">//YUI.add(&#39;dp-timeline&#39;, function(Y) {</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * The timeline module produces a graphical representation of a timeline with events marked on the timeline</span>
+<span class="cm"> * Similar to a gantt-chart but more generic.</span>
+<span class="cm"> * </span>
+<span class="cm"> * @module gallery-dp-timeline</span>
+<span class="cm"> */</span>
+
+    <span class="c1">// shortcuts and constants</span>
+    <span class="kd">var</span> <span class="nx">Lang</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Lang</span><span class="p">,</span>
+        <span class="nx">Node</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Node</span><span class="p">,</span>
+        <span class="nx">DataType</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">;</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * The timeline module produces a graphical representation of a timeline with events marked on the timeline,</span>
+<span class="cm">     * Similar to a gantt-chart but more generic.</span>
+<span class="cm">     * </span>
+<span class="cm">     * @class DP.Timeline</span>
+<span class="cm">     * @extends Widget</span>
+<span class="cm">     */</span>
+    <span class="nx">Y</span><span class="p">.</span><span class="nx">namespace</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">).</span><span class="nx">Timeline</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Base</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span> <span class="s1">&#39;gallery-dp-timeline&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Widget</span><span class="p">,</span> <span class="p">[</span><span class="nx">Y</span><span class="p">.</span><span class="nx">WidgetParent</span><span class="p">],</span> <span class="p">{</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Y.Widget Lifecycle: Initializer</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method initializer</span>
+<span class="cm">         * @param config {Object} Configuration object</span>
+<span class="cm">         * @constructor</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">initializer</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Destructor lifecycle implementation</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method destructor</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">destructor</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Create the DOM structure.</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method renderUI</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">renderUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            
+            <span class="c1">// Timeline headings, Date labels</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_nodeDayContainer</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_renderHeadings</span><span class="p">();</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_renderHeadingsDays</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_nodeDayContainer</span><span class="p">);</span>
+            
+            <span class="c1">// Background, Background highlights / markers</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_nodeBackgroundContainer</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_renderBackgroundContainer</span><span class="p">();</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_renderBackgroundHighlights</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_nodeBackgroundContainer</span><span class="p">);</span>
+            
+            <span class="c1">// Events</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_nodeEventContainer</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_renderEventContainer</span><span class="p">();</span>
+            
+            <span class="c1">// Instruct Y.WidgetChild to render child nodes to this container</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_childrenContainer</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_nodeEventContainer</span><span class="p">;</span> 
+            
+            <span class="c1">// Append created nodes to this widget</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_nodeBackgroundContainer</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_nodeDayContainer</span><span class="p">);</span>
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_nodeEventContainer</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Bind events to the ui</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method bindUI</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">bindUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            
+            <span class="c1">// DOM EVENTS</span>
+            
+            <span class="c1">// Selection Highlighting</span>
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">).</span><span class="nx">delegate</span><span class="p">(</span><span class="s2">&quot;mouseenter&quot;</span><span class="p">,</span> 
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">onEventMouseEnter</span><span class="p">,</span> <span class="k">this</span><span class="p">),</span> 
+                <span class="s1">&#39;div.yui3-gallery-dp-timeline-event-content&#39;</span><span class="p">);</span>
+            
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">).</span><span class="nx">delegate</span><span class="p">(</span><span class="s2">&quot;mouseleave&quot;</span><span class="p">,</span> 
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">onEventMouseLeave</span><span class="p">,</span> <span class="k">this</span><span class="p">),</span> 
+                <span class="s1">&#39;div.yui3-gallery-dp-timeline-event-content&#39;</span><span class="p">);</span>
+            
+            
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">onEventKeyDelete</span><span class="p">,</span> <span class="k">this</span><span class="p">),</span> <span class="nb">document</span><span class="p">,</span> <span class="s2">&quot;down:46, 8&quot;</span><span class="p">);</span>
+
+            <span class="c1">// Set selection on mousedown</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;gallery-dp-timeline-event:mousedown&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">onEventMouseClick</span><span class="p">);</span>
+            
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">_nodeBackgroundContainer</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;mousemove&quot;</span><span class="p">,</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">onBackgroundHover</span><span class="p">,</span> <span class="k">this</span><span class="p">));</span>
+                
+            
+            <span class="c1">// ATTR EVENTS</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;dateChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterDateChange</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;selectionChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterSelectionChange</span><span class="p">);</span>
+            
+            <span class="c1">// Y.WidgetParent CustomEvents</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;addChild&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterChildrenChange</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;removeChild&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterChildrenChange</span><span class="p">);</span>
+            
+            <span class="cm">/*</span>
+<span class="cm">            this._ddNodeBackgroundContainer = new Y.DD.Drag({</span>
+<span class="cm">                node: this.get(&#39;contentBox&#39;)</span>
+<span class="cm">            }).plug(Y.Plugin.DDConstrained, {</span>
+<span class="cm">                constrain: &#39;view&#39;,</span>
+<span class="cm">                stickX: true</span>
+<span class="cm">            });*/</span>
+                          
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Synchronizes the DOM state with the attribute settings</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method syncUI</span>
+<span class="cm">         */</span>
+        <span class="nx">syncUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;This timeline will finish on &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">getEndDate</span><span class="p">(),</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;boundingBox&#39;</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;style.width&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;dayWidth&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+        <span class="p">},</span>
+        
+        <span class="c1">// Rendering Stage</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Render the containers for the headings</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method _renderHeadings</span>
+<span class="cm">         * @return Y.Node Heading Container</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">_renderHeadings</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;_renderHeadings&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            
+            <span class="kd">var</span> <span class="nx">nodeDayContainer</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;tplDayContainer&#39;</span><span class="p">),</span> <span class="p">{</span>
+               <span class="nx">className</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">,</span> <span class="s1">&#39;container&#39;</span><span class="p">)</span>
+            <span class="p">}));</span>
+            
+            <span class="k">return</span> <span class="nx">nodeDayContainer</span><span class="p">;</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Render all of the day labels</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method _renderHeadingsDays</span>
+<span class="cm">         * @param parent {Node} Parent to render into</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">_renderHeadingsDays</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">parent</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;_renderHeadingsDays&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            
+            <span class="kd">var</span> <span class="nx">currentDate</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">),</span>
+                <span class="nx">labelDate</span><span class="p">,</span>
+                <span class="nx">i</span><span class="p">;</span>
+            
+            <span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">);</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                
+                <span class="nx">labelDate</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">currentDate</span><span class="p">.</span><span class="nx">getTime</span><span class="p">());</span>
+                <span class="nx">labelDate</span><span class="p">.</span><span class="nx">setDate</span><span class="p">(</span><span class="nx">labelDate</span><span class="p">.</span><span class="nx">getDate</span><span class="p">()</span> <span class="o">+</span> <span class="nx">i</span><span class="p">);</span>
+                 
+                <span class="kd">var</span> <span class="nx">lblDay</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;tplDay&#39;</span><span class="p">),</span> <span class="p">{</span>
+                    <span class="nx">className</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">),</span>
+                    <span class="nx">labelClassName</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">),</span>
+                    <span class="nx">label</span> <span class="o">:</span> <span class="nx">DataType</span><span class="p">.</span><span class="nb">Date</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">labelDate</span><span class="p">,</span> <span class="p">{</span><span class="nx">format</span><span class="o">:</span><span class="s2">&quot;%a %e&quot;</span><span class="p">})</span>
+                <span class="p">})),</span>
+                    <span class="nx">leftOffset</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">dateToOffset</span><span class="p">(</span><span class="nx">labelDate</span><span class="p">);</span>
+                
+                <span class="nx">lblDay</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;style.left&#39;</span><span class="p">,</span> <span class="nx">leftOffset</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+                <span class="nx">lblDay</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;style.width&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;dayWidth&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+
+                <span class="nx">parent</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">lblDay</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_dates</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">date</span><span class="o">:</span> <span class="nx">labelDate</span><span class="p">,</span> <span class="nx">left</span><span class="o">:</span> <span class="nx">leftOffset</span> <span class="p">});</span>
+            <span class="p">}</span>
+            
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Render the container that will hold events</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method _renderEventContainer</span>
+<span class="cm">         * @return Node Event container, holding child events</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">_renderEventContainer</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;_renderEventContainer&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            
+            <span class="kd">var</span> <span class="nx">eventContainer</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;tplEventContainer&#39;</span><span class="p">),</span> <span class="p">{</span>
+                <span class="nx">className</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;container&#39;</span><span class="p">)</span>
+            <span class="p">}));</span>
+            
+            <span class="k">return</span> <span class="nx">eventContainer</span><span class="p">;</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Render the background objects</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method _renderBackgroundContainer</span>
+<span class="cm">         * @return Node Container for background (timeline static) objects</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">_renderBackgroundContainer</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;_renderBackgroundContainer&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            
+            <span class="kd">var</span> <span class="nx">nodeBg</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;tplBackgroundContainer&#39;</span><span class="p">),</span> <span class="p">{</span>
+                <span class="nx">className</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;background&#39;</span><span class="p">)</span>
+            <span class="p">}));</span>
+            <span class="nx">nodeBg</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;style.width&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;dayWidth&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+            
+            <span class="k">return</span> <span class="nx">nodeBg</span><span class="p">;</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Render highlight objects on the background which indicate holidays.</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method _renderBackgroundHighlights</span>
+<span class="cm">         * @param parent {Node} Parent node to render into</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">_renderBackgroundHighlights</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">parent</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;_renderBackgroundHighlights&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            
+            <span class="nx">Y</span><span class="p">.</span><span class="nb">Array</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_dates</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">){</span>
+            
+                <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isDatePublicHoliday</span><span class="p">(</span><span class="nx">d</span><span class="p">.</span><span class="nx">date</span><span class="p">))</span> <span class="p">{</span>
+                    <span class="c1">//Y.log(&quot;is public holiday :&quot; + d.date, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+
+                    <span class="kd">var</span> <span class="nx">nodeBgHl</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;tplBackgroundHighlight&#39;</span><span class="p">),</span> <span class="p">{</span>
+                        <span class="nx">className</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="s1">&#39;highlight&#39;</span><span class="p">)</span>
+                    <span class="p">}));</span>
+                    <span class="nx">nodeBgHl</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;style.left&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">dateToOffset</span><span class="p">(</span><span class="nx">d</span><span class="p">.</span><span class="nx">date</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+                    <span class="nx">nodeBgHl</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;style.width&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;dayWidth&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+
+                    <span class="nx">parent</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">nodeBgHl</span><span class="p">);</span>
+                <span class="p">}</span>
+            
+            <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+        <span class="p">},</span>
+        
+        <span class="c1">// Child Event Calculation / Modification</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Get the first available slot if this event overlaps, WidgetChild version</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method _getChildFreeSlot</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">_getChildFreeSlot</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">leftedge</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;_getFreeSlot: &quot; + e.get(&#39;summary&#39;), &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            
+            <span class="kd">var</span> <span class="nx">slots</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;slots&#39;</span><span class="p">);</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="nx">Lang</span><span class="p">.</span><span class="nx">isNumber</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;slot&#39;</span><span class="p">)))</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="nx">e</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;slot&#39;</span><span class="p">);</span>
+            <span class="p">}</span>
+            
+            <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">slots</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">slots</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nx">leftedge</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="c1">//Y.log(&quot;_getFreeSlot: Found free slot &quot; + i + &quot; because slot rightedge was &quot; + slots[i] + &quot; vs our leftedge &quot; + leftedge, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="c1">//Y.log(&quot;_getFreeSlot: Cant use slot &quot; + i + &quot; because slot rightedge was &quot; + slots[i] + &quot; vs our leftedge &quot; + leftedge, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            
+            <span class="k">return</span> <span class="nx">i</span><span class="p">;</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Re-flow events so that they are stacked where possible</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method reflowEvents</span>
+<span class="cm">         * @public</span>
+<span class="cm">         */</span>
+        <span class="nx">reflowEvents</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;reflowEvents&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="kd">var</span> <span class="nx">childLeftOffset</span><span class="p">,</span>
+                <span class="nx">childSlot</span><span class="p">,</span>
+                <span class="nx">slots</span><span class="p">;</span>
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;slots&#39;</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">());</span>
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+                
+                <span class="nx">c</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;slot&#39;</span><span class="p">,</span> <span class="kc">undefined</span><span class="p">);</span>
+                <span class="nx">childLeftOffset</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">dateToOffset</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">));</span>
+                <span class="nx">childSlot</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getChildFreeSlot</span><span class="p">(</span><span class="nx">c</span><span class="p">,</span> <span class="nx">childLeftOffset</span><span class="p">);</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Reflowing Child: &quot;</span> <span class="o">+</span> <span class="nx">c</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;summary&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; to slot: &quot;</span> <span class="o">+</span> <span class="nx">childSlot</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+                
+                <span class="nx">c</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;slot&#39;</span><span class="p">,</span> <span class="nx">childSlot</span><span class="p">);</span>
+                <span class="nx">slots</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;slots&#39;</span><span class="p">);</span>
+                <span class="nx">slots</span><span class="p">[</span><span class="nx">childSlot</span><span class="p">]</span> <span class="o">=</span> <span class="nx">childLeftOffset</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">getEventWidth</span><span class="p">(</span><span class="nx">c</span><span class="p">);</span>
+                
+                <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;slots&#39;</span><span class="p">,</span> <span class="nx">slots</span><span class="p">);</span>
+            <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Get the calculated width of an event object</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method getEventWidth</span>
+<span class="cm">         * @param e {Y.DP.TimelineEvent} Event child object</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">getEventWidth</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;getEventWidth&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;dayWidth&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="nx">e</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;duration&#39;</span><span class="p">);</span>
+        <span class="p">},</span>
+  
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Remove the currently selected item (if any)</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method removeSelected</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">removeSelected</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;removeSelected&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;selection&#39;</span><span class="p">).</span><span class="nx">remove</span><span class="p">();</span>
+        <span class="p">},</span>  
+
+        <span class="c1">// ATTR change hooks</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Handle a change in child objects, from WidgetParent</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _afterChildrenChange</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">_afterChildrenChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;_afterChildrenChange&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">reflowEvents</span><span class="p">();</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Handle date change, update UI</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method afterDateChange</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">afterDateChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;afterDateChange&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+          
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Handle selection change, update UI</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method afterSelectionChange</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">afterSelectionChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;afterSelectionChange&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+        <span class="p">},</span>
+        
+        <span class="c1">// DOM EVENT HANDLERS</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Handle mouse click on a child event, causing it to be selected</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method onEventMouseClick</span>
+<span class="cm">         * @param e {Event} Event facade</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">onEventMouseClick</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;onEventMouseClick&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+               
+           <span class="kd">var</span> <span class="nx">item</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">,</span>
+           <span class="nx">domEvent</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">domEvent</span><span class="p">;</span>
+
+           <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;multiple&quot;</span><span class="p">))</span> <span class="p">{</span>
+               <span class="k">if</span> <span class="p">(</span><span class="nx">domEvent</span><span class="p">.</span><span class="nx">metaKey</span><span class="p">)</span> <span class="p">{</span>
+                   <span class="nx">item</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;selected&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+               <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                   <span class="k">this</span><span class="p">.</span><span class="nx">deselectAll</span><span class="p">();</span>
+                   <span class="nx">item</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;selected&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+               <span class="p">}</span>
+           <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+               <span class="nx">item</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;selected&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+           <span class="p">}</span> 
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Handle mouse entering an event</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method onEventMouseEnter</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">onEventMouseEnter</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;onEventMouseEnter&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            <span class="nx">e</span><span class="p">.</span><span class="nx">currentTarget</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;over&#39;</span><span class="p">));</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Handle mouse leaving an event</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method onEventMouseLeave</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">onEventMouseLeave</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;onEventMouseLeave&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            <span class="nx">e</span><span class="p">.</span><span class="nx">currentTarget</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;over&#39;</span><span class="p">));</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Delete selected event when a delete/backspace key is pressed</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method onEventKeyDelete</span>
+<span class="cm">         * @param e {Event} Event facade</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">onEventKeyDelete</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;onEventKeyDelete&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;selection&#39;</span><span class="p">).</span><span class="nx">remove</span><span class="p">();</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Handle mouse doubleclick on background</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method onEventMouseDblClick</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">onEventMouseDblClick</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;onEventMouseDblClick&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="k">this</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;childPrototype&#39;</span><span class="p">));</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Mouse hover over the background container displays highlight at nearest date,</span>
+<span class="cm">         * indicating that the user may add something on that date.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method onBackgroundHover</span>
+<span class="cm">         * @param e {Event} Event facade</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">onBackgroundHover</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;onBackgroundHover&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            <span class="c1">//console.dir(e);</span>
+            
+            <span class="kd">var</span> <span class="nx">xy</span> <span class="o">=</span> <span class="p">[</span> <span class="nx">e</span><span class="p">.</span><span class="nx">clientX</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nx">clientY</span> <span class="p">];</span>
+            <span class="c1">//this._nodeEventInsertHighlight.set(&#39;style.top&#39;, e.clientY + &#39;px&#39;);</span>
+            <span class="c1">//this._nodeEventInsertHighlight.set(&#39;style.left&#39;, e.clientX + &#39;px&#39;);</span>
+        <span class="p">},</span>
+        
+        <span class="c1">// Date math functions</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Get the last date that should be shown on the timeline</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method getEndDate</span>
+<span class="cm">         * @return Date Ending date for the timeline</span>
+<span class="cm">         * @public</span>
+<span class="cm">         */</span>
+        <span class="nx">getEndDate</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;getEndDate&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="c1">// One day is deducted because the word length implies that the starting day is included in that range</span>
+            <span class="k">return</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DP</span><span class="p">.</span><span class="nx">TimelineUtil</span><span class="p">.</span><span class="nx">addDays</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">),</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">));</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Convert the supplied date into an x offset</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method dateToOffset</span>
+<span class="cm">         * @param d {Date} Date which will be compared to our date attribute</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">dateToOffset</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// Y.log(&quot;dateToOffset&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            
+            <span class="kd">var</span> <span class="nx">duration</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DP</span><span class="p">.</span><span class="nx">TimelineUtil</span><span class="p">.</span><span class="nx">rangeToDifference</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">),</span> <span class="nx">d</span><span class="p">),</span>
+                <span class="nx">offset</span> <span class="o">=</span> <span class="nx">duration</span> <span class="o">*</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;dayWidth&#39;</span><span class="p">);</span>
+            
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;dateToOffset:&quot;</span> <span class="o">+</span> <span class="nx">offset</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="k">return</span> <span class="nx">offset</span><span class="p">;</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Convert the supplied slot number into a y offset</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method slotToOffset</span>
+<span class="cm">         * @param slot {Number} Slot number</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">slotToOffset</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">slot</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;slotToOffset&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.Timeline&quot;</span><span class="p">);</span>
+            
+            <span class="k">return</span> <span class="nx">slot</span> <span class="o">*</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;eventHeight&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="nx">slot</span> <span class="o">*</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;gutter&#39;</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Determine if the given date is a public holiday or not</span>
+<span class="cm">         *</span>
+<span class="cm">         * @method isDatePublicHoliday</span>
+<span class="cm">         * @param d {Date} Date to examine</span>
+<span class="cm">         * @todo Support alternate datasource for public holidays in addition to fixed holidays</span>
+<span class="cm">         * @return boolean True if date is a public holiday</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">isDatePublicHoliday</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//Y.log(&quot;isDatePublicHoliday&quot;, &quot;info&quot;, &quot;Y.DP.Timeline&quot;);</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="nx">d</span><span class="p">.</span><span class="nx">getDay</span><span class="p">()</span> <span class="o">===</span> <span class="mi">0</span> <span class="o">||</span> <span class="nx">d</span><span class="p">.</span><span class="nx">getDay</span><span class="p">()</span> <span class="o">===</span> <span class="mi">6</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Array containing information about dates shown</span>
+<span class="cm">         *</span>
+<span class="cm">         * @property _dates</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">_dates</span> <span class="o">:</span> <span class="nb">Array</span><span class="p">()</span>
+
+    <span class="p">},</span> <span class="p">{</span>
+        <span class="c1">// @see Y.Widget.NAME</span>
+        <span class="nx">NAME</span> <span class="o">:</span> <span class="s2">&quot;timeline&quot;</span><span class="p">,</span>
+
+        <span class="nx">ATTRS</span> <span class="o">:</span> <span class="p">{</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Default child class to use</span>
+<span class="cm">             * </span>
+<span class="cm">             * @attribute defaultChildType</span>
+<span class="cm">             * @type String</span>
+<span class="cm">             * @readonly</span>
+<span class="cm">             * @private</span>
+<span class="cm">             */</span>
+            <span class="nx">defaultChildType</span><span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span><span class="o">:</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DP</span><span class="p">.</span><span class="nx">TimelineEvent</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Container for days of the week labels</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute tplDayContainer</span>
+<span class="cm">             * @type String</span>
+<span class="cm">             */</span>
+            <span class="nx">tplDayContainer</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="s1">&#39;&lt;div class=&quot;{className}&quot;&gt;&lt;/div&gt;&#39;</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Box containing label for day of the week</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute tplDay</span>
+<span class="cm">             * @type String</span>
+<span class="cm">             */</span>
+            <span class="nx">tplDay</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="s1">&#39;&lt;div class=&quot;{className}&quot;&gt;&lt;span class=&quot;{labelClassName}&quot;&gt;{label}&lt;/span&gt;&lt;/div&gt;&#39;</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Container for events that may span days</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute tplEventContainer</span>
+<span class="cm">             * @type String</span>
+<span class="cm">             */</span>
+            <span class="nx">tplEventContainer</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="s1">&#39;&lt;div class=&quot;{className}&quot;&gt;&lt;/div&gt;&#39;</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Template for the background container which defines background style and holds highlighted days</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute tplBackgroundContainer</span>
+<span class="cm">             * @type String</span>
+<span class="cm">             */</span>
+            <span class="nx">tplBackgroundContainer</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="s1">&#39;&lt;div class=&quot;{className}&quot;&gt;&lt;/div&gt;&#39;</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Template for background highlights, used for weekends</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute tplBackgroundHighlight</span>
+<span class="cm">             * @type String</span>
+<span class="cm">             */</span>
+            <span class="nx">tplBackgroundHighlight</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="s1">&#39;&lt;div class=&quot;{className}&quot;&gt;&amp;nbsp;&lt;/div&gt;&#39;</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Width of each day label</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute dayWidth</span>
+<span class="cm">             * @type Number</span>
+<span class="cm">             */</span>
+            <span class="nx">dayWidth</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isNumber</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Height of each event</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute eventHeight</span>
+<span class="cm">             * @type Number</span>
+<span class="cm">             */</span>
+            <span class="nx">eventHeight</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="mi">20</span><span class="p">,</span>
+                <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isNumber</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Starting date of the timeline</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute date</span>
+<span class="cm">             * @type Date</span>
+<span class="cm">             */</span>
+            <span class="nx">date</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="nb">Date</span><span class="p">(),</span>
+                <span class="nx">setter</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">return</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DP</span><span class="p">.</span><span class="nx">TimelineUtil</span><span class="p">.</span><span class="nx">zeroTime</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * The last date shown in the timeline</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute endDate</span>
+<span class="cm">             * @type Date</span>
+<span class="cm">             */</span>
+            <span class="nx">endDate</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="nb">Date</span><span class="p">()</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * length of the timeline in days</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute length</span>
+<span class="cm">             * @type Number</span>
+<span class="cm">             */</span>
+            <span class="nx">length</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="mi">8</span><span class="p">,</span>
+                <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isNumber</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Hold the leftmost pixel of the rightmost event per slot to determine free slots</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute slots</span>
+<span class="cm">             * @type Array</span>
+<span class="cm">             */</span>
+            <span class="nx">slots</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="nb">Array</span><span class="p">(),</span>
+                <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isArray</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Size of the gutter in pixels that lies between each slot</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute gutter</span>
+<span class="cm">             * @type Number</span>
+<span class="cm">             */</span>
+            <span class="nx">gutter</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="mi">3</span><span class="p">,</span>
+                <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isNumber</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Prototype object for child objects</span>
+<span class="cm">             * </span>
+<span class="cm">             * @attribute childPrototype</span>
+<span class="cm">             * @type Object</span>
+<span class="cm">             */</span>
+            <span class="nx">childPrototype</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">readonly</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+                <span class="nx">getter</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                    <span class="k">return</span> <span class="p">{</span><span class="nx">start</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">),</span> 
+                            <span class="nx">finish</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">),</span> 
+                            <span class="nx">summary</span><span class="o">:</span> <span class="s1">&#39;Title&#39;</span><span class="p">,</span> 
+                            <span class="nx">category</span><span class="o">:</span> <span class="s1">&#39;booked&#39;</span><span class="p">};</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="nx">HTML_PARSER</span> <span class="o">:</span> <span class="p">{</span>
+
+        <span class="p">}</span>
+    <span class="p">});</span>
+            
+<span class="c1">//}, &#39;@VERSION@&#39; ,{requires:[&#39;base&#39;]});</span>
+</pre></div>

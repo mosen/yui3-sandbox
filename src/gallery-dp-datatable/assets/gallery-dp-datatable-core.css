@@ -1,0 +1,23 @@
+/* 
+    Document   : gallery-dp-datatable-core
+    Created on : May 5, 2011, 4:08:39 PM
+    Author     : admin
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+body.yui3-skin-sam td.yui3-datatable-sortable div.yui3-datatable-liner {
+   /* padding: 4px 20px; */
+   padding-right: 0px;
+   padding: 4px 15px 4px 10px;
+}
+
+body.yui3-skin-sam th.yui3-datatable-sortable .yui3-datatable-liner {
+    padding-right: 0px;
+    padding: 4px 15px 4px 10px;
+}

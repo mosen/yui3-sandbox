@@ -1,0 +1,87 @@
+.yui3-skin-sam .yui3-gallery-dp-timeline {
+    border: 1px solid #999999;
+    min-height: 400px;
+}
+
+.yui3-skin-sam .yui3-gallery-dp-timeline .yui3-gallery-dp-timeline-event-content {
+    padding: 0.25em 0em 0.25em 0em;
+    
+    font-family: sans-serif;
+    font-size: 8pt;
+    font-weight: bold;
+    
+    border-style: solid;
+    border-width: 1px;
+    border-color: #2ea4c5 #0074a5 #0074a5 #2ea4c5;
+    border-radius: 4px 4px 4px 4px;
+
+   /* background-color: #0e84b5; */
+    background-image: url('./images/dp-timeline-bg.png');
+    background-repeat: repeat-x;
+    
+    box-shadow: 2px 2px 2px #AAA;
+    -webkit-box-shadow: 2px 2px 2px #AAA;
+    color: #EEEEEE;
+}
+
+.yui3-skin-sam .yui3-gallery-dp-timeline .yui3-gallery-dp-timeline-event {
+    padding: 5px 0px 5px 0px;
+}
+
+.yui3-skin-sam .yui3-gallery-dp-timeline-day {
+    /*box-shadow: 0px 1px 2px #888;*/
+    
+    background-image: url('./images/dp-timeline-bg.png');
+    background-repeat: repeat-x;   
+    
+}
+
+.yui3-skin-sam .yui3-gallery-dp-timeline .yui3-gallery-dp-timeline-event-over {
+    background-color: #EEAA88;
+    cursor: pointer;
+}
+
+.yui3-skin-sam .yui3-gallery-dp-timeline .yui3-gallery-dp-timeline-event-selected .yui3-gallery-dp-timeline-event-content {
+    background-color: #AAAAAA;
+    cursor: pointer;
+}
+
+/*
+.yui3-gallery-dp-timeline-event-left {
+    float: left;
+    width: 80px;
+    background-image: url('./images/dp-timeline-bar.png');
+    background-repeat: no-repeat;
+}*/
+
+.yui3-gallery-dp-timeline-event-booked { 
+    background-color: #E7E568;
+}
+
+.yui3-gallery-dp-timeline-event-leave {
+    background-color: #A865A6;
+}
+
+.yui3-gallery-dp-timeline-event-pending {
+    background-color: #E30613;
+}
+
+.yui3-gallery-dp-timeline-event-flexible {
+    background-color: #F5B1D0;
+}
+
+.yui3-gallery-dp-timeline-event-telecommuting {
+    background-color: #FFED00;
+}
+
+.yui3-gallery-dp-timeline-event-presscheck {
+    background-color: #CBBE65;
+}
+
+.yui3-gallery-dp-timeline-event-sku {
+    background-color: #009FE3;
+}
+
+.yui3-gallery-dp-timeline-event-house {
+    background-color: #009640;
+}

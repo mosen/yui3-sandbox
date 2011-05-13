@@ -1,0 +1,252 @@
+<div class="highlight"><pre><span class="cm">/* Any frequently used shortcuts, strings and constants */</span>
+<span class="kd">var</span> <span class="nx">Lang</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Lang</span><span class="p">,</span>
+    <span class="nx">Node</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Node</span><span class="p">,</span>
+    <span class="nx">DataType</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">,</span>
+    <span class="nx">contentClassName</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">ClassNameManager</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;gallery-dp-timeline-event&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">),</span>
+    <span class="nx">boundingClassName</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">ClassNameManager</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;gallery-dp-timeline-event&#39;</span><span class="p">,</span> <span class="s1">&#39;bounding&#39;</span><span class="p">);</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Timeline event represents a single event on a Y.DP.Timeline</span>
+<span class="cm"> *</span>
+<span class="cm"> * @class DP.TimelineEvent</span>
+<span class="cm"> * @extends Widget</span>
+<span class="cm"> */</span>
+<span class="nx">Y</span><span class="p">.</span><span class="nx">namespace</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">).</span><span class="nx">TimelineEvent</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Base</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span> <span class="s1">&#39;gallery-dp-timeline-event&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Widget</span><span class="p">,</span> <span class="p">[</span><span class="nx">Y</span><span class="p">.</span><span class="nx">WidgetChild</span><span class="p">],</span> <span class="p">{</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Content Template</span>
+<span class="cm">     * </span>
+<span class="cm">     * @property CONTENT_TEMPLATE</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     */</span>
+    <span class="nx">CONTENT_TEMPLATE</span> <span class="o">:</span> <span class="s1">&#39;&lt;div class=&quot;&#39;</span> <span class="o">+</span> <span class="nx">contentClassName</span> <span class="o">+</span> <span class="s1">&#39;&quot;&gt;&lt;/div&gt;&#39;</span><span class="p">,</span>
+    
+    <span class="cm">/**</span>
+<span class="cm">     * Bounding Template</span>
+<span class="cm">     * </span>
+<span class="cm">     * @property BOUNDING_TEMPLATE</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     */</span>
+    <span class="nx">BOUNDING_TEMPLATE</span> <span class="o">:</span> <span class="s2">&quot;&lt;div&gt;&lt;/div&gt;&quot;</span><span class="p">,</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Y.Widget Lifecycle : Initializer</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method initializer</span>
+<span class="cm">     * @param config {Object} Configuration object</span>
+<span class="cm">     * @constructor</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     */</span>
+    <span class="nx">initializer</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;init event&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.TimelineEvent&quot;</span><span class="p">);</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">_afterDateChange</span><span class="p">();</span> <span class="c1">// Calculate Duration</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Create the DOM structure for the dp-timeline-event.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method renderUI</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     */</span>
+    <span class="nx">renderUI</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        
+        
+        <span class="kd">var</span> <span class="nx">parent</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">),</span>
+            <span class="nx">width</span> <span class="o">=</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">getEventWidth</span><span class="p">(</span><span class="k">this</span><span class="p">),</span>
+            <span class="nx">leftOffset</span> <span class="o">=</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">dateToOffset</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">)),</span>
+            <span class="nx">slot</span> <span class="o">=</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">_getChildFreeSlot</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">leftOffset</span><span class="p">),</span>
+            <span class="nx">topOffset</span> <span class="o">=</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">slotToOffset</span><span class="p">(</span><span class="nx">slot</span><span class="p">),</span>
+            <span class="nx">rightOffset</span> <span class="o">=</span> <span class="nx">leftOffset</span> <span class="o">+</span> <span class="nx">width</span><span class="p">;</span>
+            
+            
+        <span class="kd">var</span> <span class="nx">evt</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="s1">&#39;&lt;span class=&quot;{titleClassName}&quot;&gt;{title}&lt;/span&gt;&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="nx">titleClassName</span> <span class="o">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">),</span>
+            <span class="nx">title</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;summary&#39;</span><span class="p">)</span>
+        <span class="p">}));</span>
+        
+        <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">evt</span><span class="p">);</span>
+        
+        <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;slot&#39;</span><span class="p">,</span> <span class="nx">slot</span><span class="p">);</span>
+        
+        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;render X:&quot;</span> <span class="o">+</span> <span class="nx">leftOffset</span> <span class="o">+</span> <span class="s2">&quot; Y:&quot;</span> <span class="o">+</span> <span class="nx">topOffset</span> <span class="o">+</span> <span class="s2">&quot; W:&quot;</span> <span class="o">+</span> <span class="nx">width</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.TimelineEvent&quot;</span><span class="p">);</span>
+        
+        <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;boundingBox&#39;</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;style.left&#39;</span><span class="p">,</span> <span class="nx">leftOffset</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;boundingBox&#39;</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;style.top&#39;</span><span class="p">,</span> <span class="nx">topOffset</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;width&#39;</span><span class="p">,</span> <span class="nx">width</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+        
+        <span class="kd">var</span> <span class="nx">slots</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;slots&#39;</span><span class="p">);</span>
+        
+        <span class="nx">slots</span><span class="p">[</span><span class="nx">slot</span><span class="p">]</span> <span class="o">=</span> <span class="nx">rightOffset</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;slots&#39;</span><span class="p">,</span> <span class="nx">slots</span><span class="p">);</span>        
+        
+        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;renderUI&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.TimelineEvent&quot;</span><span class="p">);</span>
+    <span class="p">},</span>
+
+
+    <span class="cm">/**</span>
+<span class="cm">     * Y.Widget Lifecycle</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method bindUI</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     */</span>
+    <span class="nx">bindUI</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;startChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterDateChange</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;finishChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterDateChange</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;slotChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterSlotChange</span><span class="p">);</span>
+    <span class="p">},</span>
+    
+    <span class="cm">/**</span>
+<span class="cm">     * Synchronizes the DOM state with the attribute settings</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method syncUI</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     */</span>
+    <span class="nx">syncUI</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">).</span><span class="nx">addClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">)));</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Destructor lifecycle implementation for the dp-timeline-event class.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method destructor</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     */</span>
+    <span class="nx">destructor</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="p">},</span>
+    
+    <span class="cm">/**</span>
+<span class="cm">     * Recalculate duration and width after date changes</span>
+<span class="cm">     * @method _afterDateChange</span>
+<span class="cm">     * @private</span>
+<span class="cm">     */</span>
+    <span class="nx">_afterDateChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;_afterDateChange&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.TimelineEvent&quot;</span><span class="p">);</span>
+        
+        <span class="c1">// Update calculated duration</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;duration&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DP</span><span class="p">.</span><span class="nx">TimelineUtil</span><span class="p">.</span><span class="nx">rangeToDuration</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">),</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;finish&#39;</span><span class="p">)));</span>
+    <span class="p">},</span>
+    
+    <span class="cm">/**</span>
+<span class="cm">     * Reset the Y position when the slot attribute changes</span>
+<span class="cm">     * </span>
+<span class="cm">     * @method _afterSlotChange</span>
+<span class="cm">     * @private</span>
+<span class="cm">     */</span>
+    <span class="nx">_afterSlotChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;_afterSlotChange&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.TimelineEvent&quot;</span><span class="p">);</span>
+        
+        <span class="kd">var</span> <span class="nx">topOffset</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">).</span><span class="nx">slotToOffset</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;slot&#39;</span><span class="p">));</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;boundingBox&#39;</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;style.top&#39;</span><span class="p">,</span> <span class="nx">topOffset</span> <span class="o">+</span> <span class="s1">&#39;px&#39;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="p">},</span> <span class="p">{</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Required NAME static field, to identify the Widget class and </span>
+<span class="cm">     * used as an event prefix, to generate class names etc. (set to the </span>
+<span class="cm">     * class name in camel case).</span>
+<span class="cm">     *</span>
+<span class="cm">     * @property NAME</span>
+<span class="cm">     * @type String</span>
+<span class="cm">     * @static</span>
+<span class="cm">     */</span>
+    <span class="nx">NAME</span> <span class="o">:</span> <span class="s2">&quot;timelineEvent&quot;</span><span class="p">,</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Static Object hash used to capture existing markup for progressive</span>
+<span class="cm">     * enhancement.  Keys correspond to config attribute names and values</span>
+<span class="cm">     * are selectors used to inspect the contentBox for an existing node</span>
+<span class="cm">     * structure.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @property HTML_PARSER</span>
+<span class="cm">     * @type Object</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     * @static</span>
+<span class="cm">     */</span>
+    <span class="nx">HTML_PARSER</span> <span class="o">:</span> <span class="p">{},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Static property used to define the default attribute configuration of</span>
+<span class="cm">     * the Widget.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @property ATTRS</span>
+<span class="cm">     * @type Object</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     * @static</span>
+<span class="cm">     */</span>
+    <span class="nx">ATTRS</span> <span class="o">:</span> <span class="p">{</span> 
+
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Starting date of the event (inclusive)</span>
+<span class="cm">         * </span>
+<span class="cm">         * @attribute start</span>
+<span class="cm">         * @type Date</span>
+<span class="cm">         */</span>
+        <span class="nx">start</span> <span class="o">:</span> <span class="p">{</span>
+            <span class="nx">value</span> <span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(),</span>
+            <span class="nx">setter</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="o">?</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">.</span><span class="nb">Date</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="o">:</span> <span class="nx">v</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Ending date of the event (non inclusive)</span>
+<span class="cm">         * </span>
+<span class="cm">         * @attribute finish</span>
+<span class="cm">         * @type Date</span>
+<span class="cm">         */</span>
+        <span class="nx">finish</span> <span class="o">:</span> <span class="p">{</span>
+            <span class="nx">value</span> <span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(),</span>
+            <span class="nx">setter</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="o">?</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">.</span><span class="nb">Date</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="o">:</span> <span class="nx">v</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Duration (in days) of the event</span>
+<span class="cm">         * </span>
+<span class="cm">         * @attribute duration</span>
+<span class="cm">         * @type Number</span>
+<span class="cm">         */</span>
+        <span class="nx">duration</span> <span class="o">:</span> <span class="p">{</span>
+            <span class="nx">value</span> <span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isNumber</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Title of the event</span>
+<span class="cm">         * </span>
+<span class="cm">         * @attribute summary</span>
+<span class="cm">         * @type String</span>
+<span class="cm">         */</span>
+        <span class="nx">summary</span> <span class="o">:</span> <span class="p">{</span>
+            <span class="nx">value</span> <span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isString</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Category of the event, used for colouring</span>
+<span class="cm">         * </span>
+<span class="cm">         * @attribute category</span>
+<span class="cm">         * @type String</span>
+<span class="cm">         */</span>
+        <span class="nx">category</span> <span class="o">:</span> <span class="p">{</span>
+            <span class="nx">value</span> <span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isString</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * Vertical slot to fit this event into, parent will calculate this</span>
+<span class="cm">         * </span>
+<span class="cm">         * @attribute slot</span>
+<span class="cm">         * @type Number</span>
+<span class="cm">         */</span>
+        <span class="nx">slot</span> <span class="o">:</span> <span class="p">{</span>
+            <span class="nx">value</span> <span class="o">:</span> <span class="kc">undefined</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Use NetBeans Code Template &quot;yattr&quot; to add attributes here</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>

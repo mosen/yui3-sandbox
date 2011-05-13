@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:yui="http://yuilibrary.com/rdf/1.0/yui.rdf#">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<title>API: DP.Table   dp-table-cellrenderers.js  (YUI Library)</title>
+
+	<link rel="stylesheet" type="text/css" href="assets/reset-fonts-grids-min.css" />
+	<link rel="stylesheet" type="text/css" href="assets/api.css" />
+
+    <script type="text/javascript" src="assets/api-js"></script>
+    <script type="text/javascript" src="assets/ac-js"></script>
+</head>
+
+<body id="yahoo-com">
+
+<div id="doc3" class="yui-t2">
+	<div id="hd">
+        <h1><a href="http://developer.yahoo.com/yui/" title="Yahoo! UI Library">Yahoo! UI Library</a></h1>
+        <h3>DP.Table&nbsp; <span class="subtitle">1.0.0</span></h3>
+        <a href="./index.html" title="Yahoo! UI Library">Yahoo! UI Library</a> 
+            &gt; <a href="./module_dptable.html" title="DP.Table">DP.Table</a>
+                
+                 &gt; dp-table-cellrenderers.js (source view) 
+        <form onsubmit="return false">
+            <div id="propertysearch">
+                Search: <input autocomplete="off" id="searchinput" />
+                <div id="searchresults">
+                    &nbsp;
+                </div>
+            </div>
+        </form>
+	</div>
+
+	<div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+            <form action="#" name="yui-classopts-form" method="get" id="yui-classopts-form">
+                <fieldset>
+                    <legend>Filters</legend>
+                <span class="classopts"><input type="checkbox" name="show_private" id="show_private" /> <label for="show_private">Show Private</label></span>
+                <span class="classopts"><input type="checkbox" name="show_protected" id="show_protected" /> <label for="show_protected">Show Protected</label></span>
+                <span class="classopts"><input type="checkbox" name="show_deprecated" id="show_deprecated" /> <label for="show_deprecated">Show Deprecated</label></span>
+                </fieldset>
+            </form>
+
+                    <div id="srcout">
+                        <style>
+                            #doc3 .classopts { display:none; }
+                        </style>
+                        <div class="highlight"><pre><span class="c1">//YUI.add(&#39;dp-table-cellrenderers&#39;, function(Y) {</span>
+	
+<span class="cm">/**</span>
+<span class="cm"> * Cell renderers are implemented as functions which return closures that are seeded with the configuration.</span>
+<span class="cm"> * Example closure: supplying a width parameter returns a function that renders a cell, and contains that width variable &#39;pre-seeded&#39;.</span>
+<span class="cm"> */</span>
+<span class="nx">Y</span><span class="p">.</span><span class="nx">namespace</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">).</span><span class="nx">CellRenderers</span> <span class="o">=</span> <span class="p">{</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Format a date field</span>
+<span class="cm">         * </span>
+<span class="cm">         * @param data {Object} row data</span>
+<span class="cm">         * @param field {String} field name</span>
+<span class="cm">         * @param cellNode {Node} TD cell reference</span>
+<span class="cm">         */</span>
+        <span class="nx">date</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">cellNode</span><span class="p">)</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">field</span><span class="p">];</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="nx">Lang</span><span class="p">.</span><span class="nx">isDate</span><span class="p">(</span><span class="nx">d</span><span class="p">))</span> <span class="p">{</span>
+                        <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">.</span><span class="nb">Date</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">d</span><span class="p">,</span> <span class="p">{</span> <span class="nx">format</span><span class="o">:</span> <span class="s1">&#39;%x&#39;</span> <span class="p">}));</span>
+                <span class="p">}</span> 
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Format a date field, using nice words for days if the date is close to the current date.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @param data {Object} row data</span>
+<span class="cm">         * @param field {String} field name</span>
+<span class="cm">         * @param cellNode {Node} TD cell reference</span>
+<span class="cm">         */</span>
+        <span class="nx">niceDate</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">cellNode</span><span class="p">)</span> <span class="p">{</span>
+
+                <span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">field</span><span class="p">];</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="nx">Lang</span><span class="p">.</span><span class="nx">isDate</span><span class="p">(</span><span class="nx">d</span><span class="p">))</span> <span class="p">{</span>
+                        <span class="kd">var</span> <span class="nx">today</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+                        <span class="nx">today</span><span class="p">.</span><span class="nx">setHours</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// Make sure the delta doesnt go negative when we take into account time.</span>
+
+                        <span class="kd">var</span> <span class="nx">todayDelta</span> <span class="o">=</span> <span class="nx">d</span> <span class="o">-</span> <span class="nx">today</span><span class="p">,</span>
+                            <span class="nx">todayDeltaDays</span> <span class="o">=</span> <span class="nx">todayDelta</span><span class="o">/</span><span class="mi">1000</span><span class="o">/</span><span class="mi">60</span><span class="o">/</span><span class="mi">60</span><span class="o">/</span><span class="mi">24</span><span class="p">;</span>
+
+                        <span class="c1">// Use nice format if difference is at most, a week into the future.</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="nx">todayDeltaDays</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">todayDeltaDays</span> <span class="o">&lt;=</span> <span class="mi">6</span> <span class="p">)</span> <span class="p">{</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="nx">todayDeltaDays</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="s1">&#39;Today&#39;</span><span class="p">);</span>
+                            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">todayDeltaDays</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="s1">&#39;Tomorrow&#39;</span><span class="p">);</span>
+                            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                                <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">.</span><span class="nb">Date</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">d</span><span class="p">,</span> <span class="p">{</span> <span class="nx">format</span><span class="o">:</span> <span class="s1">&#39;%A&#39;</span> <span class="p">}));</span>
+                            <span class="p">}</span>
+                        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">todayDeltaDays</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="nx">todayDeltaDays</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Yesterday</span>
+                            <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="s1">&#39;Yesterday&#39;</span><span class="p">);</span>
+                        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="c1">// Use standard internationalised format.</span>
+                            <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">.</span><span class="nb">Date</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">d</span><span class="p">,</span> <span class="p">{</span> <span class="nx">format</span><span class="o">:</span> <span class="s1">&#39;%x&#39;</span> <span class="p">}));</span>
+                        <span class="p">}</span>
+                <span class="p">}</span>                  
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Format a field where the value is a key to a hash, defined as a json object on the page.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @param el String Selector for element holding hash values.</span>
+<span class="cm">         * @return Function </span>
+<span class="cm">         */</span>
+        <span class="nx">hash</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">cellNode</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">valuesElement</span> <span class="o">=</span> <span class="nx">el</span><span class="p">;</span>
+
+                    <span class="kd">var</span> <span class="nx">optionsNode</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">one</span><span class="p">(</span><span class="nx">valuesElement</span><span class="p">),</span>
+                        <span class="nx">options</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">optionsNode</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">));</span>
+
+                    <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="nx">options</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">field</span><span class="p">]]);</span>                          
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Display a percentage as a visual progress bar</span>
+<span class="cm">         */</span>
+        <span class="nx">progress</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">cellNode</span><span class="p">)</span> <span class="p">{</span>
+
+                <span class="kd">var</span> <span class="nx">percentage_value</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="nx">field</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="nx">TEXT_TEMPLATE</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;yui3-dp-cellrenderer-progress-text&quot;&gt;{text}&lt;/div&gt;&#39;</span><span class="p">,</span>
+                    <span class="nx">BAR_TEMPLATE</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;yui3-dp-cellrenderer-progress&quot; style=&quot;width: {width}%&quot;&gt;{textnode}&lt;/div&gt;&#39;</span><span class="p">,</span>
+                    <span class="nx">BG_TEMPLATE</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;yui3-dp-cellrenderer-progress-wrap&quot;&gt;{bar}&lt;/div&gt;&#39;</span><span class="p">;</span>
+
+                <span class="kd">var</span> <span class="nx">text_percent</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="nx">TEXT_TEMPLATE</span><span class="p">,</span> <span class="p">{</span> <span class="nx">text</span><span class="o">:</span> <span class="nx">percentage_value</span> <span class="o">+</span> <span class="s1">&#39;%&#39;</span> <span class="p">});</span>
+                <span class="kd">var</span> <span class="nx">bar</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="nx">BAR_TEMPLATE</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span> <span class="nx">percentage_value</span><span class="p">,</span> <span class="nx">textnode</span><span class="o">:</span> <span class="nx">text_percent</span> <span class="p">});</span>
+                <span class="kd">var</span> <span class="nx">back</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="nx">BG_TEMPLATE</span><span class="p">,</span> <span class="p">{</span> <span class="nx">bar</span><span class="o">:</span> <span class="nx">bar</span> <span class="p">});</span>
+
+                <span class="nx">cellNode</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">back</span><span class="p">));</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+<span class="p">};</span>
+	
+<span class="c1">//}, &#39;1.0.0&#39;, { requires: [&#39;lang&#39;, &#39;node&#39;, &#39;substitute&#39;, &#39;datatype-date&#39;, &#39;json-parse&#39;] });</span>
+</pre></div>
+
+                    </div>
+			</div>
+		</div>
+		<div class="yui-b">
+            <div class="nav">
+
+                    <div id="moduleList" class="module">
+                        <h4>Modules</h4>
+                        <ul class="content">
+                                <li class="selected"><a href="module_dptable.html" title="DP.Table">DP.Table</a></li>
+                                <li class=""><a href="module_gallery-dp-table-headers.html" title="gallery-dp-table-headers">gallery-dp-table-headers</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="classList" class="module">
+                        <h4>Classes</h4>
+                        <ul class="content">
+                                <li class=""><a href="Y.DP.TableBase.html" title="Y.DP.TableBase">Y.DP.TableBase</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="fileList" class="module">
+                        <h4>Files</h4>
+                        <ul class="content">        
+                                <li class=""><a href="dp-table-body.js.html" title="dp-table-body.js">dp-table-body.js</a></li>
+                                <li class="selected"><a href="dp-table-cellrenderers.js.html" title="dp-table-cellrenderers.js">dp-table-cellrenderers.js</a></li>
+                                <li class=""><a href="dp-table-headers.js.html" title="dp-table-headers.js">dp-table-headers.js</a></li>
+                        </ul>
+                    </div>
+
+
+
+
+
+            </div>
+		</div>
+	</div>
+	<div id="ft">
+        <hr />
+        Copyright &copy; 2011 Yahoo! Inc. All rights reserved.
+	</div>
+</div>
+<script type="text/javascript">
+
+    var ALL_YUI_PROPS = [{"url": "Y.DP.TableBase.html#method__afterDataChange", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_afterDataChange"}, {"url": "Y.DP.TableBase.html#method__afterLoadingChange", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_afterLoadingChange"}, {"url": "Y.DP.TableBase.html#method__afterQueryParametersChange", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_afterQueryParametersChange"}, {"url": "Y.DP.TableBase.html#method_bindUI", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "bindUI"}, {"url": "Y.DP.TableBase.html#property_CellRenderers", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "CellRenderers"}, {"url": "Y.DP.TableBase.html#property_cells", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "cells"}, {"url": "Y.DP.TableBase.html#property_CELL_TEMPLATE", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "CELL_TEMPLATE"}, {"url": "Y.DP.TableBase.html#property_CONTENT_TEMPLATE", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "CONTENT_TEMPLATE"}, {"url": "Y.DP.TableBase.html#config_data", "access": "", "host": "Y.DP.TableBase", "type": "config", "name": "data"}, {"url": "Y.DP.TableBase.html#event_dataChange", "access": "", "host": "Y.DP.TableBase", "type": "event", "name": "dataChange"}, {"url": "Y.DP.TableBase.html#config_dataSource", "access": "", "host": "Y.DP.TableBase", "type": "config", "name": "dataSource"}, {"url": "Y.DP.TableBase.html#event_dataSourceChange", "access": "", "host": "Y.DP.TableBase", "type": "event", "name": "dataSourceChange"}, {"url": "Y.DP.TableBase.html#method_date", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "date"}, {"url": "Y.DP.TableBase.html#method__defLoadingFn", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "_defLoadingFn"}, {"url": "Y.DP.TableBase.html#method__defResponseSuccessFn", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "_defResponseSuccessFn"}, {"url": "Y.DP.TableBase.html#method_destructor", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "destructor"}, {"url": "Y.DP.TableBase.html#method_handleParameterChange", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "handleParameterChange"}, {"url": "Y.DP.TableBase.html#method__handleResponse", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_handleResponse"}, {"url": "Y.DP.TableBase.html#method_hash", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "hash"}, {"url": "Y.DP.TableBase.html#method_initializer", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "initializer"}, {"url": "Y.DP.TableBase.html#property__ioHandlers", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "_ioHandlers"}, {"url": "Y.DP.TableBase.html#method_load", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "load"}, {"url": "Y.DP.TableBase.html#config_loading", "access": "", "host": "Y.DP.TableBase", "type": "config", "name": "loading"}, {"url": "Y.DP.TableBase.html#event_loadingChange", "access": "", "host": "Y.DP.TableBase", "type": "event", "name": "loadingChange"}, {"url": "Y.DP.TableBase.html#method_niceDate", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "niceDate"}, {"url": "Y.DP.TableBase.html#method_progress", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "progress"}, {"url": "Y.DP.TableBase.html#config_queryParameters", "access": "", "host": "Y.DP.TableBase", "type": "config", "name": "queryParameters"}, {"url": "Y.DP.TableBase.html#event_queryParametersChange", "access": "", "host": "Y.DP.TableBase", "type": "event", "name": "queryParametersChange"}, {"url": "Y.DP.TableBase.html#method__renderTableRows", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_renderTableRows"}, {"url": "Y.DP.TableBase.html#method_renderUI", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "renderUI"}, {"url": "Y.DP.TableBase.html#property_ROW_TEMPLATE", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "ROW_TEMPLATE"}, {"url": "Y.DP.TableBase.html#method_syncUI", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "syncUI"}, {"url": "Y.DP.TableBase.html#property__tbodyNode", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "_tbodyNode"}, {"url": "Y.DP.TableBase.html#property_Widget.ATTRS", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "Widget.ATTRS"}, {"url": "Y.DP.TableBase.html#property_Widget.NAME", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "Widget.NAME"}, {"url": "Y.DP.TableBase.html#property_ZEROROWS_TEMPLATE", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "ZEROROWS_TEMPLATE"}];
+</script>
+</body>
+</html>

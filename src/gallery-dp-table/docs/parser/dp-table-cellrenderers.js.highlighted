@@ -1,0 +1,99 @@
+<div class="highlight"><pre><span class="c1">//YUI.add(&#39;dp-table-cellrenderers&#39;, function(Y) {</span>
+	
+<span class="cm">/**</span>
+<span class="cm"> * Cell renderers are implemented as functions which return closures that are seeded with the configuration.</span>
+<span class="cm"> * Example closure: supplying a width parameter returns a function that renders a cell, and contains that width variable &#39;pre-seeded&#39;.</span>
+<span class="cm"> */</span>
+<span class="nx">Y</span><span class="p">.</span><span class="nx">namespace</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">).</span><span class="nx">CellRenderers</span> <span class="o">=</span> <span class="p">{</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Format a date field</span>
+<span class="cm">         * </span>
+<span class="cm">         * @param data {Object} row data</span>
+<span class="cm">         * @param field {String} field name</span>
+<span class="cm">         * @param cellNode {Node} TD cell reference</span>
+<span class="cm">         */</span>
+        <span class="nx">date</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">cellNode</span><span class="p">)</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">field</span><span class="p">];</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="nx">Lang</span><span class="p">.</span><span class="nx">isDate</span><span class="p">(</span><span class="nx">d</span><span class="p">))</span> <span class="p">{</span>
+                        <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">.</span><span class="nb">Date</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">d</span><span class="p">,</span> <span class="p">{</span> <span class="nx">format</span><span class="o">:</span> <span class="s1">&#39;%x&#39;</span> <span class="p">}));</span>
+                <span class="p">}</span> 
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Format a date field, using nice words for days if the date is close to the current date.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @param data {Object} row data</span>
+<span class="cm">         * @param field {String} field name</span>
+<span class="cm">         * @param cellNode {Node} TD cell reference</span>
+<span class="cm">         */</span>
+        <span class="nx">niceDate</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">cellNode</span><span class="p">)</span> <span class="p">{</span>
+
+                <span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">field</span><span class="p">];</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="nx">Lang</span><span class="p">.</span><span class="nx">isDate</span><span class="p">(</span><span class="nx">d</span><span class="p">))</span> <span class="p">{</span>
+                        <span class="kd">var</span> <span class="nx">today</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+                        <span class="nx">today</span><span class="p">.</span><span class="nx">setHours</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// Make sure the delta doesnt go negative when we take into account time.</span>
+
+                        <span class="kd">var</span> <span class="nx">todayDelta</span> <span class="o">=</span> <span class="nx">d</span> <span class="o">-</span> <span class="nx">today</span><span class="p">,</span>
+                            <span class="nx">todayDeltaDays</span> <span class="o">=</span> <span class="nx">todayDelta</span><span class="o">/</span><span class="mi">1000</span><span class="o">/</span><span class="mi">60</span><span class="o">/</span><span class="mi">60</span><span class="o">/</span><span class="mi">24</span><span class="p">;</span>
+
+                        <span class="c1">// Use nice format if difference is at most, a week into the future.</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="nx">todayDeltaDays</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">todayDeltaDays</span> <span class="o">&lt;=</span> <span class="mi">6</span> <span class="p">)</span> <span class="p">{</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="nx">todayDeltaDays</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="s1">&#39;Today&#39;</span><span class="p">);</span>
+                            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">todayDeltaDays</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="s1">&#39;Tomorrow&#39;</span><span class="p">);</span>
+                            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                                <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">.</span><span class="nb">Date</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">d</span><span class="p">,</span> <span class="p">{</span> <span class="nx">format</span><span class="o">:</span> <span class="s1">&#39;%A&#39;</span> <span class="p">}));</span>
+                            <span class="p">}</span>
+                        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">todayDeltaDays</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="nx">todayDeltaDays</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Yesterday</span>
+                            <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="s1">&#39;Yesterday&#39;</span><span class="p">);</span>
+                        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="c1">// Use standard internationalised format.</span>
+                            <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">DataType</span><span class="p">.</span><span class="nb">Date</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">d</span><span class="p">,</span> <span class="p">{</span> <span class="nx">format</span><span class="o">:</span> <span class="s1">&#39;%x&#39;</span> <span class="p">}));</span>
+                        <span class="p">}</span>
+                <span class="p">}</span>                  
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Format a field where the value is a key to a hash, defined as a json object on the page.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @param el String Selector for element holding hash values.</span>
+<span class="cm">         * @return Function </span>
+<span class="cm">         */</span>
+        <span class="nx">hash</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">cellNode</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">valuesElement</span> <span class="o">=</span> <span class="nx">el</span><span class="p">;</span>
+
+                    <span class="kd">var</span> <span class="nx">optionsNode</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">one</span><span class="p">(</span><span class="nx">valuesElement</span><span class="p">),</span>
+                        <span class="nx">options</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">optionsNode</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">));</span>
+
+                    <span class="nx">cellNode</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">,</span> <span class="nx">options</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">field</span><span class="p">]]);</span>                          
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Display a percentage as a visual progress bar</span>
+<span class="cm">         */</span>
+        <span class="nx">progress</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">cellNode</span><span class="p">)</span> <span class="p">{</span>
+
+                <span class="kd">var</span> <span class="nx">percentage_value</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="nx">field</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="nx">TEXT_TEMPLATE</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;yui3-dp-cellrenderer-progress-text&quot;&gt;{text}&lt;/div&gt;&#39;</span><span class="p">,</span>
+                    <span class="nx">BAR_TEMPLATE</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;yui3-dp-cellrenderer-progress&quot; style=&quot;width: {width}%&quot;&gt;{textnode}&lt;/div&gt;&#39;</span><span class="p">,</span>
+                    <span class="nx">BG_TEMPLATE</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;yui3-dp-cellrenderer-progress-wrap&quot;&gt;{bar}&lt;/div&gt;&#39;</span><span class="p">;</span>
+
+                <span class="kd">var</span> <span class="nx">text_percent</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="nx">TEXT_TEMPLATE</span><span class="p">,</span> <span class="p">{</span> <span class="nx">text</span><span class="o">:</span> <span class="nx">percentage_value</span> <span class="o">+</span> <span class="s1">&#39;%&#39;</span> <span class="p">});</span>
+                <span class="kd">var</span> <span class="nx">bar</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="nx">BAR_TEMPLATE</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span> <span class="nx">percentage_value</span><span class="p">,</span> <span class="nx">textnode</span><span class="o">:</span> <span class="nx">text_percent</span> <span class="p">});</span>
+                <span class="kd">var</span> <span class="nx">back</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="nx">BG_TEMPLATE</span><span class="p">,</span> <span class="p">{</span> <span class="nx">bar</span><span class="o">:</span> <span class="nx">bar</span> <span class="p">});</span>
+
+                <span class="nx">cellNode</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">back</span><span class="p">));</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+<span class="p">};</span>
+	
+<span class="c1">//}, &#39;1.0.0&#39;, { requires: [&#39;lang&#39;, &#39;node&#39;, &#39;substitute&#39;, &#39;datatype-date&#39;, &#39;json-parse&#39;] });</span>
+</pre></div>

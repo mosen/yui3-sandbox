@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="../../../build/gallery-dp-timeline/assets/gallery-dp-timeline-core.css" media="screen" rel="stylesheet" type="text/css" >
+    <link href="../../../build/gallery-dp-timeline/assets/skins/sam/gallery-dp-timeline-skin.css" media="screen" rel="stylesheet" type="text/css" >
+    
+    <link href="../../../build/gallery-dp-timeline/assets/gallery-dp-timeline-core.css" media="print" rel="stylesheet" type="text/css" >
+    <link href="../../../build/gallery-dp-timeline/assets/skins/sam/gallery-dp-timeline-skin.css" media="print" rel="stylesheet" type="text/css" >
+    <title>gallery-dp-timeline demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+    charset="utf-8"></script>
+    <script type="text/javascript"
+        src="../../../build/gallery-dp-timeline/gallery-dp-timeline-debug.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+  </head>
+    <body class="yui3-skin-sam">
+        <h1>gallery-dp-timeline demo</h1>
+
+    
+        <div id="gallery-dp-timeline"></div>
+        <div id="log"></div>
+        
+        
+        <form>
+            <input type="button" id="add" value="Add" />
+            <input type="text" id="summary" value="Event summary" />
+            <input type="text" id="start" value="2011-04-01" />
+            <input type="text" id="finish" value="2011-04-03" />
+            <select id="category">
+                <option value="booked">Booked</option>
+                <option value="pending">Pending</option>
+                <option value="flexible">Flexible</option>
+                <option value="telecommuting">Working Remotely</option>
+                <option value="leave">Absent / Leave</option>
+                <option value="presscheck">Press Check</option>
+                <option value="sku">SKU Booking</option>
+                <option value="house">House function</option>
+            </select>
+            <input type="button" id="delete" value="Delete selected item" />
+            <input type="text" id="date" value="2011-04-05" />
+            <input type="button" id="setdate" value="Set date origin" />
+        </form>
+    </body>
+</html>

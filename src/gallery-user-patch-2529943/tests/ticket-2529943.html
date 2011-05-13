@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test for ticket #2529943</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <h2>Test defect ticket #2529943</h2>
+        <p>The DataTableSort plugin has a hardcoded value of 'title' for the sorting link on the 'title' attribute.</p>
+        <p><input type="button" value="Run Tests" id="btnRun" disabled=true></p>
+        <script type="text/javascript">
+        (function() {
+            YUI({
+                filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                allowRollup: false,
+                   modules : {
+                    'gallery-user-patch-2529943' : {
+                       'fullpath' : '../../../build/gallery-user-patch-2529943/gallery-user-patch-2529943.js',
+                       'requires' : ['datatable']
+                    }
+                }
+            }).use("console", "test", "dump", "gallery-user-patch-2529943", function(Y) {
+
+                var BTNRUN = Y.one("#btnRun");
+                BTNRUN.set("disabled", false);
+                Y.on("click", function(e){
+                    Y.Test.Runner.run();
+                }, BTNRUN);
+                var myConsole = new Y.Console().render();
+
+
+                var testBasic = new Y.Test.Case({ 
+                    name: "Patch Ticket 2529943 Test",
+                    
+                    setUp: function() {
+                        this.mockresponse = {
+                            response: {
+                                results: [
+                                    { "id" : "1", "name" : "Joe" },
+                                    { "id" : "2", "name" : "Mark" },
+                                    { "id" : "3", "name" : "Andrew" }
+                                ]
+                            }
+                        };
+                        
+                        this.testDataTable = new Y.DataTable.Base({
+                            columnset : [ 
+                                { key:"id", sortable: true, title:"customtitle" },
+                                { key:"name", sortable: true }
+                            ],
+                            summary : "User patched DataTable Instance",
+                            recordset : this.mockresponse.response.results,
+                            plugins : [ Y.Plugin.DataTableSort ]
+                        });
+
+                        this.testDataTable.render();
+                    },
+                    
+                    tearDown: function() {
+                        delete this.testDataTable;
+                    },
+                    
+                    "test TH node title configuration works" : function() {
+                        var columns = Y.one('.yui3-datatable-columns');
+                        var aNodes = columns.all('.yui3-datatable-liner');
+                        
+                        Y.Assert.areNotEqual('title', aNodes.item(0).get('firstChild').get('title'));
+                    },
+                    
+                    "test TH node title defaults to column key" : function() {
+                        var aNodes = Y.one(".yui3-datatable-columns").all('.yui3-datatable-liner');
+                        
+                        Y.Assert.areEqual('name', aNodes.item(1).get('firstChild').get('title'));                      
+                    }
+
+                });
+
+                var suite = new Y.Test.Suite({name:"Patch Ticket 2529943 Test Suite"});
+                suite.add(testBasic);
+
+                Y.Test.Runner.setName("Test Runner");
+                Y.Test.Runner.add(suite);
+                Y.Test.Runner.run();
+            });
+        })();
+        </script>
+    </body>
+</html>

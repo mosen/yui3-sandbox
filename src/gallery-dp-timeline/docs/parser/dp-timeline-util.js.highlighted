@@ -1,0 +1,88 @@
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * Utility methods used to calculate dates and times for timeline</span>
+<span class="cm"> * </span>
+<span class="cm"> * @class DP.TimelineUtil</span>
+<span class="cm"> */</span>
+<span class="kd">var</span> <span class="nx">TimelineUtil</span> <span class="o">=</span> <span class="p">{</span>
+    
+        <span class="cm">/**</span>
+<span class="cm">         * @method rangeToDuration</span>
+<span class="cm">         * @description Convert a range (2 dates) into a duration. Negative durations are possible. Finish date inclusive</span>
+<span class="cm">         * @param start {Date} Starting date</span>
+<span class="cm">         * @param finish {Date} Finishing date</span>
+<span class="cm">         * @return Number Duration in days, may be negative</span>
+<span class="cm">         * @public</span>
+<span class="cm">         * @static</span>
+<span class="cm">         */</span>
+        <span class="nx">rangeToDuration</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">finish</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;rangeToDuration&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.TimelineUtil&quot;</span><span class="p">);</span>
+
+            <span class="c1">// Adding a day to the duration because when we say start now finish now, we mean one day of duration</span>
+            <span class="c1">// Because that is the minimum duration on the timeline</span>
+            <span class="kd">var</span> <span class="nx">dayInMilliseconds</span> <span class="o">=</span> <span class="mi">1000</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">24</span><span class="p">,</span>
+                <span class="nx">timeDiff</span> <span class="o">=</span> <span class="nx">finish</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">-</span> <span class="nx">start</span><span class="p">.</span><span class="nx">getTime</span><span class="p">(),</span>
+                <span class="nx">timeDiffDays</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">ceil</span><span class="p">(</span><span class="nx">timeDiff</span><span class="o">/</span><span class="nx">dayInMilliseconds</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+                
+            <span class="k">return</span> <span class="nx">timeDiffDays</span><span class="p">;</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * @description Convert a range (2 dates) into a duration. Negative durations are possible. Finish date not inclusive</span>
+<span class="cm">         * @method rangeToDifference</span>
+<span class="cm">         * @param start {Date} Starting date</span>
+<span class="cm">         * @param finish {Date} Finishing date</span>
+<span class="cm">         * @return Number Duration in days, may be negative</span>
+<span class="cm">         * @public</span>
+<span class="cm">         * @static</span>
+<span class="cm">         */</span>        
+        <span class="nx">rangeToDifference</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">finish</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;rangeToDifference: &quot;</span> <span class="o">+</span> <span class="nx">start</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="nx">finish</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.TimelineUtil&quot;</span><span class="p">);</span>
+
+            <span class="kd">var</span> <span class="nx">dayInMilliseconds</span> <span class="o">=</span> <span class="mi">1000</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">24</span><span class="p">,</span>
+                <span class="nx">timeDiff</span> <span class="o">=</span> <span class="nx">finish</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">-</span> <span class="nx">start</span><span class="p">.</span><span class="nx">getTime</span><span class="p">(),</span>
+                <span class="nx">timeDiffDays</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">timeDiff</span><span class="o">/</span><span class="nx">dayInMilliseconds</span><span class="p">);</span>
+                
+            <span class="k">return</span> <span class="nx">timeDiffDays</span><span class="p">;</span>
+        <span class="p">},</span>
+        
+        
+        <span class="cm">/**</span>
+<span class="cm">         * @method zeroTime</span>
+<span class="cm">         * @description Clear the time from a date</span>
+<span class="cm">         * @param d {Date} Date to set time back to 00:00</span>
+<span class="cm">         * @return Date date with time cleared</span>
+<span class="cm">         * @public</span>
+<span class="cm">         */</span>
+        <span class="nx">zeroTime</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;clearDateTime&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.TimelineUtil&quot;</span><span class="p">);</span>
+            
+            <span class="nx">d</span><span class="p">.</span><span class="nx">setHours</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="nx">d</span><span class="p">.</span><span class="nx">setMinutes</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="nx">d</span><span class="p">.</span><span class="nx">setSeconds</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="nx">d</span><span class="p">.</span><span class="nx">setMilliseconds</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            
+            <span class="k">return</span> <span class="nx">d</span><span class="p">;</span>
+        <span class="p">},</span>
+        
+        <span class="cm">/**</span>
+<span class="cm">         * @description Get a new date object with days added</span>
+<span class="cm">         * @method addDays</span>
+<span class="cm">         * @param d {Date} Date used as basis</span>
+<span class="cm">         * @param days {Number} Number of days to add</span>
+<span class="cm">         * @return Date Date with days added</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span>
+        <span class="nx">addDays</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">,</span> <span class="nx">days</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;addDays&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;Y.DP.TimelineUtil&quot;</span><span class="p">);</span>
+            
+            <span class="kd">var</span> <span class="nx">returnDate</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+            <span class="nx">returnDate</span><span class="p">.</span><span class="nx">setTime</span><span class="p">(</span><span class="nx">d</span><span class="p">.</span><span class="nx">getTime</span><span class="p">());</span>
+            <span class="nx">returnDate</span><span class="p">.</span><span class="nx">setDate</span><span class="p">(</span><span class="nx">returnDate</span><span class="p">.</span><span class="nx">getDate</span><span class="p">()</span> <span class="o">+</span> <span class="nx">days</span><span class="p">);</span>
+
+            <span class="k">return</span> <span class="nx">returnDate</span><span class="p">;</span>
+        <span class="p">}</span>
+<span class="p">};</span>
+
+
+<span class="nx">Y</span><span class="p">.</span><span class="nx">namespace</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">).</span><span class="nx">TimelineUtil</span> <span class="o">=</span> <span class="nx">TimelineUtil</span><span class="p">;</span>
+</pre></div>

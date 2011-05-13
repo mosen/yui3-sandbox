@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test for gallery-user-patch-datatable-rollup</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <h2>Test Patch Rollup</h2>
+        <p>Test multiple user patches in one datatable instance</p>
+        <p><input type="button" value="Run Tests" id="btnRun" disabled="true"></p>
+        <script type="text/javascript">
+        (function() {
+            YUI({
+                filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                allowRollup: false,
+                   modules : {
+                    'gallery-user-patch-datatable-rollup' : {
+                        'fullpath' : '../../../build/gallery-user-patch-datatable-rollup/gallery-user-patch-datatable-rollup-debug.js',
+                        'requires' : ['datatable', 'datasource']
+                    }
+                }
+            }).use("console", "test", "dump", "datatable", "gallery-user-patch-datatable-rollup", function(Y) {
+
+                var BTNRUN = Y.one("#btnRun");
+                BTNRUN.set("disabled", false);
+                Y.on("click", function(e){
+                    Y.Test.Runner.run();
+                }, BTNRUN);
+                var myConsole = new Y.Console().render();
+
+
+                var testBasic = new Y.Test.Case({ 
+                    name: "Patch Rollup Test",
+                    
+                    setUp: function() {
+                        this.mockresponse = {
+                            response: {
+                                results: [
+                                    { "id" : "1", "name" : "Joe" },
+                                    { "id" : "2", "name" : "Mark" },
+                                    { "id" : "3", "name" : "Andrew" }
+                                ]
+                            }
+                        };
+                        
+                        this.testDataSource = new Y.DataSource.Local({ source: this.mockresponse.response.results });
+
+                        this.testDataTable = new Y.DataTable.Base({
+                            columnset : [ { key: "id", sortable: true }, { key: "name", sortable: true }],
+                            summary : "User patched DataTable Instance",
+                            plugins : [
+                                { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } },
+                                { fn: Y.Plugin.DataTableScroll, cfg: { width: '500px', height: '200px' } },
+                                { fn: Y.Plugin.DataTableSort }
+                            ]
+                        });
+                    },
+                    
+                    tearDown: function() {
+                        //this.testDataTable.destroy();
+                        delete this.testDataTable;
+                    },
+                    
+                    "test column header and body cell widths match" : function() {
+                        this.testDataTable.render();
+                        this.testDataTable.datasource.load();
+                        
+                        var nameHeading = Y.Node.one('.yui3-datatable-columns').all('.yui3-datatable-liner').item(1),
+                            nameData = Y.Node.one('.yui3-datatable-data').all('.yui3-datatable-liner').item(1),
+                            nameHeadingWidth = nameHeading.get('clientWidth'),
+                            nameDataWidth = nameData.get('clientWidth');
+                            
+                        Y.Assert.areEqual(nameHeadingWidth, nameDataWidth);
+                    }
+                });
+
+                var suite = new Y.Test.Suite({name:"Patch Ticket 2529808 Test Suite"});
+                suite.add(testBasic);
+
+                Y.Test.Runner.setName("Test Runner");
+                Y.Test.Runner.add(suite);
+                Y.Test.Runner.run();
+            });
+        })();
+        </script>
+    </body>
+</html>

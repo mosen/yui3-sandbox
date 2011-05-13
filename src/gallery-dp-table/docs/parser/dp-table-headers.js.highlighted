@@ -1,0 +1,371 @@
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * @version 1.0.0</span>
+<span class="cm"> */</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * DP Table Headers</span>
+<span class="cm"> * @module gallery-dp-table-headers</span>
+<span class="cm"> * @requires widget, substitute</span>
+<span class="cm"> * @namespace Y.DP</span>
+<span class="cm"> */</span>
+<span class="kd">var</span> <span class="nx">SORT_ASC</span> <span class="o">=</span> <span class="s1">&#39;asc&#39;</span><span class="p">,</span>
+    <span class="nx">SORT_DESC</span> <span class="o">=</span> <span class="s1">&#39;desc&#39;</span><span class="p">,</span>
+    <span class="nx">SORT_KEY</span> <span class="o">=</span> <span class="s1">&#39;sortKey&#39;</span><span class="p">,</span>
+    <span class="nx">SORT_DIRECTION</span> <span class="o">=</span> <span class="s1">&#39;sortDirection&#39;</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Table Column Headers</span>
+<span class="cm"> * Progressive enhancement of TH elements to provide sorting functionality.</span>
+<span class="cm"> *</span>
+<span class="cm"> * @class TableHeaders</span>
+<span class="cm"> */</span>
+<span class="nx">Y</span><span class="p">.</span><span class="nx">namespace</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">).</span><span class="nx">TableHeaders</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Base</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="s1">&#39;dp-table-headers&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Widget</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Initializer, implemented for Y.Base</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method initializer</span>
+<span class="cm">     * @param config {Object} Configuration object.</span>
+<span class="cm">     */</span>
+    <span class="nx">initializer</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-table-headers:init&#39;</span><span class="p">);</span>
+
+        <span class="c1">// we require the table as srcNode because it is the only valid element to wrap in divs</span>
+        <span class="c1">//this._theadNode = config.theadNode;</span>
+
+        <span class="c1">// Sort is fired after a header click</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">defaultFn</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_defSortFn</span><span class="p">});</span>
+
+        <span class="c1">// Hover events</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s1">&#39;columnover&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">defaultFn</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_uiSetColumnOver</span><span class="p">});</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s1">&#39;columnout&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">defaultFn</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_uiSetColumnOut</span><span class="p">});</span>
+
+        <span class="c1">// All subjects of table must publish this to affect the request parameters.</span>
+        <span class="c1">// Fired when the column sorting changes</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s1">&#39;queryUpdate&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">defaultFn</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_defQueryUpdateFn</span><span class="p">});</span>
+    <span class="p">},</span>
+
+    <span class="nx">destructor</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">_theadNode</span><span class="p">.</span><span class="nx">detach</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">_theadNode</span><span class="p">.</span><span class="nx">detach</span><span class="p">(</span><span class="s1">&#39;mouseenter&#39;</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">_theadNode</span><span class="p">.</span><span class="nx">detach</span><span class="p">(</span><span class="s1">&#39;mouseleave&#39;</span><span class="p">);</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">_theadNode</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="p">},</span>
+
+    <span class="c1">// @see Widget.renderUI</span>
+    <span class="nx">renderUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">_renderTableColumns</span><span class="p">();</span>
+    <span class="p">},</span>
+
+    <span class="c1">// @see Widget.bindUI</span>
+    <span class="nx">bindUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">theadNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;theadNode&#39;</span><span class="p">);</span>
+
+            <span class="c1">// re-render columns after a change in sorting.</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;columnsChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterColumnsChange</span><span class="p">);</span>
+
+            <span class="c1">// DOM EVENTS</span>
+            <span class="c1">// </span>
+            <span class="c1">// Stop accidental selection of header text.</span>
+            <span class="nx">theadNode</span><span class="p">.</span><span class="nx">delegate</span><span class="p">(</span><span class="s1">&#39;selectstart&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+            <span class="p">},</span> <span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+
+            <span class="c1">// sort on header click</span>
+            <span class="nx">theadNode</span><span class="p">.</span><span class="nx">delegate</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">headerTarget</span><span class="o">:</span> <span class="nx">e</span><span class="p">.</span><span class="nx">currentTarget</span><span class="p">});</span>
+            <span class="p">},</span> <span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+
+            <span class="c1">// Column header mouse hover events.</span>
+            <span class="nx">theadNode</span><span class="p">.</span><span class="nx">delegate</span><span class="p">(</span><span class="s1">&#39;mouseenter&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="s1">&#39;columnover&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">headerTarget</span><span class="o">:</span> <span class="nx">e</span><span class="p">.</span><span class="nx">currentTarget</span><span class="p">});</span>
+            <span class="p">},</span> <span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+
+            <span class="nx">theadNode</span><span class="p">.</span><span class="nx">delegate</span><span class="p">(</span><span class="s1">&#39;mouseleave&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="s1">&#39;columnout&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">headerTarget</span><span class="o">:</span> <span class="nx">e</span><span class="p">.</span><span class="nx">currentTarget</span><span class="p">});</span>
+            <span class="p">},</span> <span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+    <span class="p">},</span>
+
+    <span class="c1">// @see Widget.syncUI</span>
+    <span class="nx">syncUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-table-headers:syncUI&#39;</span><span class="p">);</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Enhance table columns with styling and sorting</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method _renderTableColumns</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     */</span>
+    <span class="nx">_renderTableColumns</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">columns</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;columns&#39;</span><span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">c</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">c</span> <span class="o">&lt;</span> <span class="nx">columns</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">c</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">cnode</span> <span class="o">=</span> <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">node</span><span class="p">;</span>
+
+            <span class="kd">var</span> <span class="nx">label</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">COLUMN_LABEL_TEMPLATE</span><span class="p">,</span> <span class="p">{</span>
+                <span class="nx">className</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">),</span>
+                <span class="nx">label</span><span class="o">:</span> <span class="nx">cnode</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">)</span>
+            <span class="p">}));</span>
+
+            <span class="nx">cnode</span><span class="p">.</span><span class="nx">setContent</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+            <span class="nx">cnode</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">label</span><span class="p">);</span>
+
+            <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">sortNode</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">COLUMN_SORT_INDICATOR_TEMPLATE</span><span class="p">,</span> <span class="p">{</span>
+                <span class="nx">className</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">)</span>
+            <span class="p">}));</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="nx">c</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">node</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;column&#39;</span><span class="p">,</span> <span class="s1">&#39;leftcorner&#39;</span><span class="p">));</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">c</span> <span class="o">==</span> <span class="p">(</span><span class="nx">columns</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="p">{</span>
+                <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">node</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;column&#39;</span><span class="p">,</span> <span class="s1">&#39;rightcorner&#39;</span><span class="p">));</span>
+            <span class="p">}</span>
+
+            <span class="nx">cnode</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">sortNode</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Default handler for table:sort</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method _defSortFn</span>
+<span class="cm">     * @param e {Event}</span>
+<span class="cm">     */</span>
+    <span class="nx">_defSortFn</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-table-headers:_defSortFn&#39;</span><span class="p">);</span>
+
+            <span class="k">this</span><span class="p">.</span><span class="nx">sort</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">headerTarget</span><span class="p">);</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Default handler for CustomEvent queryUpdate</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method _defQueryUpdateFn</span>
+<span class="cm">     * @param e {Event}</span>
+<span class="cm">     */</span>
+    <span class="nx">_defQueryUpdateFn</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-table-headers:_defQueryUpdateFn&#39;</span><span class="p">);</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Default handler for column mouseenter</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method _uiSetColumnOver</span>
+<span class="cm">     * @param e {Event}</span>
+<span class="cm">     */</span>
+    <span class="nx">_uiSetColumnOver</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">node</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">headerTarget</span><span class="p">;</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">node</span><span class="p">.</span><span class="nx">hasClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;column&#39;</span><span class="p">,</span> <span class="s1">&#39;over&#39;</span><span class="p">)))</span> <span class="p">{</span>
+                    <span class="nx">node</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;column&#39;</span><span class="p">,</span> <span class="s1">&#39;over&#39;</span><span class="p">));</span>
+            <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Default handler for column mouseexit</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method _uiSetColumnOut</span>
+<span class="cm">     * @param e {Event}</span>
+<span class="cm">     */</span>
+    <span class="nx">_uiSetColumnOut</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">node</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">headerTarget</span><span class="p">;</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">hasClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;column&#39;</span><span class="p">,</span> <span class="s1">&#39;over&#39;</span><span class="p">)))</span> <span class="p">{</span>
+                    <span class="nx">node</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;column&#39;</span><span class="p">,</span> <span class="s1">&#39;over&#39;</span><span class="p">));</span>
+            <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Sort a column in the specified direction.</span>
+<span class="cm">     *</span>
+<span class="cm">     * No specified direction will alternate the sort direction.</span>
+<span class="cm">     * This is usually called by TableHeaders._defSortFn after a custom &quot;sort&quot; event.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method sort</span>
+<span class="cm">     * @public</span>
+<span class="cm">     * @param node {Node} TH node to change sort direction for.</span>
+<span class="cm">     * @param direction SORT_ASC | SORT_DESC [optional] sorting direction.</span>
+<span class="cm">     */</span>
+    <span class="nx">sort</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">direction</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-table-headers:sort&#39;</span><span class="p">);</span>
+
+            <span class="kd">var</span> <span class="nx">columns</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;columns&#39;</span><span class="p">);</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">c</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">c</span> <span class="o">&lt;</span> <span class="nx">columns</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">c</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">node</span> <span class="o">==</span> <span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="c1">// Sort inverse</span>
+                            <span class="k">switch</span> <span class="p">(</span><span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">sort</span><span class="p">)</span> <span class="p">{</span>
+                                    <span class="k">case</span> <span class="nx">SORT_ASC</span><span class="o">:</span>
+                                            <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">sort</span> <span class="o">=</span> <span class="p">(</span><span class="kc">undefined</span> <span class="o">===</span> <span class="nx">direction</span><span class="p">)</span> <span class="o">?</span> <span class="nx">SORT_DESC</span> <span class="o">:</span> <span class="nx">direction</span><span class="p">;</span>
+                                            <span class="k">break</span><span class="p">;</span>
+                                    <span class="k">case</span> <span class="nx">SORT_DESC</span><span class="o">:</span>
+                                            <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">sort</span> <span class="o">=</span> <span class="p">(</span><span class="kc">undefined</span> <span class="o">===</span> <span class="nx">direction</span><span class="p">)</span> <span class="o">?</span> <span class="s1">&#39;&#39;</span> <span class="o">:</span> <span class="nx">direction</span><span class="p">;</span>
+                                            <span class="k">break</span><span class="p">;</span>
+                                    <span class="k">default</span><span class="o">:</span>
+                                            <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">sort</span> <span class="o">=</span> <span class="p">(</span><span class="kc">undefined</span> <span class="o">===</span> <span class="nx">direction</span><span class="p">)</span> <span class="o">?</span> <span class="nx">SORT_ASC</span> <span class="o">:</span> <span class="nx">direction</span><span class="p">;</span>
+                            <span class="p">}</span>
+
+                            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Sorting &#39;</span> <span class="o">+</span> <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">].</span><span class="nx">title</span><span class="p">);</span>
+                            <span class="k">break</span><span class="p">;</span>
+                    <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;columns&#39;</span><span class="p">,</span> <span class="nx">columns</span><span class="p">);</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Handle a change in the columns attribute</span>
+<span class="cm">     * Causes columns to be re-rendered.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @method _afterColumnsChange</span>
+<span class="cm">     * @protected</span>
+<span class="cm">     */</span>
+    <span class="nx">_afterColumnsChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-table-headers:_afterColumnsChange&#39;</span><span class="p">);</span>
+
+            <span class="kd">var</span> <span class="nx">columns</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;columns&#39;</span><span class="p">),</span>
+                    <span class="nx">queryParameters</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">();</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">c</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">c</span> <span class="o">&lt;</span> <span class="nx">columns</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">c</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">col</span> <span class="o">=</span> <span class="nx">columns</span><span class="p">[</span><span class="nx">c</span><span class="p">];</span>
+
+                    <span class="nx">queryParameters</span><span class="p">[</span><span class="s1">&#39;sort[&#39;</span> <span class="o">+</span> <span class="nx">col</span><span class="p">.</span><span class="nx">key</span> <span class="o">+</span> <span class="s1">&#39;]&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">col</span><span class="p">.</span><span class="nx">sort</span><span class="p">;</span>
+
+                    <span class="c1">// Column sorting switches between ascending, descending and none</span>
+                    <span class="k">switch</span> <span class="p">(</span><span class="nx">col</span><span class="p">.</span><span class="nx">sort</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="k">case</span> <span class="nx">SORT_ASC</span><span class="o">:</span>
+                                    <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Adding sort ASCENDING to &#39;</span> <span class="o">+</span> <span class="nx">col</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+
+                                    <span class="k">if</span> <span class="p">(</span><span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">hasClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;desc&#39;</span><span class="p">)))</span> <span class="p">{</span>
+                                            <span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;desc&#39;</span><span class="p">));</span>
+                                    <span class="p">}</span>
+
+                                    <span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;asc&#39;</span><span class="p">));</span>
+
+                                    <span class="k">break</span><span class="p">;</span>
+                            <span class="k">case</span> <span class="nx">SORT_DESC</span><span class="o">:</span>
+                                    <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Adding sort DESCENDING to &#39;</span> <span class="o">+</span> <span class="nx">col</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+
+                                    <span class="k">if</span> <span class="p">(</span><span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">hasClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;asc&#39;</span><span class="p">)))</span> <span class="p">{</span>
+                                            <span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;asc&#39;</span><span class="p">));</span>
+                                    <span class="p">}</span>
+
+                                    <span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;desc&#39;</span><span class="p">));</span>
+                                    <span class="k">break</span><span class="p">;</span>
+                            <span class="k">default</span><span class="o">:</span>
+                                    <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Removing sort from &#39;</span> <span class="o">+</span> <span class="nx">col</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+
+                                    <span class="k">if</span> <span class="p">(</span><span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">hasClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;desc&#39;</span><span class="p">)))</span> <span class="p">{</span>
+                                            <span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;desc&#39;</span><span class="p">));</span>
+                                    <span class="p">}</span>
+
+                                    <span class="k">if</span> <span class="p">(</span><span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">hasClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;asc&#39;</span><span class="p">)))</span> <span class="p">{</span>
+                                            <span class="nx">col</span><span class="p">.</span><span class="nx">sortNode</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span><span class="s1">&#39;asc&#39;</span><span class="p">));</span>
+                                    <span class="p">}</span>
+                    <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="k">this</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="s1">&#39;queryUpdate&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">parameters</span> <span class="o">:</span> <span class="nx">queryParameters</span><span class="p">});</span>
+    <span class="p">},</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Contains the sort indicator graphic</span>
+<span class="cm">     *</span>
+<span class="cm">     * @property COLUMN_SORT_INDICATOR_TEMPLATE</span>
+<span class="cm">     * @type String</span>
+<span class="cm">     * @static</span>
+<span class="cm">     */</span>
+    <span class="nx">COLUMN_SORT_INDICATOR_TEMPLATE</span> <span class="o">:</span> <span class="s1">&#39;&lt;div class=&quot;{className}&quot;&gt;&amp;nbsp;&lt;/div&gt;&#39;</span><span class="p">,</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Column text content will be wrapped in this element.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @property COLUMN_LABEL_TEMPLATE</span>
+<span class="cm">     * @type String</span>
+<span class="cm">     * @static</span>
+<span class="cm">     */</span>
+    <span class="nx">COLUMN_LABEL_TEMPLATE</span> <span class="o">:</span> <span class="s1">&#39;&lt;span class=&quot;{className}&quot;&gt;{label}&lt;/span&gt;&#39;</span><span class="p">,</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * No content template because this is encompassed by a table tag.</span>
+<span class="cm">     *</span>
+<span class="cm">     * @property CONTENT_TEMPLATE</span>
+<span class="cm">     * @static</span>
+<span class="cm">     */</span>
+    <span class="nx">CONTENT_TEMPLATE</span> <span class="o">:</span> <span class="kc">null</span>
+    
+<span class="p">},</span> <span class="p">{</span>
+    
+    <span class="nx">NAME</span> <span class="o">:</span> <span class="s2">&quot;dp-table-headers&quot;</span><span class="p">,</span>
+
+    <span class="nx">ATTRS</span> <span class="o">:</span> <span class="p">{</span>
+
+            <span class="cm">/**</span>
+<span class="cm">             * Reference to the table head element</span>
+<span class="cm">             * </span>
+<span class="cm">             * @attribute theadNode</span>
+<span class="cm">             * @default null</span>
+<span class="cm">             * @type Node</span>
+<span class="cm">             */</span>
+            <span class="nx">theadNode</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">value</span><span class="o">:</span> <span class="kc">null</span>
+            <span class="p">},</span>
+            
+            <span class="cm">/**</span>
+<span class="cm">             * Reference to the table row element containing the column headers</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute columnsNode</span>
+<span class="cm">             * @default null</span>
+<span class="cm">             * @type Node</span>
+<span class="cm">             */</span>
+            <span class="nx">columnsNode</span> <span class="o">:</span> <span class="p">{</span>
+                    <span class="nx">value</span> <span class="o">:</span> <span class="kc">null</span>
+            <span class="p">},</span>
+
+            <span class="cm">/**</span>
+<span class="cm">             * Array of objects representing columns with keys for title and width</span>
+<span class="cm">             * This will be refactored into a columns object.</span>
+<span class="cm">             *</span>
+<span class="cm">             * @attribute columns</span>
+<span class="cm">             * @default Empty array</span>
+<span class="cm">             * @type Array</span>
+<span class="cm">             */</span>
+            <span class="nx">columns</span> <span class="o">:</span> <span class="p">{</span>
+                    <span class="nx">value</span> <span class="o">:</span> <span class="nb">Array</span><span class="p">()</span>
+            <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="nx">HTML_PARSER</span> <span class="o">:</span> <span class="p">{</span>
+        
+            <span class="c1">// Reference to the thead node which will become our contentBox</span>
+            <span class="nx">theadNode</span> <span class="o">:</span> <span class="s1">&#39;thead.yui3-gallery-dp-table-headers&#39;</span><span class="p">,</span>
+            
+            <span class="c1">// Reference to the row holding the &lt;TH&gt; nodes, aka column headers.</span>
+            <span class="nx">columnsNode</span> <span class="o">:</span> <span class="s1">&#39;tr.yui3-gallery-dp-table-headers-columns&#39;</span><span class="p">,</span>
+
+            <span class="cm">/**</span>
+<span class="cm">             * Parse table column headers (TH) into a columns array.</span>
+<span class="cm">             *</span>
+<span class="cm">             * @param srcNode {Node}</span>
+<span class="cm">             */</span>
+            <span class="nx">columns</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">srcNode</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">cols</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">(),</span>
+                            <span class="nx">ths</span> <span class="o">=</span> <span class="nx">srcNode</span><span class="p">.</span><span class="nx">one</span><span class="p">(</span><span class="s1">&#39;.yui3-dp-table-headers-columns&#39;</span><span class="p">).</span><span class="nx">all</span><span class="p">(</span><span class="s1">&#39;.yui3-dp-table-headers-column&#39;</span><span class="p">);</span>
+
+                    <span class="nx">ths</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">th</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="nx">cols</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span>
+                                    <span class="nx">title</span><span class="o">:</span> <span class="nx">th</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;innerHTML&#39;</span><span class="p">),</span>
+                                    <span class="nx">width</span><span class="o">:</span> <span class="nx">th</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;width&#39;</span><span class="p">),</span>
+                                    <span class="nx">key</span><span class="o">:</span> <span class="nx">th</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="nx">SORT_KEY</span><span class="p">),</span>
+                                    <span class="nx">sort</span><span class="o">:</span> <span class="nx">th</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="nx">SORT_DIRECTION</span><span class="p">),</span>
+                                    <span class="nx">node</span><span class="o">:</span> <span class="nx">th</span>
+                            <span class="p">});</span>
+                    <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+
+                    <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">cols</span><span class="p">);</span>
+                    <span class="k">return</span> <span class="nx">cols</span><span class="p">;</span>
+            <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>

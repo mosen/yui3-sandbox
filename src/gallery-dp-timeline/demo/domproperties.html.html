@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<title>Show Event properties</title>
+
+<style type="text/css">
+  table {border-collapse: collapse;}
+  thead {font-weight: bold;}
+  td {padding: 2px 10px 2px 10px;}
+  .odd {background-color: #efdfef;}
+  .even {background-color: #ffffff;}
+</style>
+
+<script type="text/javascript">
+
+function showEventProperties(e)
+{
+  function addCell(row, text) {
+    var cell = row.insertCell(-1);
+    cell.appendChild(document.createTextNode(text));
+  }
+
+  var e = e || window.event;
+  document.getElementById('eventType').innerHTML = e.type;
+
+  var table = document.createElement('table');
+  var thead = table.createTHead();
+  var row = thead.insertRow(-1);
+  var lableList = ['#', 'Property', 'Value'];
+  var len = lableList.length;
+
+  for (var i=0; i<len; i++) { 
+    addCell(row, lableList[i]);
+  }
+
+  var tbody = document.createElement('tbody');
+  table.appendChild(tbody);
+
+  for (var p in e) {
+    row = tbody.insertRow(-1);
+    row.className = (row.rowIndex % 2)? 'odd':'even';
+    addCell(row, row.rowIndex);
+    addCell(row, p);
+    addCell(row, e[p]);
+  }
+
+  document.body.appendChild(table);
+}
+
+</script>
+
+<h1>Properties of the DOM <span id="eventType"></span> Event Object</h1>
+<input type="text" onkeydown="showEventProperties(event)" />

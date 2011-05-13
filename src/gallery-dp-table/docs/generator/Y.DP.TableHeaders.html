@@ -1,0 +1,968 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:yui="http://yuilibrary.com/rdf/1.0/yui.rdf#">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<title>API: gallery-dp-table-headers  Y.DP.TableHeaders   (YUI Library)</title>
+
+	<link rel="stylesheet" type="text/css" href="assets/reset-fonts-grids-min.css" />
+	<link rel="stylesheet" type="text/css" href="assets/api.css" />
+
+    <script type="text/javascript" src="assets/api-js"></script>
+    <script type="text/javascript" src="assets/ac-js"></script>
+</head>
+
+<body id="yahoo-com">
+
+<div id="doc3" class="yui-t2">
+	<div id="hd">
+        <h1><a href="http://developer.yahoo.com/yui/" title="Yahoo! UI Library">Yahoo! UI Library</a></h1>
+        <h3>gallery-dp-table-headers&nbsp; <span class="subtitle">1.0.0</span></h3>
+        <a href="./index.html" title="Yahoo! UI Library">Yahoo! UI Library</a> 
+            &gt; <a href="./module_gallery-dp-table-headers.html" title="gallery-dp-table-headers">gallery-dp-table-headers</a>
+                 &gt; Y.DP.TableHeaders 
+                
+        <form onsubmit="return false">
+            <div id="propertysearch">
+                Search: <input autocomplete="off" id="searchinput" />
+                <div id="searchresults">
+                    &nbsp;
+                </div>
+            </div>
+        </form>
+	</div>
+
+	<div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+            <form action="#" name="yui-classopts-form" method="get" id="yui-classopts-form">
+                <fieldset>
+                    <legend>Filters</legend>
+                <span class="classopts"><input type="checkbox" name="show_private" id="show_private" /> <label for="show_private">Show Private</label></span>
+                <span class="classopts"><input type="checkbox" name="show_protected" id="show_protected" /> <label for="show_protected">Show Protected</label></span>
+                <span class="classopts"><input type="checkbox" name="show_deprecated" id="show_deprecated" /> <label for="show_deprecated">Show Deprecated</label></span>
+                </fieldset>
+            </form>
+
+                    <h2>
+                        
+
+                        
+                        
+                            Class <b property="yui:name">Y.DP.TableHeaders</b>
+                        <span class="extends">
+                        </span>
+
+                    </h2>
+                    <!-- class tree goes here -->
+                    
+                
+  
+
+                    <div class="summary description" property="yui:description">
+                        Table Column Headers
+Progressive enhancement of TH elements to provide sorting functionality.
+                    </div>
+
+                    
+                    <div rel="yui:properties" resource="#properties">
+                        <div class="section field details">
+                            <h3 id="properties">Properties</h3>
+                            <div class="content">
+                                    <div class="" rel="yui:property" resource="#property_COLUMN_LABEL_TEMPLATE">
+                                    <h4><a name="property_COLUMN_LABEL_TEMPLATE" property="yui:name">COLUMN_LABEL_TEMPLATE</a>
+                                        - <code>static <span property="yui:type">String</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Column text content will be wrapped in this element.
+                                        </div>
+                                    </div>
+     
+                                        
+
+
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:property" resource="#property_COLUMN_SORT_INDICATOR_TEMPLATE">
+                                    <h4><a name="property_COLUMN_SORT_INDICATOR_TEMPLATE" property="yui:name">COLUMN_SORT_INDICATOR_TEMPLATE</a>
+                                        - <code>static <span property="yui:type">String</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Contains the sort indicator graphic
+                                        </div>
+                                    </div>
+     
+                                        
+
+
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:property" resource="#property_CONTENT_TEMPLATE">
+                                    <h4><a name="property_CONTENT_TEMPLATE" property="yui:name">CONTENT_TEMPLATE</a>
+                                        - <code>static <span property="yui:type">object</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            No content template because this is encompassed by a table tag.
+                                        </div>
+                                    </div>
+     
+                                        
+
+
+                                    <hr />
+                                    </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div rel="yui:methods" resource="#methods">
+                        <div class="section method details">
+                            <h3 id="methods">Methods</h3>
+                            <div class="content">
+                                    <div class="protected" rel="yui:method" resource="#method__afterColumnsChange">
+                                    <h4>
+                                        <a name="method__afterColumnsChange">_afterColumnsChange</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_afterColumnsChange</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Handle a change in the columns attribute
+Causes columns to be re-rendered.
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__defQueryUpdateFn">
+                                    <h4>
+                                        <a name="method__defQueryUpdateFn">_defQueryUpdateFn</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_defQueryUpdateFn</strong>
+                                           (
+                                                
+                                                        
+                                                         e
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Default handler for CustomEvent queryUpdate
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">e</span>
+                                                        &lt;<span property="yui:type">Event</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description"></span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__defRowSelectFn">
+                                    <h4>
+                                        <a name="method__defRowSelectFn">_defRowSelectFn</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_defRowSelectFn</strong>
+                                           (
+                                                
+                                                        
+                                                         e
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Default handler for "rowSelect" event.
+TODO: afterSelectionChange implementation of this.
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">e</span>
+                                                        &lt;<span property="yui:type">Event</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description"></span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__defSortFn">
+                                    <h4>
+                                        <a name="method__defSortFn">_defSortFn</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_defSortFn</strong>
+                                           (
+                                                
+                                                        
+                                                         e
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Default handler for table:sort
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">e</span>
+                                                        &lt;<span property="yui:type">Event</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description"></span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="protected" rel="yui:method" resource="#method__renderTableColumns">
+                                    <h4>
+                                        <a name="method__renderTableColumns">_renderTableColumns</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_renderTableColumns</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Enhance table columns with styling and sorting
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__uiRemoveRowHoverStyle">
+                                    <h4>
+                                        <a name="method__uiRemoveRowHoverStyle">_uiRemoveRowHoverStyle</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_uiRemoveRowHoverStyle</strong>
+                                           (
+                                                
+                                                        
+                                                         e
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Remove the hover style from a row.
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">e</span>
+                                                        &lt;<span property="yui:type">Event</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description"></span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__uiSetColumnOut">
+                                    <h4>
+                                        <a name="method__uiSetColumnOut">_uiSetColumnOut</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_uiSetColumnOut</strong>
+                                           (
+                                                
+                                                        
+                                                         e
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Default handler for column mouseexit
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">e</span>
+                                                        &lt;<span property="yui:type">Event</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description"></span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__uiSetColumnOver">
+                                    <h4>
+                                        <a name="method__uiSetColumnOver">_uiSetColumnOver</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_uiSetColumnOver</strong>
+                                           (
+                                                
+                                                        
+                                                         e
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Default handler for column mouseenter
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">e</span>
+                                                        &lt;<span property="yui:type">Event</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description"></span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__uiSetRowHoverStyle">
+                                    <h4>
+                                        <a name="method__uiSetRowHoverStyle">_uiSetRowHoverStyle</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_uiSetRowHoverStyle</strong>
+                                           (
+                                                
+                                                        
+                                                         e
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Add the hover style to a row.
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">e</span>
+                                                        &lt;<span property="yui:type">Event</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description"></span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="protected" rel="yui:method" resource="#method__uiSetRowSelection">
+                                    <h4>
+                                        <a name="method__uiSetRowSelection">_uiSetRowSelection</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_uiSetRowSelection</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Set the row selection based on the selection attribute.
+TODO: this algorithm needs brain surgery.
+The Y.Widget lifecycle doesn't seem to make sense in the case of row selection because we need to save the selected row nodes, then
+enumerate them for new selections, then add the classes sequentially.
+So the uiSetXXXX convention does not apply here.
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method_columns">
+                                    <h4>
+                                        <a name="method_columns">columns</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">columns</strong>
+                                           (
+                                                
+                                                        
+                                                         srcNode
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Parse table column headers (TH) into a columns array.
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">srcNode</span>
+                                                        &lt;<span property="yui:type">Node</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description"></span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method_initializer">
+                                    <h4>
+                                        <a name="method_initializer">initializer</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">initializer</strong>
+                                           (
+                                                
+                                                        
+                                                         config
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Initializer, implemented for Y.Base
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">config</span>
+                                                        &lt;<span property="yui:type">Object</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description">  Configuration object.</span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method_sort">
+                                    <h4>
+                                        <a name="method_sort">sort</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">sort</strong>
+                                           (
+                                                
+                                                        
+                                                         node
+                                                    
+                                                
+                                                        , 
+                                                         direction
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Sort a column in the specified direction.
+No specified direction will alternate the sort direction.
+This is usually called by TableHeaders._defSortFn after a custom "sort" event.
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">node</span>
+                                                        &lt;<span property="yui:type">Node</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description">  TH node to change sort direction for.</span>
+                                                        </dd>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">direction</span>
+                                                        &lt;<span property="yui:type">object</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description"> SORT_ASC | SORT_DESC [optional] sorting direction.</span>
+                                                        </dd>
+                                                </dl>
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div rel="yui:events" resource="#events">
+                        <div class="section method details">
+                            <h3 id="events">Events</h3>
+                            <div class="content">
+                                    <div class="" rel="yui:event" resource="#event_columnsChange">
+                                    <h4>
+                                        <a name="event_columnsChange">columnsChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">columnsChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'columns' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_columnsNodeChange">
+                                    <h4>
+                                        <a name="event_columnsNodeChange">columnsNodeChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">columnsNodeChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'columnsNode' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_theadNodeChange">
+                                    <h4>
+                                        <a name="event_theadNodeChange">theadNodeChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">theadNodeChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'theadNode' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div rel="yui:attributes" resource="#configattributes">
+                        <div class="section field details">
+                            <h3 id="configattributes">Configuration Attributes</h3>
+                            <div class="content">
+                                    <div class="" rel="yui:attribute" resource="#config_columns">
+                                    <h4><a name="config_columns">columns</a>
+                                        <code>- <span property="yui:type">Array</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Array of objects representing columns with keys for title and width
+This will be refactored into a columns object.
+                                        </div>
+                                    </div>
+ 
+     
+                                    <div class="default">
+                                        Default Value: Empty array
+                                    </div>        
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_columnsNode">
+                                    <h4><a name="config_columnsNode">columnsNode</a>
+                                        <code>- <span property="yui:type">Node</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Reference to the table row element containing the column headers
+                                        </div>
+                                    </div>
+ 
+     
+                                    <div class="default">
+                                        Default Value: null
+                                    </div>        
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_theadNode">
+                                    <h4><a name="config_theadNode">theadNode</a>
+                                        <code>- <span property="yui:type">Node</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Reference to the table head element
+                                        </div>
+                                    </div>
+ 
+     
+                                    <div class="default">
+                                        Default Value: null
+                                    </div>        
+
+                                    <hr />
+                                    </div>        
+
+                            </div>
+                        </div>
+
+                    </div>
+
+			</div>
+		</div>
+		<div class="yui-b">
+            <div class="nav">
+
+                    <div id="moduleList" class="module">
+                        <h4>Modules</h4>
+                        <ul class="content">
+                                <li class=""><a href="module_dptable.html" title="DP.Table">DP.Table</a></li>
+                                <li class="selected"><a href="module_gallery-dp-table-headers.html" title="gallery-dp-table-headers">gallery-dp-table-headers</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="classList" class="module">
+                        <h4>Classes</h4>
+                        <ul class="content">
+                                <li class="selected"><a href="Y.DP.TableHeaders.html" title="Y.DP.TableHeaders">Y.DP.TableHeaders</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="fileList" class="module">
+                        <h4>Files</h4>
+                        <ul class="content">        
+                                <li class=""><a href="dp-table-selection-plugin.js.html" title="dp-table-selection-plugin.js">dp-table-selection-plugin.js</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="propertyList" class="module">
+                        <h4>Properties</h4>
+                        <ul class="content">        
+                                <li class=""><a href="#property_COLUMN_LABEL_TEMPLATE" title="COLUMN_LABEL_TEMPLATE">COLUMN_LABEL_TEMPLATE</a></li>
+                                <li class=""><a href="#property_COLUMN_SORT_INDICATOR_TEMPLATE" title="COLUMN_SORT_INDICATOR_TEMPLATE">COLUMN_SORT_INDICATOR_TEMPLATE</a></li>
+                                <li class=""><a href="#property_CONTENT_TEMPLATE" title="CONTENT_TEMPLATE">CONTENT_TEMPLATE</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="methodsList" class="module">
+                        <h4>Methods</h4>
+                        <ul class="content">        
+                                <li class="protected"><a href="#method__afterColumnsChange" title="_afterColumnsChange">_afterColumnsChange</a></li>
+                                <li class=""><a href="#method__defQueryUpdateFn" title="_defQueryUpdateFn">_defQueryUpdateFn</a></li>
+                                <li class=""><a href="#method__defRowSelectFn" title="_defRowSelectFn">_defRowSelectFn</a></li>
+                                <li class=""><a href="#method__defSortFn" title="_defSortFn">_defSortFn</a></li>
+                                <li class="protected"><a href="#method__renderTableColumns" title="_renderTableColumns">_renderTableColumns</a></li>
+                                <li class=""><a href="#method__uiRemoveRowHoverStyle" title="_uiRemoveRowHoverStyle">_uiRemoveRowHoverStyle</a></li>
+                                <li class=""><a href="#method__uiSetColumnOut" title="_uiSetColumnOut">_uiSetColumnOut</a></li>
+                                <li class=""><a href="#method__uiSetColumnOver" title="_uiSetColumnOver">_uiSetColumnOver</a></li>
+                                <li class=""><a href="#method__uiSetRowHoverStyle" title="_uiSetRowHoverStyle">_uiSetRowHoverStyle</a></li>
+                                <li class="protected"><a href="#method__uiSetRowSelection" title="_uiSetRowSelection">_uiSetRowSelection</a></li>
+                                <li class=""><a href="#method_columns" title="columns">columns</a></li>
+                                <li class=""><a href="#method_initializer" title="initializer">initializer</a></li>
+                                <li class=""><a href="#method_sort" title="sort">sort</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="eventsList" class="module">
+                        <h4>Events</h4>
+                        <ul class="content">        
+                                <li class=""><a href="#event_columnsChange" title="columnsChange">columnsChange</a></li>
+                                <li class=""><a href="#event_columnsNodeChange" title="columnsNodeChange">columnsNodeChange</a></li>
+                                <li class=""><a href="#event_theadNodeChange" title="theadNodeChange">theadNodeChange</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="configList" class="module">
+                        <h4>Configuration Attributes</h4>
+                        <ul class="content">        
+                                <li class=""><a href="#config_columns" title="columns">columns</a></li>
+                                <li class=""><a href="#config_columnsNode" title="columnsNode">columnsNode</a></li>
+                                <li class=""><a href="#config_theadNode" title="theadNode">theadNode</a></li>
+                        </ul>
+                    </div>
+
+            </div>
+		</div>
+	</div>
+	<div id="ft">
+        <hr />
+        Copyright &copy; 2011 Yahoo! Inc. All rights reserved.
+	</div>
+</div>
+<script type="text/javascript">
+
+    var ALL_YUI_PROPS = [{"url": "Y.DP.TableHeaders.html#method__afterColumnsChange", "access": "protected", "host": "Y.DP.TableHeaders", "type": "method", "name": "_afterColumnsChange"}, {"url": "Y.DP.TableHeaders.html#property_COLUMN_LABEL_TEMPLATE", "access": "", "host": "Y.DP.TableHeaders", "type": "property", "name": "COLUMN_LABEL_TEMPLATE"}, {"url": "Y.DP.TableHeaders.html#method_columns", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "columns"}, {"url": "Y.DP.TableHeaders.html#config_columns", "access": "", "host": "Y.DP.TableHeaders", "type": "config", "name": "columns"}, {"url": "Y.DP.TableHeaders.html#event_columnsChange", "access": "", "host": "Y.DP.TableHeaders", "type": "event", "name": "columnsChange"}, {"url": "Y.DP.TableHeaders.html#config_columnsNode", "access": "", "host": "Y.DP.TableHeaders", "type": "config", "name": "columnsNode"}, {"url": "Y.DP.TableHeaders.html#event_columnsNodeChange", "access": "", "host": "Y.DP.TableHeaders", "type": "event", "name": "columnsNodeChange"}, {"url": "Y.DP.TableHeaders.html#property_COLUMN_SORT_INDICATOR_TEMPLATE", "access": "", "host": "Y.DP.TableHeaders", "type": "property", "name": "COLUMN_SORT_INDICATOR_TEMPLATE"}, {"url": "Y.DP.TableHeaders.html#property_CONTENT_TEMPLATE", "access": "", "host": "Y.DP.TableHeaders", "type": "property", "name": "CONTENT_TEMPLATE"}, {"url": "Y.DP.TableHeaders.html#method__defQueryUpdateFn", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "_defQueryUpdateFn"}, {"url": "Y.DP.TableHeaders.html#method__defRowSelectFn", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "_defRowSelectFn"}, {"url": "Y.DP.TableHeaders.html#method__defSortFn", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "_defSortFn"}, {"url": "Y.DP.TableHeaders.html#method_initializer", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "initializer"}, {"url": "Y.DP.TableHeaders.html#method__renderTableColumns", "access": "protected", "host": "Y.DP.TableHeaders", "type": "method", "name": "_renderTableColumns"}, {"url": "Y.DP.TableHeaders.html#method_sort", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "sort"}, {"url": "Y.DP.TableHeaders.html#config_theadNode", "access": "", "host": "Y.DP.TableHeaders", "type": "config", "name": "theadNode"}, {"url": "Y.DP.TableHeaders.html#event_theadNodeChange", "access": "", "host": "Y.DP.TableHeaders", "type": "event", "name": "theadNodeChange"}, {"url": "Y.DP.TableHeaders.html#method__uiRemoveRowHoverStyle", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "_uiRemoveRowHoverStyle"}, {"url": "Y.DP.TableHeaders.html#method__uiSetColumnOut", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "_uiSetColumnOut"}, {"url": "Y.DP.TableHeaders.html#method__uiSetColumnOver", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "_uiSetColumnOver"}, {"url": "Y.DP.TableHeaders.html#method__uiSetRowHoverStyle", "access": "", "host": "Y.DP.TableHeaders", "type": "method", "name": "_uiSetRowHoverStyle"}, {"url": "Y.DP.TableHeaders.html#method__uiSetRowSelection", "access": "protected", "host": "Y.DP.TableHeaders", "type": "method", "name": "_uiSetRowSelection"}];
+</script>
+</body>
+</html>

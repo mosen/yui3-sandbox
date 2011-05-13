@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="YuiBuild" default="local">
+    <description>Gallery user patches rollup module</description>
+
+    <property environment="env" />
+
+    <property file="build.properties" />
+    <import file="${builddir}/3.x/bootstrap.xml" description="Default Build Properties and Targets" />
+    
+    <target name="all" depends="patch, deploy"></target>
+    
+
+    <!-- main patch rollup build task 
+    buildcore omits rollups, skins and language files - this patch target is otherwise equivalent to build.
+    -->
+    <target name="patch" depends="clean, init, buildcore, minify, lint">
+    </target>
+    
+    
+
+    <!-- copy pasta from module.xml, altered to fix paths -->
+       <!-- CORE -->
+    <target name="buildcore" depends="builddebug, -createcore, -loggerregex" description="Create component.js">
+        <fixcrlf srcdir="${component.builddir}" includes="${component.basefilename}.js" eol="${buildfiles.eol}" />
+    </target>
+
+    <target name="-createcore">
+        <copy file="${component.builddir}/${component.basefilename}-debug.js" tofile="${component.builddir}/${component.basefilename}.js" />
+    </target>
+
+    <target name="-loggerregex" description="Replace logger statements" unless="component.logger.regex.skip">
+        <echo level="info">Replacing Logger Statements in ${component.builddir}/${component.basefilename}.js</echo>
+        <replaceregexp file="${component.builddir}/${component.basefilename}.js"
+                            byline="${component.logger.regex.byline}"
+                            match="${component.logger.regex}"
+                            replace="${component.logger.regex.replace}"
+                            flags="${component.logger.regex.flags}" />
+    </target>
+
+    <!-- DEBUG -->
+    <target name="builddebug" depends="-concatdebug, -registerdebug, -prependdebug, -appenddebug" description="Create component-debug.js">
+        <fixcrlf srcdir="${component.builddir}" includes="${component.basefilename}-debug.js" eol="${buildfiles.eol}" />
+    </target>
+
+    <!--
+    <target name="-concatdebug">
+        <concatsource destfile="${component.builddir}/${component.basefilename}-debug.js" sourcedir="${component.jsfiles.base}" sourcefiles="${component.jsfiles}" />
+    </target>
+    -->
+    
+    <target name="-concatdebug">
+        <concat destfile="${component.builddir}/${component.basefilename}-debug.js" append="true" fixlastline="true">
+            <fileset dir="${srcdir}">
+                <filename name="**/gallery-user-patch*/js/*.js"/>
+            </fileset>
+        </concat>        
+    </target>
+
+    <target name="-registerdebug" unless="register.skip">
+        <addmodule module="${component.module}" file="${component.builddir}/${component.basefilename}-debug.js" details="${component.details.hash}" />
+    </target>
+
+</project>

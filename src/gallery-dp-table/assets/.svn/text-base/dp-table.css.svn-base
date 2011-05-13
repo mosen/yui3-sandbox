@@ -1,0 +1,102 @@
+@CHARSET "UTF-8";
+
+.yui3-dp-table-body {
+	margin: 0.25em;
+	font-family: arial;
+	font-size: 12pt;
+}
+
+.yui3-js-enabled .yui3-widget-loading {
+	display: none;
+}
+
+.yui3-js-enabled .yui3-dp-table-body-loading {
+	position: absolute;
+	top:-1000em;
+	left:-1000em;
+}
+
+tbody.yui3-dp-table-body {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #dddddd;
+	overflow: auto;
+	height: 500px;
+}
+
+.yui3-dp-table-columns {
+}
+
+.yui3-dp-table-column {
+	padding: 0em;
+	height: 30px;
+	text-align: center;
+	background-image: url('/img/DP/Widget/tbl-header.png');
+	border-style: solid;
+	border-width: 0px 0px 1px 0px;
+	border-color: #888888;
+}
+
+.yui3-dp-table-column-over {
+	background-image: url('/img/DP/Widget/tbl-header-over.png');
+	cursor:pointer;
+}
+
+.yui3-table-header-sep {
+	float: right;
+	width: 3px;
+}
+
+.yui3-dp-table-column-sep {
+	background-image: url('/img/DP/Widget/tbl-header-sep.png');
+	background-repeat: no-repeat;
+	width: 3px;
+}
+
+.yui3-dp-table-headers-label {
+	padding: 0.25em;
+}
+
+.yui3-dp-table-headers-column-rightcorner {
+	-moz-border-radius: 0px 5px 0px 0px;
+	-webkit-border-radius: 0px 5px 0px 0px;
+	border-radius: 0px 5px 0px 0px;
+	margin-left: 5px;
+}
+
+.yui3-dp-table-headers-column-leftcorner {
+	-moz-border-radius: 5px 0px 0px 0px;
+	-webkit-border-radius: 5px 0px 0px 0px;
+	border-radius: 5px 0px 0px 0px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.yui3-dp-table-headers-sort {
+	float: right;
+	width: 10px;
+	height: 10px;
+}
+
+.yui3-dp-table-column-asc {
+	background-image: url('/img/DP/Widget/sort-up.png');
+	background-repeat: no-repeat;
+}
+
+.yui3-dp-table-column-desc {
+	background-image: url('/img/DP/Widget/sort-down.png');
+	background-repeat: no-repeat;
+}
+
+.yui3-dp-table-body-row {
+	background-color: #ffffff;
+	padding: 0.25em;
+}
+
+.yui3-dp-table-body-row-alt {
+	background-color: #eeeeee;
+}
+
+.yui3-dp-table-body-cell {
+	padding: 0.25em;
+}

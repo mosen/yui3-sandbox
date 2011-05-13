@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- YUI 3 Component Build File -->
+
+<project name="gallery-dp-timeline-plugin-insertion" default="local">
+    <description>gallery-dp-timeline-plugin-selection</description>
+    <property file="build.properties" />
+    <import file="${builddir}/3.x/bootstrap.xml" description="Default Build Properties and Targets" />
+    
+    <target name="module" depends="all"></target>
+</project>

@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <link href="../../../build/dp-search/assets/dp-search-core.css" media="screen" rel="stylesheet" type="text/css" >
+    <link href="../../../build/dp-table/assets/dp-table-core.css" media="screen" rel="stylesheet" type="text/css" >
+    <script type="text/javascript"
+            src="../../../../../yui/build/yui/yui-min.js"></script>
+    <script type="text/javascript"
+            src="../../../build/dp-search/dp-search-debug.js"></script>
+    <script type="text/javascript"
+            src="../../../build/dp-datatype/dp-datatype-debug.js"></script>
+    <script type="text/javascript"
+            src="../../../build/dp-table/dp-table-debug.js"></script>
+
+    <script type="text/javascript" src="index.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>dp-table demo</title>
+</head>
+<body>
+<div style="clear: both;"></div><br />
+	<div class="yui3-dp-search">
+		<select class="yui3-dp-search-fields">
+			<option value="name">Name</option>
+			<option value="start">Start</option>
+		</select>
+		<input type="text" class="yui3-dp-search-input">
+		<input type="button" class="yui3-dp-search-submit" value="search">
+		<input type="button" class="yui3-dp-search-reset" value="reset">
+	</div>
+
+	<div id="projects-list-content">
+		<table class="yui3-dp-table">
+			<thead class="yui3-dp-table-headers yui3-dp-table-headers-loading">
+				<tr class="yui3-dp-table-headers-columns">
+					<th class="yui3-dp-table-headers-column" sortKey="name" width="500px">Name</th>
+					<th class="yui3-dp-table-headers-column" sortKey="start" width="100px">Start</th>
+					<th class="yui3-dp-table-headers-column" sortKey="finish" width="100px">Finish</th>
+                                        <th class="yui3-dp-table-headers-column" sortKey="progress" width="200px">Progress</th>
+				</tr>
+			</thead>
+			<tbody class="yui3-dp-table-body yui3-dp-table-body-loading"></tbody>
+		</table>
+	</div>
+<div id="projects-list"></div>
+</body>
+</html>

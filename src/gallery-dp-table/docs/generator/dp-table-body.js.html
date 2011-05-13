@@ -1,0 +1,534 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:yui="http://yuilibrary.com/rdf/1.0/yui.rdf#">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<title>API: DP.Table   dp-table-body.js  (YUI Library)</title>
+
+	<link rel="stylesheet" type="text/css" href="assets/reset-fonts-grids-min.css" />
+	<link rel="stylesheet" type="text/css" href="assets/api.css" />
+
+    <script type="text/javascript" src="assets/api-js"></script>
+    <script type="text/javascript" src="assets/ac-js"></script>
+</head>
+
+<body id="yahoo-com">
+
+<div id="doc3" class="yui-t2">
+	<div id="hd">
+        <h1><a href="http://developer.yahoo.com/yui/" title="Yahoo! UI Library">Yahoo! UI Library</a></h1>
+        <h3>DP.Table&nbsp; <span class="subtitle">1.0.0</span></h3>
+        <a href="./index.html" title="Yahoo! UI Library">Yahoo! UI Library</a> 
+            &gt; <a href="./module_dptable.html" title="DP.Table">DP.Table</a>
+                
+                 &gt; dp-table-body.js (source view) 
+        <form onsubmit="return false">
+            <div id="propertysearch">
+                Search: <input autocomplete="off" id="searchinput" />
+                <div id="searchresults">
+                    &nbsp;
+                </div>
+            </div>
+        </form>
+	</div>
+
+	<div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+            <form action="#" name="yui-classopts-form" method="get" id="yui-classopts-form">
+                <fieldset>
+                    <legend>Filters</legend>
+                <span class="classopts"><input type="checkbox" name="show_private" id="show_private" /> <label for="show_private">Show Private</label></span>
+                <span class="classopts"><input type="checkbox" name="show_protected" id="show_protected" /> <label for="show_protected">Show Protected</label></span>
+                <span class="classopts"><input type="checkbox" name="show_deprecated" id="show_deprecated" /> <label for="show_deprecated">Show Deprecated</label></span>
+                </fieldset>
+            </form>
+
+                    <div id="srcout">
+                        <style>
+                            #doc3 .classopts { display:none; }
+                        </style>
+                        <div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * @version 1.0.0</span>
+<span class="cm"> */</span>
+<span class="c1">// TODO: DataSource table as an extension of a basic table.</span>
+<span class="cm">/**</span>
+<span class="cm"> * DP Table</span>
+<span class="cm"> *</span>
+<span class="cm"> * @module DP.Table</span>
+<span class="cm"> * @requires widget, substitute, classnamemanager</span>
+<span class="cm"> * @namespace Y.DP</span>
+<span class="cm"> */</span>
+<span class="kd">var</span>	<span class="nx">Lang</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Lang</span><span class="p">,</span>
+        <span class="nx">Node</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Node</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Dynamic table class.</span>
+<span class="cm"> *  </span>
+<span class="cm"> * @class TableBase</span>
+<span class="cm"> * @extends Y.Widget</span>
+<span class="cm"> */</span>
+<span class="nx">Y</span><span class="p">.</span><span class="nx">namespace</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">).</span><span class="nx">TableBody</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Base</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="s1">&#39;dp-table-body&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Widget</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Initializer, implemented for Y.Base</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method initializer</span>
+<span class="cm">         * @param config {Object} Configuration object.</span>
+<span class="cm">         */</span>
+        <span class="nx">initializer</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
+
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;initializer&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;dp-table-body&#39;</span><span class="p">);</span>
+
+                <span class="c1">// Node references</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_tbodyNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">);</span> <span class="c1">//config.tbodyNode;</span>
+
+                <span class="c1">// IO</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s1">&#39;success&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">defaultFn</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_defResponseSuccessFn</span><span class="p">});</span>
+
+                <span class="c1">// Just after sendRequest()</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s1">&#39;loading&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">defaultFn</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_defLoadingFn</span><span class="p">});</span>
+
+                <span class="c1">// Single handler for IO Events</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_ioHandlers</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="nx">complete</span><span class="o">:</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_handleResponse</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="s1">&#39;complete&#39;</span><span class="p">),</span>
+                        <span class="nx">success</span><span class="o">:</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_handleResponse</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="s1">&#39;success&#39;</span><span class="p">),</span>
+                        <span class="nx">failure</span><span class="o">:</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_handleResponse</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="s1">&#39;failure&#39;</span><span class="p">),</span>
+                        <span class="nx">end</span><span class="o">:</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_handleResponse</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+                <span class="p">};</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Destructor, implemented for Y.Base</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method destructor</span>
+<span class="cm">         */</span>
+        <span class="nx">destructor</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="c1">// detach click, enter, leave</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_tbodyNode</span><span class="p">.</span><span class="nx">detach</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_tbodyNode</span><span class="p">.</span><span class="nx">detach</span><span class="p">(</span><span class="s1">&#39;mouseenter&#39;</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_tbodyNode</span><span class="p">.</span><span class="nx">detach</span><span class="p">(</span><span class="s1">&#39;mouseleave&#39;</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">_tbodyNode</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>	
+        <span class="p">},</span>
+
+        <span class="c1">// Y.Widget Rendering Lifecycle</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * @see Widget.renderUI</span>
+<span class="cm">         */</span>
+        <span class="nx">renderUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> 
+                <span class="k">this</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">);</span> <span class="c1">// Just load the dataset without any query parameters</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * @see Widget.bindUI</span>
+<span class="cm">         */</span>
+        <span class="nx">bindUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">_tbodyNode</span><span class="p">.</span><span class="nx">delegate</span><span class="p">(</span><span class="s1">&#39;selectstart&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+                <span class="p">},</span> <span class="s1">&#39;tr&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>		
+
+                <span class="c1">// re-render rows after data change.</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;dataChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterDataChange</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;loadingChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterLoadingChange</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;queryParametersChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterQueryParametersChange</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * @see Widget.syncUI</span>
+<span class="cm">         */</span>
+        <span class="nx">syncUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="p">},</span>
+
+        <span class="c1">// PROTECTED VARIABLES</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Object used for IO callback. Contains four functions to handle each stage of the IO request.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property _ioHandlers</span>
+<span class="cm">         * @type Object</span>
+<span class="cm">         */</span>
+        <span class="nx">_ioHandlers</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Reference to the TBODY node containing this table data.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property _tbodyNode</span>
+<span class="cm">         * @type Node</span>
+<span class="cm">         */</span>
+        <span class="nx">_tbodyNode</span> <span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+
+
+        <span class="c1">// PROTECTED METHODS</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Render the rows contained in the data attribute.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _renderTableRows</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_renderTableRows</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+
+                <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">),</span>
+                    <span class="nx">bodyNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_tbodyNode</span><span class="p">,</span>
+                    <span class="nx">zebraClass</span><span class="p">;</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="nx">bodyNode</span><span class="p">.</span><span class="nx">setContent</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+
+                        <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="nx">zebraClass</span> <span class="o">=</span> <span class="p">(</span><span class="nx">i</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">?</span> <span class="s1">&#39;row&#39;</span> <span class="o">:</span> <span class="s1">&#39;row-alt&#39;</span><span class="p">;</span>
+
+                                <span class="kd">var</span> <span class="nx">trTemplate</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">ROW_TEMPLATE</span><span class="p">,</span> <span class="p">{</span>
+                                        <span class="nx">trClassName</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="nx">zebraClass</span><span class="p">)</span>
+                                <span class="p">});</span>
+                                <span class="kd">var</span> <span class="nx">tr</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">trTemplate</span><span class="p">);</span>
+
+                                <span class="kd">var</span> <span class="nx">cells</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;cells&#39;</span><span class="p">);</span>
+
+                                <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">x</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">x</span> <span class="o">&lt;</span> <span class="nx">cells</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">x</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                                        <span class="kd">var</span> <span class="nx">cell</span> <span class="o">=</span> <span class="nx">cells</span><span class="p">[</span><span class="nx">x</span><span class="p">],</span>
+                                            <span class="nx">field</span> <span class="o">=</span> <span class="nx">cell</span><span class="p">.</span><span class="nx">field</span><span class="p">,</span>
+                                            <span class="nx">cellWidth</span> <span class="o">=</span> <span class="nx">cell</span><span class="p">.</span><span class="nx">width</span><span class="p">;</span>
+
+                                        <span class="kd">var</span> <span class="nx">td</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">CELL_TEMPLATE</span><span class="p">,</span> <span class="p">{</span>
+                                                <span class="nx">tdClassName</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;cell&#39;</span><span class="p">)</span>
+                                        <span class="p">}));</span>
+
+                                        <span class="c1">// Use renderer if defined</span>
+                                        <span class="k">if</span> <span class="p">(</span><span class="kc">undefined</span> <span class="o">===</span> <span class="nx">cell</span><span class="p">.</span><span class="nx">renderer</span><span class="p">)</span> <span class="p">{</span>
+                                                <span class="nx">td</span><span class="p">.</span><span class="nx">setContent</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">results</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">field</span><span class="p">]);</span>
+                                        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                                                <span class="nx">cell</span><span class="p">.</span><span class="nx">renderer</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">results</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">td</span><span class="p">);</span>
+                                        <span class="p">}</span>
+
+                                        <span class="nx">td</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;width&#39;</span><span class="p">,</span> <span class="nx">cellWidth</span><span class="p">);</span>
+
+                                        <span class="nx">tr</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">td</span><span class="p">);</span>
+                                <span class="p">}</span>
+
+                                <span class="c1">// Previously we created an array of nodes, and then appended them in one call.</span>
+                                <span class="c1">// Apparently Node.append no longer supports arrays.</span>
+                                <span class="nx">bodyNode</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">tr</span><span class="p">);</span>
+                        <span class="p">}</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="nx">bodyNode</span><span class="p">.</span><span class="nx">setContent</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+                        <span class="nx">bodyNode</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">ZEROROWS_TEMPLATE</span><span class="p">,</span> <span class="p">{</span>
+                                <span class="nx">colspan</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;cells&#39;</span><span class="p">).</span><span class="nx">length</span><span class="p">,</span>
+                                <span class="nx">message</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;strings.zerorows&#39;</span><span class="p">)</span>
+                        <span class="p">})));</span>
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Load data from the provided Y.DataSource Instance</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method load</span>
+<span class="cm">         * @public</span>
+<span class="cm">         */</span>
+        <span class="nx">load</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">requestString</span><span class="p">)</span> <span class="p">{</span>
+
+                <span class="kd">var</span> <span class="nx">ds</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;dataSource&#39;</span><span class="p">);</span>
+
+                <span class="nx">ds</span><span class="p">.</span><span class="nx">sendRequest</span><span class="p">({</span>
+                        <span class="nx">request</span> <span class="o">:</span> <span class="nx">requestString</span><span class="p">,</span>
+                        <span class="nx">callback</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_ioHandlers</span>
+                <span class="p">});</span>	
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="s1">&#39;loading&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_io</span><span class="p">,</span> <span class="nx">request</span><span class="o">:</span> <span class="nx">requestString</span><span class="p">});</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Single interface for io responses, fires custom event at each stage of datasource request.</span>
+<span class="cm">         * @method _handleResponse</span>
+<span class="cm">         * @param type {String} Event type</span>
+<span class="cm">         * @param e {Object} Response Object</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_handleResponse</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_io</span><span class="p">,</span> <span class="nx">response</span><span class="o">:</span> <span class="nx">e</span><span class="p">.</span><span class="nx">response</span><span class="p">});</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_io</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Public handler for parameterchange events.</span>
+<span class="cm">         * </span>
+<span class="cm">         * The subject supplies its list of parameters to us, which we then apply to our locally maintained list of parameters.</span>
+<span class="cm">         * Our afterChange then applies those to a datasource request.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method handleParameterChange</span>
+<span class="cm">         * @public</span>
+<span class="cm">         * @param e {Event} CustomEvent</span>
+<span class="cm">         */</span>
+        <span class="nx">handleParameterChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;handleParameterChange&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;dp-table-body&#39;</span><span class="p">);</span>
+
+                <span class="kd">var</span> <span class="nx">params</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;queryParameters&#39;</span><span class="p">);</span>
+                <span class="nx">params</span><span class="p">[</span><span class="nx">e</span><span class="p">.</span><span class="nx">type</span><span class="p">]</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">parameters</span><span class="p">;</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;queryParameters&#39;</span><span class="p">,</span> <span class="nx">params</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Default handler for table:success (DataSource.IO Response Success)</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _defResponseSuccessFn</span>
+<span class="cm">         * @param o {Object} Response object</span>
+<span class="cm">         */</span>
+        <span class="nx">_defResponseSuccessFn</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">o</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;_defResponseSuccessFn&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;dp-table-body&#39;</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="nx">o</span><span class="p">.</span><span class="nx">response</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;loading&#39;</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Default handler for the loading event</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _defLoadingFn</span>
+<span class="cm">         * @param e {Event} Event</span>
+<span class="cm">         */</span>
+        <span class="nx">_defLoadingFn</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;_defLoadingFn&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;dp-table-body&#39;</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;loading&#39;</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * New data handler, causes table to re-render</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _afterDataChange</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_afterDataChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;_afterDataChange&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;dp-table-body&#39;</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">_renderTableRows</span><span class="p">();</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Update widget ui to reflect loading state change.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _afterLoadingChange</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         * @param e {Event} custom event</span>
+<span class="cm">         */</span>
+        <span class="nx">_afterLoadingChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">loading</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;loading&#39;</span><span class="p">);</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">loading</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;loading&#39;</span><span class="p">);</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;finished loading&#39;</span><span class="p">);</span>
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * A change in query parameters will rebuild the request string and reload the datasource.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _afterQueryParametersChange</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_afterQueryParametersChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;_afterQueryParametersChange&#39;</span><span class="p">);</span>
+
+                <span class="kd">var</span> <span class="nx">params</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;queryParameters&#39;</span><span class="p">),</span>
+                        <span class="nx">requestHash</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">(),</span>
+                        <span class="nx">source</span><span class="p">,</span>
+                        <span class="nx">key</span><span class="p">;</span>
+
+                <span class="c1">// Iterate through sources</span>
+                <span class="k">for</span> <span class="p">(</span><span class="nx">source</span> <span class="k">in</span> <span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">for</span> <span class="p">(</span><span class="nx">key</span> <span class="k">in</span> <span class="nx">params</span><span class="p">[</span><span class="nx">source</span><span class="p">])</span> <span class="p">{</span>
+                                <span class="k">if</span> <span class="p">(</span><span class="nx">params</span><span class="p">[</span><span class="nx">source</span><span class="p">][</span><span class="nx">key</span><span class="p">].</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                                        <span class="nx">requestHash</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">key</span> <span class="o">+</span> <span class="s1">&#39;=&#39;</span> <span class="o">+</span> <span class="nx">params</span><span class="p">[</span><span class="nx">source</span><span class="p">][</span><span class="nx">key</span><span class="p">]);</span>
+                                <span class="p">}</span>
+                        <span class="p">}</span>
+                <span class="p">}</span>
+
+                <span class="kd">var</span> <span class="nx">requestString</span> <span class="o">=</span> <span class="s2">&quot;?&quot;</span> <span class="o">+</span> <span class="nx">requestHash</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;&amp;&quot;</span><span class="p">);</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">requestString</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="nx">requestString</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Body section does not require a contentBox because the content is bounded by the TBODY node.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property CONTENT_TEMPLATE</span>
+<span class="cm">         * @type String</span>
+<span class="cm">         */</span>
+        <span class="nx">CONTENT_TEMPLATE</span> <span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Row template for a status message, that spans the entire table.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property ZEROROWS_TEMPLATE</span>
+<span class="cm">         * @type String</span>
+<span class="cm">         */</span>
+        <span class="nx">ZEROROWS_TEMPLATE</span> <span class="o">:</span> <span class="s1">&#39;&lt;tr&gt;&lt;td colspan=&quot;{colspan}&quot;&gt;{message}&lt;/td&gt;&lt;/tr&gt;&#39;</span><span class="p">,</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Standard row template.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property ROW_TEMPLATE</span>
+<span class="cm">         * @type String</span>
+<span class="cm">         */</span>
+        <span class="nx">ROW_TEMPLATE</span> <span class="o">:</span> <span class="s1">&#39;&lt;tr class=&quot;{trClassName}&quot;&gt;&lt;/tr&gt;&#39;</span><span class="p">,</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Standard cell template.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property CELL_TEMPLATE</span>
+<span class="cm">         * @type String</span>
+<span class="cm">         */</span>
+        <span class="nx">CELL_TEMPLATE</span> <span class="o">:</span> <span class="s1">&#39;&lt;td class=&quot;{tdClassName}&quot;&gt;&lt;/td&gt;&#39;</span>
+<span class="p">},{</span>
+        <span class="c1">// static</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Static property provides a string to identify the class.</span>
+<span class="cm">         * &lt;p&gt;</span>
+<span class="cm">         * Currently used to apply class identifiers to the bounding box </span>
+<span class="cm">         * and to classify events fired by the widget.</span>
+<span class="cm">         * &lt;/p&gt;</span>
+<span class="cm">         *</span>
+<span class="cm">         * @property Widget.NAME</span>
+<span class="cm">         * @type String</span>
+<span class="cm">         * @static</span>
+<span class="cm">         */</span>
+        <span class="nx">NAME</span> <span class="o">:</span> <span class="s2">&quot;dp-table-body&quot;</span><span class="p">,</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Static property used to define the default attribute </span>
+<span class="cm">         * configuration for the Widget.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property Widget.ATTRS</span>
+<span class="cm">         * @type Object</span>
+<span class="cm">         * @static</span>
+<span class="cm">         */</span>
+        <span class="nx">ATTRS</span> <span class="o">:</span> <span class="p">{</span>
+
+                <span class="c1">// TODO: fix overflow when height is set via constructor.</span>
+
+                <span class="nx">strings</span> <span class="o">:</span> <span class="p">{</span>
+                        <span class="nx">value</span> <span class="o">:</span> <span class="p">{</span>
+                            <span class="nx">loading</span> <span class="o">:</span> <span class="s2">&quot;Loading...&quot;</span><span class="p">,</span>
+                            <span class="nx">zerorows</span> <span class="o">:</span> <span class="s2">&quot;No results available&quot;</span>
+                        <span class="p">}</span>
+                <span class="p">},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * Array of cells to render. </span>
+<span class="cm">                 * Does not necessarily have a 1:1 relationship with DataSource fields.</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * cells are specified in the format { field: &quot;fieldname&quot;, renderer: fnCellRenderer }</span>
+<span class="cm">                 */</span>
+                <span class="nx">cells</span> <span class="o">:</span> <span class="p">{</span>
+                        <span class="nx">value</span><span class="o">:</span> <span class="nb">Array</span><span class="p">()</span>
+                <span class="p">},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * Active Y.DataSource instance, used to populate the </span>
+<span class="cm">                 * </span>
+<span class="cm">                 * @attribute dataSource</span>
+<span class="cm">                 * @default null</span>
+<span class="cm">                 * @type Y.DataSource</span>
+<span class="cm">                 */</span>
+                <span class="nx">dataSource</span> <span class="o">:</span> <span class="p">{</span> 
+                        <span class="nx">value</span><span class="o">:</span> <span class="kc">null</span> 
+                <span class="p">},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * The most recent set of results returned by the datasource.</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * @attribute data</span>
+<span class="cm">                 * @default null</span>
+<span class="cm">                 * @type Array</span>
+<span class="cm">                 */</span>
+                <span class="nx">data</span> <span class="o">:</span> <span class="p">{</span>
+                        <span class="nx">value</span><span class="o">:</span> <span class="kc">null</span>
+                <span class="p">},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * Whether the table is loading new data or not.</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * @attribute loading</span>
+<span class="cm">                 * @default false</span>
+<span class="cm">                 * @type Boolean</span>
+<span class="cm">                 */</span>
+                <span class="nx">loading</span> <span class="o">:</span> <span class="p">{</span>
+                        <span class="nx">value</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+                        <span class="nx">validator</span><span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isBoolean</span>
+                <span class="p">},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * Array of params</span>
+<span class="cm">                 * A change in parameters causes a table reload.</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * @attribute queryParameters</span>
+<span class="cm">                 * @default Empty array</span>
+<span class="cm">                 * @type Array</span>
+<span class="cm">                 */</span>
+                <span class="nx">queryParameters</span> <span class="o">:</span> <span class="p">{</span>
+                        <span class="nx">value</span><span class="o">:</span> <span class="nb">Array</span><span class="p">(),</span>
+                        <span class="nx">validator</span><span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isArray</span>
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="nx">HTML_PARSER</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">tbodyNode</span> <span class="o">:</span> <span class="s1">&#39;.yui3-dp-table-body&#39;</span>
+        <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+                    </div>
+			</div>
+		</div>
+		<div class="yui-b">
+            <div class="nav">
+
+                    <div id="moduleList" class="module">
+                        <h4>Modules</h4>
+                        <ul class="content">
+                                <li class="selected"><a href="module_dptable.html" title="DP.Table">DP.Table</a></li>
+                                <li class=""><a href="module_gallery-dp-table-headers.html" title="gallery-dp-table-headers">gallery-dp-table-headers</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="classList" class="module">
+                        <h4>Classes</h4>
+                        <ul class="content">
+                                <li class=""><a href="Y.DP.TableBase.html" title="Y.DP.TableBase">Y.DP.TableBase</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="fileList" class="module">
+                        <h4>Files</h4>
+                        <ul class="content">        
+                                <li class="selected"><a href="dp-table-body.js.html" title="dp-table-body.js">dp-table-body.js</a></li>
+                                <li class=""><a href="dp-table-cellrenderers.js.html" title="dp-table-cellrenderers.js">dp-table-cellrenderers.js</a></li>
+                                <li class=""><a href="dp-table-headers.js.html" title="dp-table-headers.js">dp-table-headers.js</a></li>
+                        </ul>
+                    </div>
+
+
+
+
+
+            </div>
+		</div>
+	</div>
+	<div id="ft">
+        <hr />
+        Copyright &copy; 2011 Yahoo! Inc. All rights reserved.
+	</div>
+</div>
+<script type="text/javascript">
+
+    var ALL_YUI_PROPS = [{"url": "Y.DP.TableBase.html#method__afterDataChange", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_afterDataChange"}, {"url": "Y.DP.TableBase.html#method__afterLoadingChange", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_afterLoadingChange"}, {"url": "Y.DP.TableBase.html#method__afterQueryParametersChange", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_afterQueryParametersChange"}, {"url": "Y.DP.TableBase.html#method_bindUI", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "bindUI"}, {"url": "Y.DP.TableBase.html#property_CellRenderers", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "CellRenderers"}, {"url": "Y.DP.TableBase.html#property_cells", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "cells"}, {"url": "Y.DP.TableBase.html#property_CELL_TEMPLATE", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "CELL_TEMPLATE"}, {"url": "Y.DP.TableBase.html#property_CONTENT_TEMPLATE", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "CONTENT_TEMPLATE"}, {"url": "Y.DP.TableBase.html#config_data", "access": "", "host": "Y.DP.TableBase", "type": "config", "name": "data"}, {"url": "Y.DP.TableBase.html#event_dataChange", "access": "", "host": "Y.DP.TableBase", "type": "event", "name": "dataChange"}, {"url": "Y.DP.TableBase.html#config_dataSource", "access": "", "host": "Y.DP.TableBase", "type": "config", "name": "dataSource"}, {"url": "Y.DP.TableBase.html#event_dataSourceChange", "access": "", "host": "Y.DP.TableBase", "type": "event", "name": "dataSourceChange"}, {"url": "Y.DP.TableBase.html#method_date", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "date"}, {"url": "Y.DP.TableBase.html#method__defLoadingFn", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "_defLoadingFn"}, {"url": "Y.DP.TableBase.html#method__defResponseSuccessFn", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "_defResponseSuccessFn"}, {"url": "Y.DP.TableBase.html#method_destructor", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "destructor"}, {"url": "Y.DP.TableBase.html#method_handleParameterChange", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "handleParameterChange"}, {"url": "Y.DP.TableBase.html#method__handleResponse", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_handleResponse"}, {"url": "Y.DP.TableBase.html#method_hash", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "hash"}, {"url": "Y.DP.TableBase.html#method_initializer", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "initializer"}, {"url": "Y.DP.TableBase.html#property__ioHandlers", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "_ioHandlers"}, {"url": "Y.DP.TableBase.html#method_load", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "load"}, {"url": "Y.DP.TableBase.html#config_loading", "access": "", "host": "Y.DP.TableBase", "type": "config", "name": "loading"}, {"url": "Y.DP.TableBase.html#event_loadingChange", "access": "", "host": "Y.DP.TableBase", "type": "event", "name": "loadingChange"}, {"url": "Y.DP.TableBase.html#method_niceDate", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "niceDate"}, {"url": "Y.DP.TableBase.html#method_progress", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "progress"}, {"url": "Y.DP.TableBase.html#config_queryParameters", "access": "", "host": "Y.DP.TableBase", "type": "config", "name": "queryParameters"}, {"url": "Y.DP.TableBase.html#event_queryParametersChange", "access": "", "host": "Y.DP.TableBase", "type": "event", "name": "queryParametersChange"}, {"url": "Y.DP.TableBase.html#method__renderTableRows", "access": "protected", "host": "Y.DP.TableBase", "type": "method", "name": "_renderTableRows"}, {"url": "Y.DP.TableBase.html#method_renderUI", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "renderUI"}, {"url": "Y.DP.TableBase.html#property_ROW_TEMPLATE", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "ROW_TEMPLATE"}, {"url": "Y.DP.TableBase.html#method_syncUI", "access": "", "host": "Y.DP.TableBase", "type": "method", "name": "syncUI"}, {"url": "Y.DP.TableBase.html#property__tbodyNode", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "_tbodyNode"}, {"url": "Y.DP.TableBase.html#property_Widget.ATTRS", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "Widget.ATTRS"}, {"url": "Y.DP.TableBase.html#property_Widget.NAME", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "Widget.NAME"}, {"url": "Y.DP.TableBase.html#property_ZEROROWS_TEMPLATE", "access": "", "host": "Y.DP.TableBase", "type": "property", "name": "ZEROROWS_TEMPLATE"}];
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dp-table-selection-plugin" default="local">
+    <description>DP.Table Build File</description>
+    <property file="build.selection-plugin.properties" />
+    <import file="${builddir}/3.x/bootstrap.xml" />
+</project>

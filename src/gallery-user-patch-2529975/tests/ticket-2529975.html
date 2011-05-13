@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test for ticket #2529975</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <h2>Test defect ticket #2529975</h2>
+        <p>The DataTableDataSource plugin creates a new instance of Y.RecordSet when data returns from DataSource. This causes the RecordSet to lose its
+        plugins and instance specific configuration. The test asserts that this problem is solved by the patch.</p>
+        <p><input type="button" value="Run Tests" id="btnRun" disabled=true></p>
+        <script type="text/javascript">
+        (function() {
+            YUI({
+                filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                allowRollup: false,
+                   modules : {
+                    'gallery-user-patch-2529975' : {
+                       'fullpath' : '../../../build/gallery-user-patch-2529975/gallery-user-patch-2529975.js',
+                       'requires' : ['datatable-datasource']
+                    }
+                }
+            }).use("console", "test", "dump", "datatable", "gallery-user-patch-2529975", function(Y) {
+
+                var BTNRUN = Y.one("#btnRun");
+                BTNRUN.set("disabled", false);
+                Y.on("click", function(e){
+                    Y.Test.Runner.run();
+                }, BTNRUN);
+                var myConsole = new Y.Console().render();
+
+
+                var testBasic = new Y.Test.Case({ 
+                    name: "Patch Ticket 2529975 Test",
+                    
+                    setUp: function() {
+                        this.testDataSource = new Y.DataSource.Local();
+
+                        this.testDataTable = new Y.DataTable.Base({
+                            columnset : ["id", "name"],
+                            summary : "User patched DataTable Instance",
+                            plugins : [
+                                { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } }
+                            ]
+                        });
+
+                        this.testDataTable.render();
+
+                        this.mockresponse = {
+                            response: {
+                                results: [
+                                    { "id" : "1", "name" : "Joe" },
+                                    { "id" : "2", "name" : "Mark" },
+                                    { "id" : "3", "name" : "Andrew" }
+                                ]
+                            }
+                        };
+                    },
+                    
+                    tearDown: function() {
+                        delete this.testDataSource;
+                        delete this.testDataTable;
+                    },
+                    
+                    "test Y.RecordSet instance keeps plugins" : function() {
+                        var firstRecordSet,
+                            secondRecordSet;
+
+                        // Set up first recordset with the sort plugin.
+                        this.testDataTable.datasource.onDataReturnInitializeTable(this.mockresponse);
+                        firstRecordSet = this.testDataTable.get('recordset');
+                        firstRecordSet.plug(Y.Plugin.RecordsetSort);
+                        
+                        // After second response, the recordset should keep its plugin instance.
+                        this.testDataTable.datasource.onDataReturnInitializeTable(this.mockresponse);
+                        secondRecordSet = this.testDataTable.get('recordset');
+                        
+                        Y.Assert.areEqual(firstRecordSet.sort, secondRecordSet.sort);
+                    }
+
+                });
+
+                var suite = new Y.Test.Suite({name:"Patch Ticket 2529975 Test Suite"});
+                suite.add(testBasic);
+
+                Y.Test.Runner.setName("Test Runner");
+                Y.Test.Runner.add(suite);
+                Y.Test.Runner.run();
+            });
+        })();
+        </script>
+    </body>
+</html>

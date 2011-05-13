@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- YUI 3 Component Build File -->
+
+<project name="gallery-dp-dd-plugin-loopingdrag" default="local">
+    <description>gallery-dp-dd-plugin-loopingdrag</description>
+    <property file="build.properties" />
+    <import file="${builddir}/3.x/bootstrap.xml" description="Default Build Properties and Targets" />
+
+    <target name="module" depends="all"></target>
+</project>

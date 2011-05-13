@@ -1,0 +1,9 @@
+.yui3-skin-sam .yui3-gallery-dp-timeline .yui3-gallery-dp-timeline-event-over {
+    background-color: #EEAA88;
+    cursor: pointer;
+}
+
+.yui3-skin-sam .yui3-gallery-dp-timeline .yui3-gallery-dp-timeline-event-selected {
+    background-color: #AAAAAA;
+    cursor: pointer;
+}

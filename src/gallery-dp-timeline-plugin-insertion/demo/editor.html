@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="../../../build/gallery-dp-timeline/assets/gallery-dp-timeline-core.css" media="screen" rel="stylesheet" type="text/css" >
+    <link href="../../../build/gallery-dp-timeline/assets/skins/sam/gallery-dp-timeline-skin.css" media="screen" rel="stylesheet" type="text/css" >
+    <link href="../../../build/gallery-dp-timeline-plugin-insertion/assets/gallery-dp-timeline-plugin-insertion.css" media="screen" rel="stylesheet" type="text/css" >
+    
+    <link href="../../../build/gallery-dp-timeline/assets/gallery-dp-timeline-core.css" media="print" rel="stylesheet" type="text/css" >
+    <link href="../../../build/gallery-dp-timeline/assets/skins/sam/gallery-dp-timeline-skin.css" media="print" rel="stylesheet" type="text/css" >
+    <link href="./editor.css" media="screen" rel="stylesheet" type="text/css" >
+    <title>gallery-dp-timeline-plugin-insertion demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+    charset="utf-8"></script>
+    <script type="text/javascript"
+        src="../../ext/date.js"></script>
+    <script type="text/javascript"
+        src="../../../build/gallery-dp-timeline/gallery-dp-timeline-debug.js"></script>
+    <script type="text/javascript"
+        src="../../../build/gallery-dp-timeline-plugin-insertion/gallery-dp-timeline-plugin-insertion-debug.js"></script>
+    <script type="text/javascript" src="editor.js"></script>
+  </head>
+    <body class="yui3-skin-sam">
+        <h1>gallery-dp-timeline insertion plugin w/editor demo</h1>
+
+    
+        <div id="gallery-dp-timeline"></div>
+        <div id="log"></div>
+        
+        
+        <div id="editor">
+            <img src="./editor-bubble.png" id="bubble" />
+            <div class="yui3-widget-hd">
+                Editing item
+            </div>
+            <div class="yui3-widget-bd">
+                <input type="text" id="summary" value="Summary" />
+                <input type="text" id="category" value="Category" />
+                <input type="text" id="start" value="" />
+                <input type="text" id="finish" value="" />               
+            </div>
+            <div class="yui3-widget-ft">
+                <input type="button" id="save" value="Save" />
+                <input type="button" id="cancel" value="Cancel" />
+            </div>
+        </div>
+    </body>
+</html>

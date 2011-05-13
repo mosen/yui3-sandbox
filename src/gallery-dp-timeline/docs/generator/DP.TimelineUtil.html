@@ -1,0 +1,313 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:yui="http://yuilibrary.com/rdf/1.0/yui.rdf#">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<title>API: gallery-dp-timeline  DP.TimelineUtil   (YUI Library)</title>
+
+	<link rel="stylesheet" type="text/css" href="assets/reset-fonts-grids-min.css" />
+	<link rel="stylesheet" type="text/css" href="assets/api.css" />
+
+    <script type="text/javascript" src="assets/api-js"></script>
+    <script type="text/javascript" src="assets/ac-js"></script>
+</head>
+
+<body id="yahoo-com">
+
+<div id="doc3" class="yui-t2">
+	<div id="hd">
+        <h1><a href="http://developer.yahoo.com/yui/" title="Yahoo! UI Library">Yahoo! UI Library</a></h1>
+        <h3>gallery-dp-timeline&nbsp; <span class="subtitle">1.0.0</span></h3>
+        <a href="./index.html" title="Yahoo! UI Library">Yahoo! UI Library</a> 
+            &gt; <a href="./module_gallery-dp-timeline.html" title="gallery-dp-timeline">gallery-dp-timeline</a>
+                 &gt; DP.TimelineUtil 
+                
+        <form onsubmit="return false">
+            <div id="propertysearch">
+                Search: <input autocomplete="off" id="searchinput" />
+                <div id="searchresults">
+                    &nbsp;
+                </div>
+            </div>
+        </form>
+	</div>
+
+	<div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+            <form action="#" name="yui-classopts-form" method="get" id="yui-classopts-form">
+                <fieldset>
+                    <legend>Filters</legend>
+                <span class="classopts"><input type="checkbox" name="show_private" id="show_private" /> <label for="show_private">Show Private</label></span>
+                <span class="classopts"><input type="checkbox" name="show_protected" id="show_protected" /> <label for="show_protected">Show Protected</label></span>
+                <span class="classopts"><input type="checkbox" name="show_deprecated" id="show_deprecated" /> <label for="show_deprecated">Show Deprecated</label></span>
+                </fieldset>
+            </form>
+
+                    <h2>
+                        
+
+                        
+                        
+                            Class <b property="yui:name">DP.TimelineUtil</b>
+                        <span class="extends">
+                        </span>
+
+                    </h2>
+                    <!-- class tree goes here -->
+                    
+                
+  
+
+                    <div class="summary description" property="yui:description">
+                        Utility methods used to calculate dates and times for timeline
+                    </div>
+
+                    
+                    <div rel="yui:properties" resource="#properties">
+
+                    </div>
+
+                    <div rel="yui:methods" resource="#methods">
+                        <div class="section method details">
+                            <h3 id="methods">Methods</h3>
+                            <div class="content">
+                                    <div class="" rel="yui:method" resource="#method_rangeToDifference">
+                                    <h4>
+                                        <a name="method_rangeToDifference">rangeToDifference</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                         static 
+                                        
+                                        
+                                            <strong property="yui:name">rangeToDifference</strong>
+                                           (
+                                                
+                                                        
+                                                         start
+                                                    
+                                                
+                                                        , 
+                                                         finish
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Convert a range (2 dates) into a duration. Negative durations are possible. Finish date not inclusive
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">start</span>
+                                                        &lt;<span property="yui:type">Date</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description">  Starting date</span>
+                                                        </dd>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">finish</span>
+                                                        &lt;<span property="yui:type">Date</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description">  Finishing date</span>
+                                                        </dd>
+                                                </dl>
+
+                                                <dl>
+                                                    <dt>Returns:
+                                                    <code property="yui:return">
+                                                    </code></dt>
+                                                    <dd property="yui:returnInfo">Number Duration in days, may be negative</dd>
+                                                </dl>
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method_rangeToDuration">
+                                    <h4>
+                                        <a name="method_rangeToDuration">rangeToDuration</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                         static 
+                                        
+                                        
+                                            <strong property="yui:name">rangeToDuration</strong>
+                                           (
+                                                
+                                                        
+                                                         start
+                                                    
+                                                
+                                                        , 
+                                                         finish
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Convert a range (2 dates) into a duration. Negative durations are possible. Finish date inclusive
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">start</span>
+                                                        &lt;<span property="yui:type">Date</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description">  Starting date</span>
+                                                        </dd>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">finish</span>
+                                                        &lt;<span property="yui:type">Date</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description">  Finishing date</span>
+                                                        </dd>
+                                                </dl>
+
+                                                <dl>
+                                                    <dt>Returns:
+                                                    <code property="yui:return">
+                                                    </code></dt>
+                                                    <dd property="yui:returnInfo">Number Duration in days, may be negative</dd>
+                                                </dl>
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method_zeroTime">
+                                    <h4>
+                                        <a name="method_zeroTime">zeroTime</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">zeroTime</strong>
+                                           (
+                                                
+                                                        
+                                                         d
+                                                    
+                                                
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Clear the time from a date
+                                        </div>
+
+                                        <div class="description">
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                        <code><span property="yui:name">d</span>
+                                                        &lt;<span property="yui:type">Date</span>&gt;
+                                                        </code>
+                                                        <span property="yui:description">  Date to set time back to 00:00</span>
+                                                        </dd>
+                                                </dl>
+
+                                                <dl>
+                                                    <dt>Returns:
+                                                    <code property="yui:return">
+                                                    </code></dt>
+                                                    <dd property="yui:returnInfo">Date date with time cleared</dd>
+                                                </dl>
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div rel="yui:events" resource="#events">
+
+
+                    </div>
+
+                    <div rel="yui:attributes" resource="#configattributes">
+
+                    </div>
+
+			</div>
+		</div>
+		<div class="yui-b">
+            <div class="nav">
+
+                    <div id="moduleList" class="module">
+                        <h4>Modules</h4>
+                        <ul class="content">
+                                <li class="selected"><a href="module_gallery-dp-timeline.html" title="gallery-dp-timeline">gallery-dp-timeline</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="classList" class="module">
+                        <h4>Classes</h4>
+                        <ul class="content">
+                                <li class=""><a href="DP.Timeline.html" title="DP.Timeline">DP.Timeline</a></li>
+                                <li class=""><a href="DP.TimelineEvent.html" title="DP.TimelineEvent">DP.TimelineEvent</a></li>
+                                <li class="selected"><a href="DP.TimelineUtil.html" title="DP.TimelineUtil">DP.TimelineUtil</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="fileList" class="module">
+                        <h4>Files</h4>
+                        <ul class="content">        
+                                <li class=""><a href="dp-timeline-event.js.html" title="dp-timeline-event.js">dp-timeline-event.js</a></li>
+                                <li class=""><a href="dp-timeline-util.js.html" title="dp-timeline-util.js">dp-timeline-util.js</a></li>
+                                <li class=""><a href="dp-timeline.js.html" title="dp-timeline.js">dp-timeline.js</a></li>
+                        </ul>
+                    </div>
+
+
+                    <div id="methodsList" class="module">
+                        <h4>Methods</h4>
+                        <ul class="content">        
+                                <li class=""><a href="#method_rangeToDifference" title="rangeToDifference">rangeToDifference</a></li>
+                                <li class=""><a href="#method_rangeToDuration" title="rangeToDuration">rangeToDuration</a></li>
+                                <li class=""><a href="#method_zeroTime" title="zeroTime">zeroTime</a></li>
+                        </ul>
+                    </div>
+
+
+
+            </div>
+		</div>
+	</div>
+	<div id="ft">
+        <hr />
+        Copyright &copy; 2011 Yahoo! Inc. All rights reserved.
+	</div>
+</div>
+<script type="text/javascript">
+
+    var ALL_YUI_PROPS = [{"url": "DP.TimelineEvent.html#property_ATTRS", "access": "protected", "host": "DP.TimelineEvent", "type": "property", "name": "ATTRS"}, {"url": "DP.TimelineEvent.html#method_bindUI", "access": "protected", "host": "DP.TimelineEvent", "type": "method", "name": "bindUI"}, {"url": "DP.TimelineEvent.html#property_BOUNDING_TEMPLATE", "access": "protected", "host": "DP.TimelineEvent", "type": "property", "name": "BOUNDING_TEMPLATE"}, {"url": "DP.TimelineEvent.html#config_category", "access": "", "host": "DP.TimelineEvent", "type": "config", "name": "category"}, {"url": "DP.TimelineEvent.html#event_categoryChange", "access": "", "host": "DP.TimelineEvent", "type": "event", "name": "categoryChange"}, {"url": "DP.TimelineEvent.html#property_CONTENT_TEMPLATE", "access": "protected", "host": "DP.TimelineEvent", "type": "property", "name": "CONTENT_TEMPLATE"}, {"url": "DP.TimelineEvent.html#method_destructor", "access": "protected", "host": "DP.TimelineEvent", "type": "method", "name": "destructor"}, {"url": "DP.TimelineEvent.html#config_duration", "access": "", "host": "DP.TimelineEvent", "type": "config", "name": "duration"}, {"url": "DP.TimelineEvent.html#event_durationChange", "access": "", "host": "DP.TimelineEvent", "type": "event", "name": "durationChange"}, {"url": "DP.TimelineEvent.html#config_finish", "access": "", "host": "DP.TimelineEvent", "type": "config", "name": "finish"}, {"url": "DP.TimelineEvent.html#event_finishChange", "access": "", "host": "DP.TimelineEvent", "type": "event", "name": "finishChange"}, {"url": "DP.TimelineEvent.html#property_HTML_PARSER", "access": "protected", "host": "DP.TimelineEvent", "type": "property", "name": "HTML_PARSER"}, {"url": "DP.TimelineEvent.html#method_initializer", "access": "protected", "host": "DP.TimelineEvent", "type": "method", "name": "initializer"}, {"url": "DP.TimelineEvent.html#property_NAME", "access": "", "host": "DP.TimelineEvent", "type": "property", "name": "NAME"}, {"url": "DP.TimelineUtil.html#method_rangeToDifference", "access": "", "host": "DP.TimelineUtil", "type": "method", "name": "rangeToDifference"}, {"url": "DP.TimelineUtil.html#method_rangeToDuration", "access": "", "host": "DP.TimelineUtil", "type": "method", "name": "rangeToDuration"}, {"url": "DP.TimelineEvent.html#method_renderUI", "access": "protected", "host": "DP.TimelineEvent", "type": "method", "name": "renderUI"}, {"url": "DP.TimelineEvent.html#config_slot", "access": "", "host": "DP.TimelineEvent", "type": "config", "name": "slot"}, {"url": "DP.TimelineEvent.html#event_slotChange", "access": "", "host": "DP.TimelineEvent", "type": "event", "name": "slotChange"}, {"url": "DP.TimelineEvent.html#config_start", "access": "", "host": "DP.TimelineEvent", "type": "config", "name": "start"}, {"url": "DP.TimelineEvent.html#event_startChange", "access": "", "host": "DP.TimelineEvent", "type": "event", "name": "startChange"}, {"url": "DP.TimelineEvent.html#config_summary", "access": "", "host": "DP.TimelineEvent", "type": "config", "name": "summary"}, {"url": "DP.TimelineEvent.html#event_summaryChange", "access": "", "host": "DP.TimelineEvent", "type": "event", "name": "summaryChange"}, {"url": "DP.TimelineEvent.html#method_syncUI", "access": "protected", "host": "DP.TimelineEvent", "type": "method", "name": "syncUI"}, {"url": "DP.TimelineUtil.html#method_zeroTime", "access": "", "host": "DP.TimelineUtil", "type": "method", "name": "zeroTime"}];
+</script>
+</body>
+</html>

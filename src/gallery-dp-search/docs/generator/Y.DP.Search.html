@@ -1,0 +1,1175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:yui="http://yuilibrary.com/rdf/1.0/yui.rdf#">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<title>API: dp-search  Y.DP.Search   (YUI Library)</title>
+
+	<link rel="stylesheet" type="text/css" href="assets/reset-fonts-grids-min.css" />
+	<link rel="stylesheet" type="text/css" href="assets/api.css" />
+
+    <script type="text/javascript" src="assets/api-js"></script>
+    <script type="text/javascript" src="assets/ac-js"></script>
+</head>
+
+<body id="yahoo-com">
+
+<div id="doc3" class="yui-t2">
+	<div id="hd">
+        <h1><a href="http://developer.yahoo.com/yui/" title="Yahoo! UI Library">Yahoo! UI Library</a></h1>
+        <h3>dp-search&nbsp; <span class="subtitle">1.0.0</span></h3>
+        <a href="./index.html" title="Yahoo! UI Library">Yahoo! UI Library</a> 
+            &gt; <a href="./module_dp-search.html" title="dp-search">dp-search</a>
+                 &gt; Y.DP.Search 
+                
+        <form onsubmit="return false">
+            <div id="propertysearch">
+                Search: <input autocomplete="off" id="searchinput" />
+                <div id="searchresults">
+                    &nbsp;
+                </div>
+            </div>
+        </form>
+	</div>
+
+	<div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+            <form action="#" name="yui-classopts-form" method="get" id="yui-classopts-form">
+                <fieldset>
+                    <legend>Filters</legend>
+                <span class="classopts"><input type="checkbox" name="show_private" id="show_private" /> <label for="show_private">Show Private</label></span>
+                <span class="classopts"><input type="checkbox" name="show_protected" id="show_protected" /> <label for="show_protected">Show Protected</label></span>
+                <span class="classopts"><input type="checkbox" name="show_deprecated" id="show_deprecated" /> <label for="show_deprecated">Show Deprecated</label></span>
+                </fieldset>
+            </form>
+
+                    <h2>
+                        
+
+                        
+                        
+                            Class <b property="yui:name">Y.DP.Search</b>
+                        <span class="extends">
+                           - extends <a href="Y.Widget.html" title="Y.Widget">Y.Widget</a>
+                        </span>
+
+                    </h2>
+                    <!-- class tree goes here -->
+                    
+                
+  
+
+                    <div class="summary description" property="yui:description">
+                        Search widget which allows keyword searching and a specified search field.
+                    </div>
+
+                    
+                    <div rel="yui:properties" resource="#properties">
+                        <div class="section field details">
+                            <h3 id="properties">Properties</h3>
+                            <div class="content">
+                                    <div class="" rel="yui:property" resource="#property_TEMPLATE_BUTTON">
+                                    <h4><a name="property_TEMPLATE_BUTTON" property="yui:name">TEMPLATE_BUTTON</a>
+                                        - <code><span property="yui:type">String</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            HTML Fragment for the search and reset buttons
+                                        </div>
+                                    </div>
+     
+                                        
+
+
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:property" resource="#property_TEMPLATE_INPUT">
+                                    <h4><a name="property_TEMPLATE_INPUT" property="yui:name">TEMPLATE_INPUT</a>
+                                        - <code><span property="yui:type">String</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            HTML Fragment for the keyword input box
+                                        </div>
+                                    </div>
+     
+                                        
+
+
+                                    <hr />
+                                    </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div rel="yui:methods" resource="#methods">
+                        <div class="section method details">
+                            <h3 id="methods">Methods</h3>
+                            <div class="content">
+                                    <div class="protected" rel="yui:method" resource="#method__afterFieldChange">
+                                    <h4>
+                                        <a name="method__afterFieldChange">_afterFieldChange</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_afterFieldChange</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Handle search field changed
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="protected" rel="yui:method" resource="#method__afterValueChange">
+                                    <h4>
+                                        <a name="method__afterValueChange">_afterValueChange</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_afterValueChange</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Handle search value changed
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__defQueryUpdateFn">
+                                    <h4>
+                                        <a name="method__defQueryUpdateFn">_defQueryUpdateFn</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_defQueryUpdateFn</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Default handler for queryUpdate : do nothing.
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="protected" rel="yui:method" resource="#method__handleInputBlur">
+                                    <h4>
+                                        <a name="method__handleInputBlur">_handleInputBlur</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_handleInputBlur</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Handle input got blur event
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="protected" rel="yui:method" resource="#method__handleInputEnterKey">
+                                    <h4>
+                                        <a name="method__handleInputEnterKey">_handleInputEnterKey</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_handleInputEnterKey</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Handle input got enter key event
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="protected" rel="yui:method" resource="#method__handleInputFocus">
+                                    <h4>
+                                        <a name="method__handleInputFocus">_handleInputFocus</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_handleInputFocus</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Handle input got focus
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__handleInputKeyPress">
+                                    <h4>
+                                        <a name="method__handleInputKeyPress">_handleInputKeyPress</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_handleInputKeyPress</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Handle input got keypress (any key)
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="protected" rel="yui:method" resource="#method__handleResetClick">
+                                    <h4>
+                                        <a name="method__handleResetClick">_handleResetClick</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_handleResetClick</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Handle click on reset.
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__renderButtons">
+                                    <h4>
+                                        <a name="method__renderButtons">_renderButtons</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_renderButtons</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Render the search and reset buttons
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="protected" rel="yui:method" resource="#method__renderInput">
+                                    <h4>
+                                        <a name="method__renderInput">_renderInput</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                         protected 
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_renderInput</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Render the input node for the search terms
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__uiSetField">
+                                    <h4>
+                                        <a name="method__uiSetField">_uiSetField</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_uiSetField</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Set the UI to reflect the 'field' attribute.
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method__uiSetValue">
+                                    <h4>
+                                        <a name="method__uiSetValue">_uiSetValue</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">_uiSetValue</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Set the UI to reflect the 'value' attribute.
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method_hideTip">
+                                    <h4>
+                                        <a name="method_hideTip">hideTip</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">hideTip</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Hide the search text tip
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:method" resource="#method_showTip">
+                                    <h4>
+                                        <a name="method_showTip">showTip</a></h4>
+                                    <div class="detail" >
+                                        <code>
+                                        
+                                        
+                                        
+                                        void
+                                            <strong property="yui:name">showTip</strong>
+                                           (
+                                            )
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Show the search text tip
+                                        </div>
+
+                                        <div class="description">
+
+
+
+
+             
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div rel="yui:events" resource="#events">
+                        <div class="section method details">
+                            <h3 id="events">Events</h3>
+                            <div class="content">
+                                    <div class="" rel="yui:event" resource="#event__tipShownChange">
+                                    <h4>
+                                        <a name="event__tipShownChange">_tipShownChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">_tipShownChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute '_tipShown' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_fieldChange">
+                                    <h4>
+                                        <a name="event_fieldChange">fieldChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">fieldChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'field' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_inputNodeChange">
+                                    <h4>
+                                        <a name="event_inputNodeChange">inputNodeChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">inputNodeChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'inputNode' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_inputWrapperChange">
+                                    <h4>
+                                        <a name="event_inputWrapperChange">inputWrapperChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">inputWrapperChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'inputWrapper' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_resetButtonNodeChange">
+                                    <h4>
+                                        <a name="event_resetButtonNodeChange">resetButtonNodeChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">resetButtonNodeChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'resetButtonNode' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_searchButtonNodeChange">
+                                    <h4>
+                                        <a name="event_searchButtonNodeChange">searchButtonNodeChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">searchButtonNodeChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'searchButtonNode' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_stringsChange">
+                                    <h4>
+                                        <a name="event_stringsChange">stringsChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">stringsChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'strings' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_timeoutChange">
+                                    <h4>
+                                        <a name="event_timeoutChange">timeoutChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">timeoutChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'timeout' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                                    <div class="" rel="yui:event" resource="#event_valueChange">
+                                    <h4>
+                                        <a name="event_valueChange">valueChange</a></h4>
+                                    <div class="detail">
+                                        <code>
+                                        
+                                        
+                                        
+                                            <strong property="yui:name">valueChange</strong>
+
+                                            (
+                                                
+                                                        
+                                                         event
+                                                    
+                                                
+                                            )
+
+                                        </code>
+                                        
+                                        <div class="description" property="yui:description">
+                                            Fires when the value for the configuration attribute 'value' is changed. You can listen for the event using the <a href="Attribute.html#method_on">on</a> method if you wish to be notified before the attribute's value has changed, or using the <a href="Event.Target.html#method_after">after</a> method if you wish to be notified after the attribute's value has changed.
+                                        </div>
+
+                                        <div class="description">
+
+
+                                                <dl rel="yui:parameters">
+                                                    <dt>Parameters:</dt>
+                                                        <dd rel="yui:parameter">
+                                                            <code><span property="yui:name">event</span>
+                                                                &lt;<span property="yui:type">Event.Facade</span>&gt;
+                                                            </code>
+                                                            <span property="yui:description">An Event Facade object with      the following attribute specific properties added:	<dl>		<dt>prevVal</dt>		<dd>The value of the attribute, prior to it being set</dd>		<dt>newVal</dt>		<dd>The value the attribute is to be set to</dd>		<dt>attrName</dt>		<dd>The name of the attribute being set</dd>		<dt>subAttrName</dt>		<dd>If setting a property within the attribute's value,           the name of the sub-attribute property being set</dd>	</dl></span>
+                                                        </dd>
+                                                        
+                                                </dl>
+
+
+                                        </div>
+
+                                    </div>
+                                    <hr />
+                                    </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div rel="yui:attributes" resource="#configattributes">
+                        <div class="section field details">
+                            <h3 id="configattributes">Configuration Attributes</h3>
+                            <div class="content">
+                                    <div class="protected" rel="yui:attribute" resource="#config__tipShown">
+                                    <h4><a name="config__tipShown">_tipShown</a>
+                                        <code>- protected <span property="yui:type">Boolean</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            State of the search tip
+                                        </div>
+                                    </div>
+ 
+     
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_field">
+                                    <h4><a name="config_field">field</a>
+                                        <code>- <span property="yui:type">String</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            The field to search
+                                        </div>
+                                    </div>
+ 
+     
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_inputNode">
+                                    <h4><a name="config_inputNode">inputNode</a>
+                                        <code>- <span property="yui:type">Node</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Node reference to the INPUT which holds the search term.
+                                        </div>
+                                    </div>
+ 
+     
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_inputWrapper">
+                                    <h4><a name="config_inputWrapper">inputWrapper</a>
+                                        <code>- <span property="yui:type">Node</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Node reference to the wrapper around the input and pulldown elements.
+                                        </div>
+                                    </div>
+ 
+     
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_resetButtonNode">
+                                    <h4><a name="config_resetButtonNode">resetButtonNode</a>
+                                        <code>- <span property="yui:type">Node</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Node reference to the reset search terms button
+                                        </div>
+                                    </div>
+ 
+     
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_searchButtonNode">
+                                    <h4><a name="config_searchButtonNode">searchButtonNode</a>
+                                        <code>- <span property="yui:type">Node</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Node reference to the search submit button
+                                        </div>
+                                    </div>
+ 
+     
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_strings">
+                                    <h4><a name="config_strings">strings</a>
+                                        <code>- <span property="yui:type">Object</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Strings that can be used with internationalisation.
+                                        </div>
+                                    </div>
+ 
+     
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_timeout">
+                                    <h4><a name="config_timeout">timeout</a>
+                                        <code>- <span property="yui:type">Integer</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            Timeout in milliseconds for search to submit the current terms
+Submits the current search terms if the timeout specified has elapsed.
+                                        </div>
+                                    </div>
+ 
+     
+
+                                    <hr />
+                                    </div>        
+                                    <div class="" rel="yui:attribute" resource="#config_value">
+                                    <h4><a name="config_value">value</a>
+                                        <code>- <span property="yui:type">String</span></code>
+                                    </h4>
+                                    <div class="detail">
+                                        <div class="description" property="yui:description">
+                                            The search keyword(s). changing this fires a queryUpdate event.
+                                        </div>
+                                    </div>
+ 
+     
+
+                                    <hr />
+                                    </div>        
+
+                            </div>
+                        </div>
+
+                    </div>
+
+			</div>
+		</div>
+		<div class="yui-b">
+            <div class="nav">
+
+                    <div id="moduleList" class="module">
+                        <h4>Modules</h4>
+                        <ul class="content">
+                                <li class="selected"><a href="module_dp-search.html" title="dp-search">dp-search</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="classList" class="module">
+                        <h4>Classes</h4>
+                        <ul class="content">
+                                <li class="selected"><a href="Y.DP.Search.html" title="Y.DP.Search">Y.DP.Search</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="fileList" class="module">
+                        <h4>Files</h4>
+                        <ul class="content">        
+                                <li class=""><a href="dp-search.js.html" title="dp-search.js">dp-search.js</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="propertyList" class="module">
+                        <h4>Properties</h4>
+                        <ul class="content">        
+                                <li class=""><a href="#property_TEMPLATE_BUTTON" title="TEMPLATE_BUTTON">TEMPLATE_BUTTON</a></li>
+                                <li class=""><a href="#property_TEMPLATE_INPUT" title="TEMPLATE_INPUT">TEMPLATE_INPUT</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="methodsList" class="module">
+                        <h4>Methods</h4>
+                        <ul class="content">        
+                                <li class="protected"><a href="#method__afterFieldChange" title="_afterFieldChange">_afterFieldChange</a></li>
+                                <li class="protected"><a href="#method__afterValueChange" title="_afterValueChange">_afterValueChange</a></li>
+                                <li class=""><a href="#method__defQueryUpdateFn" title="_defQueryUpdateFn">_defQueryUpdateFn</a></li>
+                                <li class="protected"><a href="#method__handleInputBlur" title="_handleInputBlur">_handleInputBlur</a></li>
+                                <li class="protected"><a href="#method__handleInputEnterKey" title="_handleInputEnterKey">_handleInputEnterKey</a></li>
+                                <li class="protected"><a href="#method__handleInputFocus" title="_handleInputFocus">_handleInputFocus</a></li>
+                                <li class=""><a href="#method__handleInputKeyPress" title="_handleInputKeyPress">_handleInputKeyPress</a></li>
+                                <li class="protected"><a href="#method__handleResetClick" title="_handleResetClick">_handleResetClick</a></li>
+                                <li class=""><a href="#method__renderButtons" title="_renderButtons">_renderButtons</a></li>
+                                <li class="protected"><a href="#method__renderInput" title="_renderInput">_renderInput</a></li>
+                                <li class=""><a href="#method__uiSetField" title="_uiSetField">_uiSetField</a></li>
+                                <li class=""><a href="#method__uiSetValue" title="_uiSetValue">_uiSetValue</a></li>
+                                <li class=""><a href="#method_hideTip" title="hideTip">hideTip</a></li>
+                                <li class=""><a href="#method_showTip" title="showTip">showTip</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="eventsList" class="module">
+                        <h4>Events</h4>
+                        <ul class="content">        
+                                <li class=""><a href="#event__tipShownChange" title="_tipShownChange">_tipShownChange</a></li>
+                                <li class=""><a href="#event_fieldChange" title="fieldChange">fieldChange</a></li>
+                                <li class=""><a href="#event_inputNodeChange" title="inputNodeChange">inputNodeChange</a></li>
+                                <li class=""><a href="#event_inputWrapperChange" title="inputWrapperChange">inputWrapperChange</a></li>
+                                <li class=""><a href="#event_resetButtonNodeChange" title="resetButtonNodeChange">resetButtonNodeChange</a></li>
+                                <li class=""><a href="#event_searchButtonNodeChange" title="searchButtonNodeChange">searchButtonNodeChange</a></li>
+                                <li class=""><a href="#event_stringsChange" title="stringsChange">stringsChange</a></li>
+                                <li class=""><a href="#event_timeoutChange" title="timeoutChange">timeoutChange</a></li>
+                                <li class=""><a href="#event_valueChange" title="valueChange">valueChange</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="configList" class="module">
+                        <h4>Configuration Attributes</h4>
+                        <ul class="content">        
+                                <li class="protected"><a href="#config__tipShown" title="_tipShown">_tipShown</a></li>
+                                <li class=""><a href="#config_field" title="field">field</a></li>
+                                <li class=""><a href="#config_inputNode" title="inputNode">inputNode</a></li>
+                                <li class=""><a href="#config_inputWrapper" title="inputWrapper">inputWrapper</a></li>
+                                <li class=""><a href="#config_resetButtonNode" title="resetButtonNode">resetButtonNode</a></li>
+                                <li class=""><a href="#config_searchButtonNode" title="searchButtonNode">searchButtonNode</a></li>
+                                <li class=""><a href="#config_strings" title="strings">strings</a></li>
+                                <li class=""><a href="#config_timeout" title="timeout">timeout</a></li>
+                                <li class=""><a href="#config_value" title="value">value</a></li>
+                        </ul>
+                    </div>
+
+            </div>
+		</div>
+	</div>
+	<div id="ft">
+        <hr />
+        Copyright &copy; 2011 Yahoo! Inc. All rights reserved.
+	</div>
+</div>
+<script type="text/javascript">
+
+    var ALL_YUI_PROPS = [{"url": "Y.DP.Search.html#method__afterFieldChange", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_afterFieldChange"}, {"url": "Y.DP.Search.html#method__afterValueChange", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_afterValueChange"}, {"url": "Y.DP.Search.html#method__defQueryUpdateFn", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_defQueryUpdateFn"}, {"url": "Y.DP.Search.html#config_field", "access": "", "host": "Y.DP.Search", "type": "config", "name": "field"}, {"url": "Y.DP.Search.html#event_fieldChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "fieldChange"}, {"url": "Y.DP.Search.html#method__handleInputBlur", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_handleInputBlur"}, {"url": "Y.DP.Search.html#method__handleInputEnterKey", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_handleInputEnterKey"}, {"url": "Y.DP.Search.html#method__handleInputFocus", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_handleInputFocus"}, {"url": "Y.DP.Search.html#method__handleInputKeyPress", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_handleInputKeyPress"}, {"url": "Y.DP.Search.html#method__handleResetClick", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_handleResetClick"}, {"url": "Y.DP.Search.html#method_hideTip", "access": "", "host": "Y.DP.Search", "type": "method", "name": "hideTip"}, {"url": "Y.DP.Search.html#config_inputNode", "access": "", "host": "Y.DP.Search", "type": "config", "name": "inputNode"}, {"url": "Y.DP.Search.html#event_inputNodeChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "inputNodeChange"}, {"url": "Y.DP.Search.html#config_inputWrapper", "access": "", "host": "Y.DP.Search", "type": "config", "name": "inputWrapper"}, {"url": "Y.DP.Search.html#event_inputWrapperChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "inputWrapperChange"}, {"url": "Y.DP.Search.html#method__renderButtons", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_renderButtons"}, {"url": "Y.DP.Search.html#method__renderInput", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_renderInput"}, {"url": "Y.DP.Search.html#config_resetButtonNode", "access": "", "host": "Y.DP.Search", "type": "config", "name": "resetButtonNode"}, {"url": "Y.DP.Search.html#event_resetButtonNodeChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "resetButtonNodeChange"}, {"url": "Y.DP.Search.html#config_searchButtonNode", "access": "", "host": "Y.DP.Search", "type": "config", "name": "searchButtonNode"}, {"url": "Y.DP.Search.html#event_searchButtonNodeChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "searchButtonNodeChange"}, {"url": "Y.DP.Search.html#method_showTip", "access": "", "host": "Y.DP.Search", "type": "method", "name": "showTip"}, {"url": "Y.DP.Search.html#config_strings", "access": "", "host": "Y.DP.Search", "type": "config", "name": "strings"}, {"url": "Y.DP.Search.html#event_stringsChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "stringsChange"}, {"url": "Y.DP.Search.html#property_TEMPLATE_BUTTON", "access": "", "host": "Y.DP.Search", "type": "property", "name": "TEMPLATE_BUTTON"}, {"url": "Y.DP.Search.html#property_TEMPLATE_INPUT", "access": "", "host": "Y.DP.Search", "type": "property", "name": "TEMPLATE_INPUT"}, {"url": "Y.DP.Search.html#config_timeout", "access": "", "host": "Y.DP.Search", "type": "config", "name": "timeout"}, {"url": "Y.DP.Search.html#event_timeoutChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "timeoutChange"}, {"url": "Y.DP.Search.html#config__tipShown", "access": "protected", "host": "Y.DP.Search", "type": "config", "name": "_tipShown"}, {"url": "Y.DP.Search.html#event__tipShownChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "_tipShownChange"}, {"url": "Y.DP.Search.html#method__uiSetField", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_uiSetField"}, {"url": "Y.DP.Search.html#method__uiSetValue", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_uiSetValue"}, {"url": "Y.DP.Search.html#config_value", "access": "", "host": "Y.DP.Search", "type": "config", "name": "value"}, {"url": "Y.DP.Search.html#event_valueChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "valueChange"}];
+</script>
+</body>
+</html>

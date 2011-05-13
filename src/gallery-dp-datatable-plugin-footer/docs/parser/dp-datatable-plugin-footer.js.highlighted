@@ -1,0 +1,165 @@
+<div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm"> * The DataTable footer plugin allows you to display any value in the footer section of the table.</span>
+<span class="cm"> * You can do simple calculations or provide a function to render content based on the recordset.</span>
+<span class="cm"> * </span>
+<span class="cm"> * @module dp-datatable-plugin-footer</span>
+<span class="cm"> * @requires lang, array, base, node</span>
+<span class="cm"> */</span>
+
+<span class="c1">//YUI.add(&#39;dp-datatable-plugin-footer&#39;, function(Y) {</span>
+	
+	<span class="kd">var</span> <span class="nx">Lang</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Lang</span><span class="p">,</span>
+            <span class="nx">Node</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Node</span><span class="p">;</span>
+	
+	<span class="cm">/**</span>
+<span class="cm">	 * The DataTable footer plugin allows you to display any value in the footer section of the table.</span>
+<span class="cm">	 * You can do simple calculations or provide a function to render content based on the recordset.</span>
+<span class="cm">	 * </span>
+<span class="cm">	 * The footer columnset definition is different to the DataTable columnset definition because there are use cases for</span>
+<span class="cm">	 * footer columns not based on data, or aggregated from multiple columns.</span>
+<span class="cm">	 * </span>
+<span class="cm">	 * @class DataTableFooter</span>
+<span class="cm">	 * @extends Y.Base.Plugin</span>
+<span class="cm">	 * @augments Y.DataTable</span>
+<span class="cm">	 * @param config {Object} Configuration object literal with initial attribute values</span>
+<span class="cm">	 * @constructor</span>
+<span class="cm">	 */</span>
+	<span class="nx">Y</span><span class="p">.</span><span class="nx">namespace</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">).</span><span class="nx">DataTableFooter</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Base</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span> <span class="s1">&#39;gallery-dp-datatable-plugin-footer&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Plugin</span><span class="p">.</span><span class="nx">Base</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span>
+		
+		<span class="nx">initializer</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
+			<span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;initializer&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;DataTableFooter&#39;</span><span class="p">);</span>
+			
+			<span class="k">this</span><span class="p">.</span><span class="nx">afterHostMethod</span><span class="p">(</span><span class="s2">&quot;render&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_renderFooter</span><span class="p">);</span>        
+                        <span class="k">this</span><span class="p">.</span><span class="nx">afterHostEvent</span><span class="p">(</span><span class="s2">&quot;recordsetChange&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_renderColumnValues</span><span class="p">);</span>
+		<span class="p">},</span>
+		
+		<span class="nx">destructor</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+			
+		<span class="p">},</span>
+		
+		<span class="cm">/**</span>
+<span class="cm">		 * @method _renderFooter</span>
+<span class="cm">		 * @description Renders the initial markup for the footer.</span>
+<span class="cm">		 * @private</span>
+<span class="cm">		 */</span>
+		<span class="nx">_renderFooter</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+			<span class="kd">var</span> <span class="nx">columnset</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;columnset&#39;</span><span class="p">);</span>
+			
+			<span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;_afterHostRenderMethod&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;DataTableFooter&#39;</span><span class="p">);</span>
+			
+			<span class="k">this</span><span class="p">.</span><span class="nx">_tfoot</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;tfootTemplate&#39;</span><span class="p">),</span> <span class="p">{</span>
+				<span class="nx">tfootClassName</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">).</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;footer&#39;</span><span class="p">,</span> <span class="s1">&#39;tfoot&#39;</span><span class="p">),</span>
+				<span class="nx">trClassName</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">).</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;footer&#39;</span><span class="p">,</span> <span class="s1">&#39;tr&#39;</span><span class="p">)</span>
+			<span class="p">}));</span>
+			
+			<span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">).</span><span class="nx">one</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_tfoot</span><span class="p">);</span>
+		<span class="p">},</span>
+		
+		<span class="cm">/**</span>
+<span class="cm">		 * @method _renderColumnValues</span>
+<span class="cm">		 * @description Render the footer definition. Occurs every time the recordSetChange event is fired by the host.</span>
+<span class="cm">                 * @private</span>
+<span class="cm">		 * @return undefined</span>
+<span class="cm">		 */</span>
+		<span class="nx">_renderColumnValues</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+			<span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;_renderColumnValues&#39;</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="s1">&#39;DataTableFooter&#39;</span><span class="p">);</span>
+			
+			<span class="kd">var</span> <span class="nx">columns</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;columnset&#39;</span><span class="p">),</span>
+                            <span class="nx">columnNode</span><span class="p">,</span>
+                            <span class="nx">v</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                            <span class="nx">span</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+			
+			<span class="nx">Y</span><span class="p">.</span><span class="nb">Array</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">columns</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+				
+				<span class="k">if</span> <span class="p">(</span><span class="nx">Lang</span><span class="p">.</span><span class="nx">isFunction</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">value</span><span class="p">))</span> <span class="p">{</span>
+					<span class="nx">v</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">value</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;recordset&#39;</span><span class="p">));</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="nx">v</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
+				<span class="p">}</span>
+				
+				<span class="k">if</span> <span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">span</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+					<span class="nx">span</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">span</span><span class="p">;</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="nx">span</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+				<span class="p">}</span>
+				
+				<span class="nx">columnNode</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;tdTemplate&#39;</span><span class="p">),</span> <span class="p">{</span>
+					<span class="nx">tdClassName</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">).</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;footer&#39;</span><span class="p">,</span> <span class="s1">&#39;col&#39;</span><span class="p">),</span>
+					<span class="nx">linerClassName</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">).</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;liner&#39;</span><span class="p">),</span>
+					<span class="nx">tdColSpan</span><span class="o">:</span> <span class="nx">span</span><span class="p">,</span>
+					<span class="nx">value</span><span class="o">:</span> <span class="nx">v</span>
+				<span class="p">}));</span>
+
+				<span class="k">this</span><span class="p">.</span><span class="nx">_tfoot</span><span class="p">.</span><span class="nx">one</span><span class="p">(</span><span class="s1">&#39;tr&#39;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">columnNode</span><span class="p">);</span>
+			<span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+		<span class="p">}</span>
+		
+	<span class="p">},{</span>
+		
+		<span class="cm">/**</span>
+<span class="cm">		 * @property _tfoot</span>
+<span class="cm">		 * @description Reference to the created TFOOT node</span>
+<span class="cm">		 * @type Node</span>
+<span class="cm">		 * @default undefined</span>
+<span class="cm">                 * @private</span>
+<span class="cm">		 */</span>
+		<span class="nx">_tfoot</span> <span class="o">:</span> <span class="kc">undefined</span><span class="p">,</span>
+		
+		<span class="cm">/**</span>
+<span class="cm">		 * @property NAME</span>
+<span class="cm">		 * @type String</span>
+<span class="cm">                 * @protected</span>
+<span class="cm">		 */</span>
+		<span class="nx">NAME</span> <span class="o">:</span> <span class="s2">&quot;datatableFooter&quot;</span><span class="p">,</span>
+		
+		<span class="cm">/**</span>
+<span class="cm">		 * @property NS</span>
+<span class="cm">		 * @type String</span>
+<span class="cm">                 * @protected</span>
+<span class="cm">		 */</span>
+		<span class="nx">NS</span> <span class="o">:</span> <span class="s2">&quot;dtfoot&quot;</span><span class="p">,</span>
+		
+		
+		<span class="nx">ATTRS</span> <span class="o">:</span> <span class="p">{</span>
+			
+			<span class="cm">/**</span>
+<span class="cm">                         * A couple of example values for this configuration attribute: &lt;br /&gt;</span>
+<span class="cm">                         * &lt;br /&gt;</span>
+<span class="cm">                         * One column that contains only the word &quot;String&quot; but spans 2 columns of the table. &lt;br /&gt;</span>
+<span class="cm">                         * &lt;code&gt;</span>
+<span class="cm">                         * [ { value: &quot;String&quot;, span: 2 } ] </span>
+<span class="cm">                         * &lt;/code&gt;</span>
+<span class="cm">                         * &lt;br /&gt;&lt;br /&gt;</span>
+<span class="cm">                         * One column that executes a function to get its contents, the function takes the RecordSet instance of the Y.DataTable as its only parameter &lt;br /&gt;</span>
+<span class="cm">                         * &lt;code&gt;</span>
+<span class="cm">                         * [ { value: fnCalculateTotal } ]</span>
+<span class="cm">                         * &lt;/code&gt;</span>
+<span class="cm">                         *</span>
+<span class="cm">			 * @attribute columnset</span>
+<span class="cm">			 * @type Array</span>
+<span class="cm">			 */</span>
+			<span class="nx">columnset</span> <span class="o">:</span> <span class="p">{</span>
+				<span class="nx">value</span> <span class="o">:</span> <span class="nb">Array</span><span class="p">()</span>
+			<span class="p">},</span>
+			
+			<span class="cm">/**</span>
+<span class="cm">			 * @attribute tfootTemplate</span>
+<span class="cm">			 * @description Template for the footer minus the columns</span>
+<span class="cm">			 * @type String</span>
+<span class="cm">			 */</span>
+			<span class="nx">tfootTemplate</span> <span class="o">:</span> <span class="p">{</span>
+				<span class="nx">value</span> <span class="o">:</span> <span class="s2">&quot;&lt;tfoot class=\&quot;{tfootClassName}\&quot;&gt;&lt;tr class=\&quot;{trClassName}\&quot;&gt;&lt;/tr&gt;&lt;/tfoot&gt;&quot;</span>
+			<span class="p">},</span>
+			
+			<span class="cm">/**</span>
+<span class="cm">			 * @attribute tdTemplate</span>
+<span class="cm">			 * @description Template for every footer cell</span>
+<span class="cm">			 * @type String</span>
+<span class="cm">			 */</span>
+			<span class="nx">tdTemplate</span> <span class="o">:</span> <span class="p">{</span>
+				<span class="nx">value</span> <span class="o">:</span> <span class="s2">&quot;&lt;td class=\&quot;{tdClassName}\&quot; colspan=\&quot;{tdColSpan}\&quot;&gt;&lt;div class=\&quot;{linerClassName}\&quot;&gt;{value}&lt;/div&gt;&lt;/td&gt;&quot;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">});</span>
+<span class="c1">//}, &#39;@VERSION@&#39; ,{requires:[&#39;base&#39;]});</span>
+</pre></div>

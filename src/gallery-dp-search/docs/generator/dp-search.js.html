@@ -1,0 +1,476 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:yui="http://yuilibrary.com/rdf/1.0/yui.rdf#">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<title>API: dp-search   dp-search.js  (YUI Library)</title>
+
+	<link rel="stylesheet" type="text/css" href="assets/reset-fonts-grids-min.css" />
+	<link rel="stylesheet" type="text/css" href="assets/api.css" />
+
+    <script type="text/javascript" src="assets/api-js"></script>
+    <script type="text/javascript" src="assets/ac-js"></script>
+</head>
+
+<body id="yahoo-com">
+
+<div id="doc3" class="yui-t2">
+	<div id="hd">
+        <h1><a href="http://developer.yahoo.com/yui/" title="Yahoo! UI Library">Yahoo! UI Library</a></h1>
+        <h3>dp-search&nbsp; <span class="subtitle">1.0.0</span></h3>
+        <a href="./index.html" title="Yahoo! UI Library">Yahoo! UI Library</a> 
+            &gt; <a href="./module_dp-search.html" title="dp-search">dp-search</a>
+                
+                 &gt; dp-search.js (source view) 
+        <form onsubmit="return false">
+            <div id="propertysearch">
+                Search: <input autocomplete="off" id="searchinput" />
+                <div id="searchresults">
+                    &nbsp;
+                </div>
+            </div>
+        </form>
+	</div>
+
+	<div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+            <form action="#" name="yui-classopts-form" method="get" id="yui-classopts-form">
+                <fieldset>
+                    <legend>Filters</legend>
+                <span class="classopts"><input type="checkbox" name="show_private" id="show_private" /> <label for="show_private">Show Private</label></span>
+                <span class="classopts"><input type="checkbox" name="show_protected" id="show_protected" /> <label for="show_protected">Show Protected</label></span>
+                <span class="classopts"><input type="checkbox" name="show_deprecated" id="show_deprecated" /> <label for="show_deprecated">Show Deprecated</label></span>
+                </fieldset>
+            </form>
+
+                    <div id="srcout">
+                        <style>
+                            #doc3 .classopts { display:none; }
+                        </style>
+                        <div class="highlight"><pre>	
+<span class="cm">/**</span>
+<span class="cm"> * Search widget</span>
+<span class="cm"> * </span>
+<span class="cm"> * @module dp-search</span>
+<span class="cm"> * @requires widget</span>
+<span class="cm"> */</span>
+<span class="kd">var</span> <span class="nx">Lang</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Lang</span><span class="p">,</span>
+    <span class="nx">Node</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Node</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Search widget which allows keyword searching and a specified search field.</span>
+<span class="cm"> * </span>
+<span class="cm"> * @class Y.DP.Search</span>
+<span class="cm"> * @extends Y.Widget</span>
+<span class="cm"> */</span>
+<span class="nx">Y</span><span class="p">.</span><span class="nx">namespace</span><span class="p">(</span><span class="s1">&#39;DP&#39;</span><span class="p">).</span><span class="nx">Search</span> <span class="o">=</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Base</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="s1">&#39;dp-search&#39;</span><span class="p">,</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">Widget</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{</span>
+
+        <span class="c1">// @see Y.Base.initializer</span>
+        <span class="nx">initializer</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-search:init&#39;</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s1">&#39;queryUpdate&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">defaultFn</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">_defQueryUpdateFn</span><span class="p">});</span>
+        <span class="p">},</span>
+
+        <span class="c1">// @see Y.Base.destructor</span>
+        <span class="nx">destructor</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            
+        <span class="p">},</span>
+
+        <span class="c1">// @see Y.Widget.renderUI</span>
+        <span class="nx">renderUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">contentBox</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;contentBox&#39;</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_renderInput</span><span class="p">(</span><span class="nx">contentBox</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_renderFieldSelector</span><span class="p">(</span><span class="nx">contentBox</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_renderButtons</span><span class="p">(</span><span class="nx">contentBox</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Render the input node for the search terms</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _renderInput</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_renderInput</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">contentBox</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">))</span> <span class="p">{</span>
+                        <span class="kd">var</span> <span class="nx">inputNode</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">TEMPLATE_INPUT</span><span class="p">,</span> <span class="p">{</span> <span class="nx">className</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">)</span> <span class="p">}));</span>
+                        <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">,</span> <span class="nx">inputNode</span><span class="p">);</span>
+
+                        <span class="nx">contentBox</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">inputNode</span><span class="p">);</span>
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="nx">_renderFieldSelector</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Render the search and reset buttons</span>
+<span class="cm">         */</span>
+        <span class="nx">_renderButtons</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">contentBox</span><span class="p">)</span> <span class="p">{</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;searchButtonNode&#39;</span><span class="p">))</span> <span class="p">{</span>
+
+                    <span class="kd">var</span> <span class="nx">submitBtn</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">TEMPLATE_BUTTON</span><span class="p">,</span> <span class="p">{</span> 
+                        <span class="nx">className</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;submit&#39;</span><span class="p">),</span> <span class="nx">value</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;strings.submitLabel&#39;</span><span class="p">)</span> <span class="p">}</span> <span class="p">));</span>
+                    <span class="nx">contentBox</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">submitBtn</span><span class="p">);</span>
+
+                    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;searchButtonNode&#39;</span><span class="p">,</span> <span class="nx">submitBtn</span><span class="p">);</span>
+                <span class="p">}</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;resetButtonNode&#39;</span><span class="p">))</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">resetBtn</span> <span class="o">=</span> <span class="nx">Node</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">substitute</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">TEMPLATE_BUTTON</span><span class="p">,</span> <span class="p">{</span> 
+                        <span class="nx">className</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;reset&#39;</span><span class="p">),</span> <span class="nx">value</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;strings.resetLabel&#39;</span><span class="p">)</span> <span class="p">}</span> <span class="p">));</span>
+                    <span class="nx">contentBox</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">resetBtn</span><span class="p">);</span>
+
+                    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;resetButtonNode&#39;</span><span class="p">,</span> <span class="nx">resetBtn</span><span class="p">);</span>
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="c1">// @see Y.Widget.bindUI</span>
+        <span class="nx">bindUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;focus&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_handleInputFocus</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;blur&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_handleInputBlur</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+
+                <span class="kd">var</span> <span class="nx">keyEventSpec</span> <span class="o">=</span> <span class="p">(</span><span class="o">!</span><span class="nx">Y</span><span class="p">.</span><span class="nx">UA</span><span class="p">.</span><span class="nx">opera</span><span class="p">)</span> <span class="o">?</span> <span class="s2">&quot;down:&quot;</span> <span class="o">:</span> <span class="s2">&quot;press:&quot;</span><span class="p">;</span>
+                <span class="nx">keyEventSpec</span> <span class="o">+=</span> <span class="s2">&quot;13&quot;</span><span class="p">;</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_handleInputEnterKey</span><span class="p">,</span> <span class="nx">keyEventSpec</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;keypress&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_handleInputKeyPress</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">one</span><span class="p">(</span><span class="s1">&#39;.yui3-dp-search-reset&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_handleResetClick</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span> <span class="c1">// Reset sets value to blank</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">one</span><span class="p">(</span><span class="s1">&#39;.yui3-dp-search-submit&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_uiSetValue</span><span class="p">(),</span> <span class="k">this</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;valueChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterValueChange</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">after</span><span class="p">(</span><span class="s1">&#39;fieldChange&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_afterFieldChange</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="c1">// @see Y.Widget.syncUI</span>
+        <span class="nx">syncUI</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_uiSetValue</span><span class="p">();</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * State of the search tip</span>
+<span class="cm">         * </span>
+<span class="cm">         * @attribute _tipShown</span>
+<span class="cm">         * @type Boolean</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_tipShown</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Show the search text tip</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method showTip</span>
+<span class="cm">         * @public</span>
+<span class="cm">         */</span>
+        <span class="nx">showTip</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">addClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;tip&#39;</span><span class="p">));</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;strings.tip&#39;</span><span class="p">));</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_tipShown</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Hide the search text tip</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method hideTip</span>
+<span class="cm">         * @public</span>
+<span class="cm">         */</span>
+        <span class="nx">hideTip</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">removeClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getClassName</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;tip&#39;</span><span class="p">));</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_tipShown</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Handle input got focus</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _handleInputFocus</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_handleInputFocus</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_tipShown</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">this</span><span class="p">.</span><span class="nx">hideTip</span><span class="p">();</span>
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Handle input got blur event</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _handleInputBlur</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_handleInputBlur</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-search:_handleInputBlur&#39;</span><span class="p">);</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_tipShown</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">));</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">_uiSetValue</span><span class="p">();</span>
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Handle input got enter key event</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _handleInputEnterKey</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_handleInputEnterKey</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-search:_handleInputKey&#39;</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">));</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">blur</span><span class="p">();</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Handle input got keypress (any key)</span>
+<span class="cm">         */</span>
+        <span class="nx">_handleInputKeyPress</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-search:_handleInputKeyPress&#39;</span><span class="p">);</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_currentTimeoutID</span> <span class="o">!==</span> <span class="kc">null</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">_currentTimeoutID</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span> <span class="nx">clearTimeout</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_currentTimeoutID</span><span class="p">);</span> <span class="p">}</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">_currentTimeoutID</span> <span class="o">=</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">Y</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_handleTimeoutElapsed</span><span class="p">,</span> <span class="k">this</span><span class="p">),</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;timeout&#39;</span><span class="p">));</span>
+        <span class="p">},</span>
+
+        <span class="nx">_handleTimeoutElapsed</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-search:_handleTimeoutElapsed&#39;</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">));</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Handle click on reset.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _handleResetClick</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_handleResetClick</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Handle search value changed</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _afterValueChange</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_afterValueChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-search:_afterValueChange&#39;</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">_uiSetValue</span><span class="p">();</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">fire</span><span class="p">(</span><span class="s1">&#39;queryUpdate&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">parameters</span><span class="o">:</span> <span class="p">{</span> 
+                        <span class="nx">q</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span> <span class="c1">// the query string (keywords)</span>
+                <span class="p">}});</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Handle search field changed</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method_afterFieldChange</span>
+<span class="cm">         * @protected</span>
+<span class="cm">         */</span>
+        <span class="nx">_afterFieldChange</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-search:_afterFieldChange&#39;</span><span class="p">);</span>
+
+                <span class="k">this</span><span class="p">.</span><span class="nx">_uiSetField</span><span class="p">();</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Set the UI to reflect the &#39;value&#39; attribute.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @method _uiSetValue</span>
+<span class="cm">         */</span>
+        <span class="nx">_uiSetValue</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">);</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="o">===</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-search:Showing search tip&#39;</span><span class="p">);</span>
+                        <span class="k">this</span><span class="p">.</span><span class="nx">showTip</span><span class="p">();</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;inputNode&#39;</span><span class="p">).</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="nx">value</span><span class="p">);</span>				
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Set the UI to reflect the &#39;field&#39; attribute.</span>
+<span class="cm">         */</span>
+        <span class="nx">_uiSetField</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="c1">//var field = this.get(&#39;field&#39;);</span>
+
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * Default handler for queryUpdate : do nothing.</span>
+<span class="cm">         */</span>
+        <span class="nx">_defQueryUpdateFn</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nx">Y</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gallery-dp-search:_defParameterChangeFn&#39;</span><span class="p">);</span>
+        <span class="p">},</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * HTML Fragment for the keyword input box</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property TEMPLATE_INPUT</span>
+<span class="cm">         * @type String</span>
+<span class="cm">         */</span>
+        <span class="nx">TEMPLATE_INPUT</span> <span class="o">:</span> <span class="s1">&#39;&lt;input type=&quot;text&quot; class=&quot;{className}&quot; value=&quot;&quot;&gt;&#39;</span><span class="p">,</span>
+
+        <span class="cm">/**</span>
+<span class="cm">         * HTML Fragment for the search and reset buttons</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property TEMPLATE_BUTTON</span>
+<span class="cm">         * @type String</span>
+<span class="cm">         */</span>
+        <span class="nx">TEMPLATE_BUTTON</span> <span class="o">:</span> <span class="s1">&#39;&lt;input type=&quot;button&quot; class=&quot;{className}&quot; value=&quot;{value}&quot;&gt;&#39;</span>
+
+<span class="p">},</span> <span class="p">{</span>
+        <span class="cm">/**</span>
+<span class="cm">         * Holds a reference to the current keypress timeout. Used for searching automatically after an elapsed period.</span>
+<span class="cm">         * </span>
+<span class="cm">         * @property _currentTimeoutID</span>
+<span class="cm">         * @type Integer</span>
+<span class="cm">         * @private</span>
+<span class="cm">         */</span> 
+        <span class="nx">_currentTimeoutID</span> <span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+
+        <span class="nx">HTML_PARSER</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="nx">contentBox</span> <span class="o">:</span> <span class="s1">&#39;.yui3-dp-search&#39;</span><span class="p">,</span>
+                <span class="nx">inputNode</span> <span class="o">:</span> <span class="s1">&#39;.yui3-dp-search-input&#39;</span><span class="p">,</span>
+                <span class="nx">inputWrapper</span> <span class="o">:</span> <span class="s1">&#39;.yui3-dp-search-input-wrapper&#39;</span><span class="p">,</span>
+                <span class="nx">resetButtonNode</span> <span class="o">:</span> <span class="s1">&#39;.yui3-dp-search-reset&#39;</span><span class="p">,</span>
+                <span class="nx">searchButtonNode</span> <span class="o">:</span> <span class="s1">&#39;.yui3-dp-search-submit&#39;</span><span class="p">,</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">srcNode</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="kd">var</span> <span class="nx">input</span> <span class="o">=</span> <span class="nx">srcNode</span><span class="p">.</span><span class="nx">one</span><span class="p">(</span><span class="s1">&#39;.yui3-dp-search-input&#39;</span><span class="p">);</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="k">return</span> <span class="nx">input</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">);</span>
+                        <span class="p">}</span>
+                <span class="p">}</span>
+        <span class="p">},</span>
+
+        <span class="nx">ATTRS</span> <span class="o">:</span> <span class="p">{</span>
+                <span class="cm">/**</span>
+<span class="cm">                 * Node reference to the INPUT which holds the search term.</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * @attribute inputNode</span>
+<span class="cm">                 * @type Node</span>
+<span class="cm">                 */</span>
+                <span class="nx">inputNode</span> <span class="o">:</span> <span class="p">{},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * Node reference to the wrapper around the input and pulldown elements.</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * @attribute inputWrapper</span>
+<span class="cm">                 * @type Node</span>
+<span class="cm">                 */</span>
+                <span class="nx">inputWrapper</span> <span class="o">:</span> <span class="p">{},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * Node reference to the reset search terms button</span>
+<span class="cm">                 * @attribute resetButtonNode</span>
+<span class="cm">                 * @type Node</span>
+<span class="cm">                 */</span>
+                <span class="nx">resetButtonNode</span> <span class="o">:</span> <span class="p">{},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * Node reference to the search submit button</span>
+<span class="cm">                 * @attribute searchButtonNode</span>
+<span class="cm">                 * @type Node</span>
+<span class="cm">                 */</span>
+                <span class="nx">searchButtonNode</span> <span class="o">:</span> <span class="p">{},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * Timeout in milliseconds for search to submit the current terms</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * Submits the current search terms if the timeout specified has elapsed.</span>
+<span class="cm">                 * @attribute timeout</span>
+<span class="cm">                 * @type Integer</span>
+<span class="cm">                 */</span>
+                <span class="nx">timeout</span> <span class="o">:</span> <span class="p">{</span>
+                        <span class="nx">value</span> <span class="o">:</span> <span class="mi">150</span><span class="p">,</span>
+                        <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isNumber</span>
+                <span class="p">},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * The field to search</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * @attribute field</span>
+<span class="cm">                 * @type String</span>
+<span class="cm">                 */</span>
+                <span class="nx">field</span> <span class="o">:</span> <span class="p">{</span>
+                        <span class="nx">value</span> <span class="o">:</span> <span class="kc">null</span>
+                <span class="p">},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * The search keyword(s). changing this fires a queryUpdate event.</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * @attribute value</span>
+<span class="cm">                 * @type String</span>
+<span class="cm">                 */</span>
+                <span class="nx">value</span> <span class="o">:</span> <span class="p">{</span>
+                        <span class="nx">value</span> <span class="o">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                        <span class="nx">validator</span> <span class="o">:</span> <span class="nx">Lang</span><span class="p">.</span><span class="nx">isString</span>
+                <span class="p">},</span>
+
+                <span class="cm">/**</span>
+<span class="cm">                 * Strings that can be used with internationalisation.</span>
+<span class="cm">                 * </span>
+<span class="cm">                 * @attribute strings</span>
+<span class="cm">                 * @type Object</span>
+<span class="cm">                 */</span>
+                <span class="nx">strings</span> <span class="o">:</span> <span class="p">{</span>
+                        <span class="nx">value</span> <span class="o">:</span> <span class="p">{</span>
+                                <span class="nx">tip</span><span class="o">:</span> <span class="s2">&quot;Enter text to search&quot;</span><span class="p">,</span>
+                                <span class="nx">submitLabel</span><span class="o">:</span> <span class="s2">&quot;search&quot;</span><span class="p">,</span>
+                                <span class="nx">resetLabel</span><span class="o">:</span> <span class="s2">&quot;reset&quot;</span>
+                        <span class="p">}</span>
+                <span class="p">}</span>
+        <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+                    </div>
+			</div>
+		</div>
+		<div class="yui-b">
+            <div class="nav">
+
+                    <div id="moduleList" class="module">
+                        <h4>Modules</h4>
+                        <ul class="content">
+                                <li class="selected"><a href="module_dp-search.html" title="dp-search">dp-search</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="classList" class="module">
+                        <h4>Classes</h4>
+                        <ul class="content">
+                                <li class=""><a href="Y.DP.Search.html" title="Y.DP.Search">Y.DP.Search</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="fileList" class="module">
+                        <h4>Files</h4>
+                        <ul class="content">        
+                                <li class="selected"><a href="dp-search.js.html" title="dp-search.js">dp-search.js</a></li>
+                        </ul>
+                    </div>
+
+
+
+
+
+            </div>
+		</div>
+	</div>
+	<div id="ft">
+        <hr />
+        Copyright &copy; 2011 Yahoo! Inc. All rights reserved.
+	</div>
+</div>
+<script type="text/javascript">
+
+    var ALL_YUI_PROPS = [{"url": "Y.DP.Search.html#method__afterFieldChange", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_afterFieldChange"}, {"url": "Y.DP.Search.html#method__afterValueChange", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_afterValueChange"}, {"url": "Y.DP.Search.html#method__defQueryUpdateFn", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_defQueryUpdateFn"}, {"url": "Y.DP.Search.html#config_field", "access": "", "host": "Y.DP.Search", "type": "config", "name": "field"}, {"url": "Y.DP.Search.html#event_fieldChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "fieldChange"}, {"url": "Y.DP.Search.html#method__handleInputBlur", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_handleInputBlur"}, {"url": "Y.DP.Search.html#method__handleInputEnterKey", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_handleInputEnterKey"}, {"url": "Y.DP.Search.html#method__handleInputFocus", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_handleInputFocus"}, {"url": "Y.DP.Search.html#method__handleInputKeyPress", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_handleInputKeyPress"}, {"url": "Y.DP.Search.html#method__handleResetClick", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_handleResetClick"}, {"url": "Y.DP.Search.html#method_hideTip", "access": "", "host": "Y.DP.Search", "type": "method", "name": "hideTip"}, {"url": "Y.DP.Search.html#config_inputNode", "access": "", "host": "Y.DP.Search", "type": "config", "name": "inputNode"}, {"url": "Y.DP.Search.html#event_inputNodeChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "inputNodeChange"}, {"url": "Y.DP.Search.html#config_inputWrapper", "access": "", "host": "Y.DP.Search", "type": "config", "name": "inputWrapper"}, {"url": "Y.DP.Search.html#event_inputWrapperChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "inputWrapperChange"}, {"url": "Y.DP.Search.html#method__renderButtons", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_renderButtons"}, {"url": "Y.DP.Search.html#method__renderInput", "access": "protected", "host": "Y.DP.Search", "type": "method", "name": "_renderInput"}, {"url": "Y.DP.Search.html#config_resetButtonNode", "access": "", "host": "Y.DP.Search", "type": "config", "name": "resetButtonNode"}, {"url": "Y.DP.Search.html#event_resetButtonNodeChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "resetButtonNodeChange"}, {"url": "Y.DP.Search.html#config_searchButtonNode", "access": "", "host": "Y.DP.Search", "type": "config", "name": "searchButtonNode"}, {"url": "Y.DP.Search.html#event_searchButtonNodeChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "searchButtonNodeChange"}, {"url": "Y.DP.Search.html#method_showTip", "access": "", "host": "Y.DP.Search", "type": "method", "name": "showTip"}, {"url": "Y.DP.Search.html#config_strings", "access": "", "host": "Y.DP.Search", "type": "config", "name": "strings"}, {"url": "Y.DP.Search.html#event_stringsChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "stringsChange"}, {"url": "Y.DP.Search.html#property_TEMPLATE_BUTTON", "access": "", "host": "Y.DP.Search", "type": "property", "name": "TEMPLATE_BUTTON"}, {"url": "Y.DP.Search.html#property_TEMPLATE_INPUT", "access": "", "host": "Y.DP.Search", "type": "property", "name": "TEMPLATE_INPUT"}, {"url": "Y.DP.Search.html#config_timeout", "access": "", "host": "Y.DP.Search", "type": "config", "name": "timeout"}, {"url": "Y.DP.Search.html#event_timeoutChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "timeoutChange"}, {"url": "Y.DP.Search.html#config__tipShown", "access": "protected", "host": "Y.DP.Search", "type": "config", "name": "_tipShown"}, {"url": "Y.DP.Search.html#event__tipShownChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "_tipShownChange"}, {"url": "Y.DP.Search.html#method__uiSetField", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_uiSetField"}, {"url": "Y.DP.Search.html#method__uiSetValue", "access": "", "host": "Y.DP.Search", "type": "method", "name": "_uiSetValue"}, {"url": "Y.DP.Search.html#config_value", "access": "", "host": "Y.DP.Search", "type": "config", "name": "value"}, {"url": "Y.DP.Search.html#event_valueChange", "access": "", "host": "Y.DP.Search", "type": "event", "name": "valueChange"}];
+</script>
+</body>
+</html>
