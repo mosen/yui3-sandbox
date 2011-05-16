@@ -5,6 +5,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
         charset="utf-8"></script>
+        <link href="../assets/gallery-user-patch-2529846-core.css" media="screen" rel="stylesheet" type="text/css" />
     </head>
     <body class="yui3-skin-sam">
         <h2>Test defect ticket #2529846</h2>
@@ -54,8 +55,10 @@
                         delete this.testDataTable;
                     },
                     
-                    "test table width 800px after construction" : function() {
-                        var tableNode;
+                    "test table width approx same rendered size as specified" : function() {
+                        var tableNode,
+                            boundingNode,
+                            widthVariation;
                         
                         this.testDataTable = new Y.DataTable.Base({
                             width: '800px',
@@ -70,8 +73,10 @@
                         this.testDataTable.render();
                         
                         tableNode = Y.one('table');
+                        boundingNode = Y.one('.yui3-datatable');
+                        widthVariation = Math.abs(boundingNode.get('clientWidth') - tableNode.get('clientWidth'));
                         
-                        Y.Assert.areEqual('800px', tableNode.get('width'));
+                        Y.Assert.isTrue( widthVariation < 5 );
                     }
                 });
 
