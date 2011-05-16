@@ -5,6 +5,21 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
         charset="utf-8"></script>
+        <style type="text/css" media="screen">
+        body.yui3-skin-sam td.yui3-datatable-sortable div.yui3-datatable-liner {
+           /* padding: 4px 20px; */
+           padding-right: 1px;
+           padding: 4px 15px 4px 10px;
+        }
+
+        .yui3-skin-sam td.yui3-datatable-sortable .yui3-datatable-liner {
+            padding-right: 20px;
+        }
+        body.yui3-skin-sam th.yui3-datatable-sortable div.yui3-datatable-liner {
+            padding-right: 1px;
+            padding: 4px 15px 4px 10px;
+        }
+        </style>
     </head>
     <body class="yui3-skin-sam">
         <h2>Test Patch Rollup</h2>
@@ -15,24 +30,40 @@
             YUI({
                 filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
                 allowRollup: false,
-                   modules : {
-                    'gallery-user-patch-datatable-rollup' : {
-                        'fullpath' : '../../../build/gallery-user-patch-datatable-rollup/gallery-user-patch-datatable-rollup-debug.js',
-                        'requires' : ['datatable', 'datasource']
-                    }
-                    , 'gallery-user-patch-2529808' : {
-                        'fullpath' : '../../../build/gallery-user-patch-2529808/gallery-user-patch-2529808.js',
-                        'requires' : ['datatable', 'datatable-scroll']
-                    }
-                    , 'gallery-user-patch-2529975' : {
-                        'fullpath' : '../../../build/gallery-user-patch-2529975/gallery-user-patch-2529975.js',
-                        'requires' : ['datatable', 'datatable-scroll']
+                groups : {
+                    userpatch: {
+                        combine: false,
+                        base : '../../../build',
+                        root : '../../../build',
+                        modules : {
+                            'gallery-user-patch-2529808' : {
+                                path: '/gallery-user-patch-2529808/gallery-user-patch-2529808-debug.js'
+                            },
+                            'gallery-user-patch-2529920-2529921' : {
+                                path: '/gallery-user-patch-2529920-2529921/gallery-user-patch-2529920-2529921-debug.js'
+                            },
+                            'gallery-user-patch-2529943' : {
+                                path: '/gallery-user-patch-2529943/gallery-user-patch-2529943-debug.js'
+                            },
+                            'gallery-user-patch-2529968' : {
+                                path: '/gallery-user-patch-2529968/gallery-user-patch-2529968-debug.js'
+                            },
+                            'gallery-user-patch-2529975' : {
+                                path: '/gallery-user-patch-2529975/gallery-user-patch-2529975-debug.js'
+                            },
+                            'gallery-user-patch-2530026' : {
+                                path: '/gallery-user-patch-2530026/gallery-user-patch-2530026-debug.js'
+                            }
+                        }
                     }
                 }
-            //}).use("console", "test", "dump", "datatable", "gallery-user-patch-datatable-rollup", function(Y) {
         }).use("console", "test", "dump", "datatable"
             , "gallery-user-patch-2529808"
+            , "gallery-user-patch-2529920-2529921"
+            , "gallery-user-patch-2529943"
+            , "gallery-user-patch-2529968"
             , "gallery-user-patch-2529975"
+            , "gallery-user-patch-2530026"
             , function(Y) {
 
                 var BTNRUN = Y.one("#btnRun");
@@ -63,10 +94,11 @@
                             columnset : [ { key: "id", sortable: true }, { key: "name", sortable: true }, { key: "last", sortable: true }],
                             summary : "User patched DataTable Instance",
                             plugins : [
-                                { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } },
-                                { fn: Y.Plugin.DataTableScroll, cfg: { width: '500px', height: '200px' } },
-                                //{ fn: Y.Plugin.DataTableScroll, cfg: { height: '200px' } },
-                                { fn: Y.Plugin.DataTableSort }
+                                { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } }
+                                // , { fn: Y.Plugin.DataTableScroll, cfg: { width: '500px', height: '200px' } }
+                                
+                                , { fn: Y.Plugin.DataTableScroll, cfg: { height: '200px' } },
+                                , { fn: Y.Plugin.DataTableSort }
                             ]
                         });
                     },
