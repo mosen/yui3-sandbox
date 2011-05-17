@@ -49,8 +49,8 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
 
         // Bizarro TD auto adjustment by IE8
         if (Y.UA.ie) {
-            Y.Node.all('table').setStyle('tableLayout', 'fixed');
-        
+            Y.Node.one('.yui3-datatable-hd table').setStyle('tableLayout', 'fixed');
+            Y.Node.one('.yui3-datatable-bd table').setStyle('tableLayout', 'fixed');
         }
         
         // Easy string pixel count to floating point conversion
