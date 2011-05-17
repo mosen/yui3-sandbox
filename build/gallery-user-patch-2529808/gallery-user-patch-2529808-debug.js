@@ -48,12 +48,6 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
         i,
         len,
         thWidth, tdWidth, thLiner, tdLiner, thLinerPadding, tdLinerPadding;
-
-        // Bizarro TD auto adjustment by IE8
-        if (Y.UA.ie) {
-            Y.Node.one('table').setStyle('tableLayout', 'fixed');
-        
-        }
         
         // Easy string pixel count to floating point conversion
         var px = function(v) { return parseFloat(v.split('px')[0]); };
@@ -89,8 +83,13 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
 
             //if TD is bigger than TH, enlarge TH Liner
             else if (tdWidth > thWidth) {
-                thLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px'));
-                tdLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px')); //if you don't set an explicit width here, when the width is set in line 368, it will auto-shrink the widths of the other cells (because they dont have an explicit width)
+                if (Y.UA.ie) {
+                    thLiner.setStyle('width', (tdWidth - tdLinerPadding - 2 + 'px'));
+                    tdLiner.setStyle('width', (tdWidth - tdLinerPadding - 2 + 'px'));                    
+                } else {
+                    thLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px'));
+                    tdLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px')); //if you don't set an explicit width here, when the width is set in line 368, it will auto-shrink the widths of the other cells (because they dont have an explicit width)
+                }
             }
         }
     };
