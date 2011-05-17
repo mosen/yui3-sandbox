@@ -49,7 +49,7 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
 
         // Bizarro TD auto adjustment by IE8
         if (Y.UA.ie) {
-            Y.Node.one('table').setStyle('tableLayout', 'fixed');
+            Y.Node.all('table').setStyle('tableLayout', 'fixed');
         
         }
         
