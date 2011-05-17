@@ -6,19 +6,9 @@
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
         charset="utf-8"></script>
         <style type="text/css" media="screen">
-        body.yui3-skin-sam td.yui3-datatable-sortable div.yui3-datatable-liner {
-           /* padding: 4px 20px; */
-           padding-right: 1px;
-           padding: 4px 15px 4px 10px;
-        }
-
-        .yui3-skin-sam td.yui3-datatable-sortable .yui3-datatable-liner {
-            padding-right: 20px;
-        }
-        body.yui3-skin-sam th.yui3-datatable-sortable div.yui3-datatable-liner {
-            padding-right: 1px;
-            padding: 4px 15px 4px 10px;
-        }
+            .yui3-skin-sam .yui3-datatable-liner {
+                padding-right: 20px;
+            }
         </style>
     </head>
     <body class="yui3-skin-sam">
@@ -28,6 +18,7 @@
         <script type="text/javascript">
         (function() {
             YUI({
+                combine: false,
                 filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
                 allowRollup: false,
                 groups : {
@@ -81,9 +72,9 @@
                         this.mockresponse = {
                             response: {
                                 results: [
-                                    { "id" : "1", "name" : "Joe", "last":"Johnson"},
-                                    { "id" : "2", "name" : "Mark", "last":"Smith" },
-                                    { "id" : "3", "name" : "Andrew", "last":"Newton" }
+                                    { "id" : "100", "name" : "Joe", "last":"Johnson"},
+                                    { "id" : "200", "name" : "Mark", "last":"Smith" },
+                                    { "id" : "300", "name" : "Andrew", "last":"Newton" }
                                 ]
                             }
                         };
@@ -91,14 +82,14 @@
                         this.testDataSource = new Y.DataSource.Local({ source: this.mockresponse.response.results });
 
                         this.testDataTable = new Y.DataTable.Base({
-                            columnset : [ { key: "id", sortable: true }, { key: "name", sortable: true }, { key: "last", sortable: true }],
+                            columnset : [ { key: "id", sortable: true }, { key: "name", label:"f", sortable: true }
+                                , { key: "last", label: "l", sortable: true }],
                             summary : "User patched DataTable Instance",
                             plugins : [
                                 { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } }
-                                // , { fn: Y.Plugin.DataTableScroll, cfg: { width: '500px', height: '200px' } }
-                                
-                                , { fn: Y.Plugin.DataTableScroll, cfg: { height: '200px' } },
-                                , { fn: Y.Plugin.DataTableSort }
+                                , { fn: Y.Plugin.DataTableSort }                                
+                                , { fn: Y.Plugin.DataTableScroll, cfg: { height: '200px' } }
+
                             ]
                         });
                     },
@@ -111,6 +102,12 @@
                     "test scroll+sort+datasource causes column mismatch" : function() {
                         this.testDataTable.render();
                         this.testDataTable.datasource.load();
+                        
+                        var dt = this.testDataTable;
+                        
+                        this.testDataTable.sort.after('lastSortedByChange', function(e) {
+                            dt.scroll._syncWidths();
+                        }, this);
                     }
                 });
 
