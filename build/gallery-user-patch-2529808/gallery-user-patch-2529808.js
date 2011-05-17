@@ -46,9 +46,17 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
         td = YNode.one('#'+this._parentContainer.get('id')+ ' .' + CLASS_BODY + ' table .' + CLASS_DATA).get('firstChild').get('children'), //nodelist of all TDs in 1st row
         i,
         len,
-        thWidth, tdWidth, thLiner, tdLiner, thLinerPadding, tdLinerPadding
-        ie = Y.UA.ie;
+        thWidth, tdWidth, thLiner, tdLiner, thLinerPadding, tdLinerPadding;
 
+        // Bizarro TD auto adjustment by IE8
+        if (Y.UA.ie) {
+            Y.Node.one('table').setStyle('tableLayout', 'fixed');
+        
+        }
+        
+        // Easy string pixel count to floating point conversion
+        var px = function(v) { return parseFloat(v.split('px')[0]); };
+        
         // TODO this loop assumes that headers and content have a 1:1 relationship. DTv2 allowed column groups to span multiple child columns, check
         // this with groups - eamonb
         for (i=0, len = th.size(); i<len; i++) { 
@@ -65,7 +73,7 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
 
                     TODO: Explore if there is a better way using only LINERS widths
             */
-            var px = function(v) { return parseFloat(v.split('px')[0]); };
+            
 
             thWidth = px(thLiner.getComputedStyle('width'));
             tdWidth = px(td.item(i).getComputedStyle('width'));
