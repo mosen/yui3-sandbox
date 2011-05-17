@@ -59,16 +59,8 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
             //Get the liners for the TH and the TD cell in question
             thLiner = th.item(i).get('firstChild');
             tdLiner = td.item(i).get('firstChild');
-
-            /*
-            If browser is not IE - get the clientWidth of the Liner div and the TD.
-            Note:   We are not getting the width of the TDLiner, we are getting the width of the actual cell.
-                    Why? Because when the table is set to auto width, the cell will grow to try to fit the table in its container.
-                    The liner could potentially be much smaller than the cell width.
-
-                    TODO: Explore if there is a better way using only LINERS widths
-            */
             
+            Y.log("Processing TH with YUID: " + thLiner.get('id') + " TD with header YUID:" + tdLiner.get('headers'), "info", "gallery-user-patch-2529808");
 
             thWidth = px(thLiner.getComputedStyle('width'));
             tdWidth = px(td.item(i).getComputedStyle('width'));
@@ -83,13 +75,8 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
 
             //if TD is bigger than TH, enlarge TH Liner
             else if (tdWidth > thWidth) {
-                if (Y.UA.ie) {
-                    thLiner.setStyle('width', (tdWidth - tdLinerPadding - 2 + 'px'));
-                    tdLiner.setStyle('width', (tdWidth - tdLinerPadding - 2 + 'px'));                    
-                } else {
-                    thLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px'));
-                    tdLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px')); //if you don't set an explicit width here, when the width is set in line 368, it will auto-shrink the widths of the other cells (because they dont have an explicit width)
-                }
+                thLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px'));
+                tdLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px')); //if you don't set an explicit width here, when the width is set in line 368, it will auto-shrink the widths of the other cells (because they dont have an explicit width)
             }
         }
     };
