@@ -47,7 +47,7 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
         td = YNode.one('#'+this._parentContainer.get('id')+ ' .' + CLASS_BODY + ' table .' + CLASS_DATA).get('firstChild').get('children'), //nodelist of all TDs in 1st row
         i,
         len,
-        thWidth, tdWidth, thLiner, tdLiner, thLinerPadding, tdLinerPadding;
+        thWidth, tdWidth, thLiner, tdLiner, thLinerPadding, tdLinerPadding, tdColumnMembers;
         
         // Easy string pixel count to floating point conversion
         var px = function(v) { return parseFloat(v.split('px')[0]); };
@@ -76,7 +76,16 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
             //if TD is bigger than TH, enlarge TH Liner
             else if (tdWidth > thWidth) {
                 thLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px'));
-                tdLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px')); //if you don't set an explicit width here, when the width is set in line 368, it will auto-shrink the widths of the other cells (because they dont have an explicit width)
+                
+                if (Y.UA.ie) {
+                    // IE8 expects explicit widths on every liner.
+                    // TODO: explore possibility of setting width on COL elements instead. IE8 respects these too.
+                    tdColumnMembers = YNode.one('#'+this._parentContainer.get('id')+ ' .' + CLASS_BODY + ' table .' + CLASS_DATA).all('.yui3-column-' + th.item(i).get('id'));
+                    tdColumnMembers.get('firstChild').setStyle('width', (tdWidth - tdLinerPadding + 'px'));
+                } else {
+                    // Only first liner matters
+                    tdLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px'));
+                }
             }
         }
     };
