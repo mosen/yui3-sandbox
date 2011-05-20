@@ -29,13 +29,17 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
      */
     initializer : function (config) {
         // TODO: ensure that clickableRail is disabled for both sliders, this doesn't make sense in the context of 2 sliders.
+        this.get('host').set('clickableRail', false);
         
         this.beforeHostMethod('renderUI', this.renderUI);
         this.afterHostMethod('bindUI', this._bindConstraints);
         
-        // TODO: no way to ensure that this plugin is initialized before or after parent, assume after but
-        // find a more reliable way of checking.
-        this._bindParentConstraints();
+        // Bind constraints before or after parent rendering.
+        if (this.get('parent')._dd !== undefined) {
+            this._bindParentConstraints();
+        } else {
+            this.get('parent').after('render', this._bindParentConstraints());
+        }
     },
 
     /**
@@ -112,11 +116,14 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
     _constrainSlider : function(e) {
         Y.log("_constrainSlider", "info", "Y.Ebisu.ChildSlider");
         
-        var parentValue = this.get('parent').get('value'),
-            myValue = this.get('host').get('value'),
-            parentOffset = this.get('host')._valueToOffset(parentValue),
-            dd = this.get('host')._dd,
-            thumbWidth = 15;
+        var parent = this.get('parent'),
+            host = this.get('host'),
+            parentValue = parent.get('value'),
+            myValue = host.get('value'),
+            parentOffset = host._valueToOffset(parentValue),
+            myOffset = host._valueToOffset(myValue),
+            dd = host._dd,
+            thumbWidth = this.get('thumbwidth');
 
             // TODO : proper thumb detection
             // TODO : specify which thumb is the upper bound
@@ -129,18 +136,22 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
      * Handle a DD drag:align event and check to see if
      * the parent slider will exceed the bounds of our hosts slider
      *
+     * TODO: merge constrain functions, no need for doubling up
+     *
      * @method _constrainParentSlider
      * @private
      */
     _constrainParentSlider : function(e) {
         Y.log("_constrainParentSlider", "info", "Y.Ebisu.ChildSlider");
         
-        var parentValue = this.get('parent').get('value'),
-            myValue = this.get('host').get('value'),
-            parentOffset = this.get('host')._valueToOffset(parentValue),
-            myOffset = this.get('host')._valueToOffset(myValue),
-            dd = this.get('parent')._dd,
-            thumbWidth = 15;
+        var parent = this.get('parent'),
+            host = this.get('host'),
+            parentValue = parent.get('value'),
+            myValue = host.get('value'),
+            parentOffset = host._valueToOffset(parentValue),
+            myOffset = host._valueToOffset(myValue),
+            dd = parent._dd,
+            thumbWidth = this.get('thumbwidth');
 
             // TODO : proper thumb detection
             // TODO : specify which thumb is the upper bound
@@ -197,6 +208,21 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
          */
         constrained : {
             value : true
+        },
+        
+        /**
+         * Width of the thumbs in the host slider and parent slider.
+         * 
+         * Because of the variation between sprites used to render the thumb, 
+         * we need to manually specify their width here.
+         * 
+         * TODO: find a sensible way of detecting thumb width
+         *
+         * @attribute thumbwidth
+         * @type Number
+         */
+        thumbwidth : {
+            value : 14
         }
     }
 });
