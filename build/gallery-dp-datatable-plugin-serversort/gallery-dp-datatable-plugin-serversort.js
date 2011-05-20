@@ -17,6 +17,11 @@ var Lang = Y.Lang,
     COLUMN = "column",
     ASC = "asc",
     DESC = "desc",
+    
+    // Constants for sort directions
+    SORT_ASC = 1001,
+    SORT_DESC = 1002,
+    SORT_NONE = 1000,
 
     //TODO: Don't use hrefs - use tab/arrow/enter
     TEMPLATE = '<a class="{link_class}" title="{link_title}" href="{link_href}">{value}</a>';
@@ -56,6 +61,7 @@ Y.namespace('DP').DataTableServerSort = Y.Base.create( 'gallery-dp-datatable-plu
         
         dt.delegate("click", Y.bind(this._handleHeaderClick, this), "th");
         
+        this.publish('sort', {defaultFn: this._uiSetSort});
     },
 
     /**
@@ -139,8 +145,68 @@ Y.namespace('DP').DataTableServerSort = Y.Base.create( 'gallery-dp-datatable-plu
      *
      * @method _handleHeaderClick
      * @private
+     * @param e {Event} Event facade
      */
-    _handleHeaderClick : function() {
+    _handleHeaderClick : function(e) {
+        
+        e.halt();
+        //TODO: normalize e.currentTarget to TH
+        var dt = this.get("host"),
+            column = dt.get("columnset").idHash[e.currentTarget.get("id")];
+            
+        if(column.get("sortable")) {
+            this.sort(column);
+        }
+    },
+    
+    /**
+     * Sort the given column, in the given direction (if specified)
+     * Otherwise, rotate sorting through none, ascending, descending.
+     *
+     * @method sort
+     * @public
+     * @param col {Object} Column to sort
+     * @param dir {Integer} Direction to sort, one of SORT_ASC, SORT_DESC, SORT_NONE
+     */
+    sort : function(col, dir) {
+        
+        if (dir === undefined) {
+            col.sort = SORT_ASC;
+        } else if (dir === SORT_ASC) {
+            col.sort = SORT_DESC;
+        } else {
+            col.sort = SORT_NONE;
+        }
+        
+        this.get("host").get("columnset").idHash[col.get("id")] = col;
+        
+        this.fire("sort", { column: col, direction: col.sort });
+    },
+    
+    /**
+     * Update the UI with the sort state
+     * 
+     * @method _uiSetSort
+     * @protected
+     * @param e {Event} Event facade
+     */
+    _uiSetSort : function(e) {
+        
+        var col = e.column.thNode;
+        
+        switch(e.direction) {
+            case SORT_ASC:
+                col.removeClass(YgetClassName(DATATABLE, DESC));
+                col.addClass(YgetClassName(DATATABLE, ASC));
+                break;
+            case SORT_DESC:
+                col.removeClass(YgetClassName(DATATABLE, ASC));
+                col.addClass(YgetClassName(DATATABLE, DESC));
+                break;
+            default:
+                col.removeClass(YgetClassName(DATATABLE, DESC));
+                col.removeClass(YgetClassName(DATATABLE, ASC));
+        }
     }
     
 }, {
@@ -169,16 +235,6 @@ Y.namespace('DP').DataTableServerSort = Y.Base.create( 'gallery-dp-datatable-plu
      * @static
      */
     ATTRS : {
-        
-        /**
-         * An object literal of columns to their sort state
-         * 
-         * @attribute sortlist
-         * @default Object
-         */
-        sortlist : {
-            value : undefined
-        },
         
         template : {
             value : TEMPLATE

@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Test for gallery-user-patch-datatable-rollup</title>
+        <title>Test for ticket #2530294</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
         charset="utf-8"></script>
-        <style type="text/css" media="screen">
-            .yui3-skin-sam td .yui3-datatable-liner {
-                padding-right: 20px;
-            }
-        </style>
+        <!--
+        <link type="text/css" media="screen" href="../../../build/gallery-user-patch-2530294/assets/gallery-user-patch-2530294-core.css" />
+        -->
     </head>
     <body class="yui3-skin-sam">
-        <h2>Test Patch Rollup</h2>
-        <p>Test multiple user patches in one datatable instance</p>
+        <h2>Test defect ticket #2530294</h2>
+        <p>Combining DataTableScroll with DataTableSort causes a column size mismatch. This problem only presents itself when earlier
+        errors are patched around, so those patches are also included. Sometimes the problem will only be exposed when the column label is shorter
+        than the data, so columns here are labelled with single characters.</p>
+        <p>This fix requires the CSS file to make sure that all columns have equal padding upon instantiation</p>
         <p><input type="button" value="Run Tests" id="btnRun" disabled="true"></p>
         <script type="text/javascript">
         (function() {
             YUI({
-                //combine: false,
                 filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
                 allowRollup: false,
                 groups : {
                     userpatch: {
                         combine: false,
-                        base : '../../../build',
+                        base : '../../../build/',
                         root : '../../../build',
                         modules : {
                             'gallery-user-patch-2529808' : {
@@ -44,18 +44,24 @@
                             },
                             'gallery-user-patch-2530026' : {
                                 path: '/gallery-user-patch-2530026/gallery-user-patch-2530026-debug.js'
+                            },
+                            'gallery-user-patch-2530294' : {
+                                path: '/gallery-user-patch-2530294/gallery-user-patch-2530294-debug.js',
+                                skinnable: true // TODO: builder makes module-skin.css but loader expects module.css ???
                             }
                         }
                     }
                 }
-        }).use("console", "test", "dump", "datatable"
-            , "gallery-user-patch-2529808"
-            , "gallery-user-patch-2529920-2529921"
-            , "gallery-user-patch-2529943"
-            , "gallery-user-patch-2529968"
-            , "gallery-user-patch-2529975"
-            , "gallery-user-patch-2530026"
-            , function(Y) {
+            }).use("console", "test", "dump", "datatable"
+                , "gallery-user-patch-2529808"
+                , "gallery-user-patch-2529920-2529921"
+                , "gallery-user-patch-2529943"
+                , "gallery-user-patch-2529968"
+                , "gallery-user-patch-2529975"
+                , "gallery-user-patch-2530026"
+                , "gallery-user-patch-2530294"
+                , function(Y) {
+                
 
                 var BTNRUN = Y.one("#btnRun");
                 BTNRUN.set("disabled", false);
@@ -66,15 +72,15 @@
 
 
                 var testBasic = new Y.Test.Case({ 
-                    name: "Patch Rollup Test",
+                    name: "Patch Ticket 2530294 Test",
                     
                     setUp: function() {
                         this.mockresponse = {
                             response: {
                                 results: [
-                                    { "id" : "100", "name" : "Joe", "last":"Johnson"},
-                                    { "id" : "200", "name" : "Mark", "last":"Smith" },
-                                    { "id" : "300", "name" : "Andrew", "last":"Newton" }
+                                    { "id" : "100", "name" : "Joe", "last": "Johnson"},
+                                    { "id" : "200", "name" : "Mark", "last": "Smith" },
+                                    { "id" : "300", "name" : "Andrew", "last": "Newton" }
                                 ]
                             }
                         };
@@ -111,7 +117,7 @@
                     }
                 });
 
-                var suite = new Y.Test.Suite({name:"Patch Ticket 2529808 Test Suite"});
+                var suite = new Y.Test.Suite({name:"Patch Ticket 2530294 Test Suite"});
                 suite.add(testBasic);
 
                 Y.Test.Runner.setName("Test Runner");
