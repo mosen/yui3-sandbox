@@ -12,7 +12,8 @@ var Lang = Y.Lang;
  * 
  * This gives you the ability to create a dual slider in order to specify a 'range'
  * 
- * TODO: observe master slider's values such as maxvalue which this one should reflect.
+ * The child slider will inherit values from the master where it would change the value outcome
+ * of the slider.
  *
  * @class Childslider
  * @extends Plugin
@@ -29,17 +30,29 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
      */
     initializer : function (config) {
         // TODO: ensure that clickableRail is disabled for both sliders, this doesn't make sense in the context of 2 sliders.
-        this.get('host').set('clickableRail', false);
+        // can't set clickablerail false if we have no rail.
+        //this.get('host').set('clickableRail', false);
         
         this.beforeHostMethod('renderUI', this.renderUI);
         this.afterHostMethod('bindUI', this._bindConstraints);
         
+        // Cannot unbind from a rail that does not exist in the host instance.
+        // Raises an error after destroy();
+        this.beforeHostMethod('_unbindClickableRail', this._preventUnbindRail);
+        
         // Bind constraints before or after parent rendering.
-        if (this.get('parent')._dd !== undefined) {
+        if (this.get('parent')._dd) {
             this._bindParentConstraints();
         } else {
-            this.get('parent').after('render', this._bindParentConstraints());
+            this.get('parent').after('render', this._bindParentConstraints);
         }
+        
+        // Bind host values to parent values to prevent different ranges of values on our slider
+        this.get('parent').after('maxChange', this._syncHostMax());
+        this.get('parent').after('minChange', this._syncHostMin());
+        this.get('parent').after('lengthChange', this._syncHostLength());
+        
+        // TODO: need to prevent .set('value') on host or parent that goes out of each others constraining range.
     },
 
     /**
@@ -158,7 +171,66 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
             if (dd.actXY[0] > (myOffset - (thumbWidth / 2))) {
                 dd.actXY[0] = (myOffset - (thumbWidth / 2));
             }
-    }    
+    },
+
+    /**
+     * Synchronise our max when the parents max value changes.
+     *
+     * @method _syncHostMax
+     * @protected
+     */
+    _syncHostMax : function() {
+        var parent = this.get('parent'),
+            host = this.get('host');
+        
+        Y.log("_syncHostMax", "info", "Y.Ebisu.ChildSlider");
+        
+        host.set('max', parent.get('max'));
+    },
+    
+    /**
+     * Synchronise our min when the parents min value changes.
+     *
+     * @method _syncHostMin
+     * @protected
+     */
+    _syncHostMin : function() {
+        var parent = this.get('parent'),
+            host = this.get('host');
+        
+        Y.log("_syncHostMin", "info", "Y.Ebisu.ChildSlider");
+        
+        host.set('min', parent.get('min'));
+    },
+    
+    /**
+     * Synchronise our max when the parents max value changes.
+     *
+     * @method _syncHostLength
+     * @protected
+     */
+    _syncHostLength : function() {
+        var parent = this.get('parent'),
+            host = this.get('host');
+        
+        Y.log("_syncHostLength", "info", "Y.Ebisu.ChildSlider");
+        
+        host.set('length', parent.get('length'));
+    },
+    
+    /**
+     * Prevent the host rail from double unbinding, which causes an error.
+     *
+     * @method _preventUnbindRail
+     * @private
+     */
+    _preventUnbindRail : function() {
+        var host = this.get('host');
+        
+        Y.log("this._preventUnbindRail", "info", "Y.Ebisu.ChildSlider");
+        
+        return Y.Do.Prevent();
+    }
 }, {
 
     /**
@@ -202,6 +274,8 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
         
         /**
          * Whether or not this host slider will be constrained by the parent slider.
+         * 
+         * TODO: implement
          * 
          * @attribute constrained
          * @type Boolean

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test Ebisu.ChildSlider</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <h2>Test Ebisu.ChildSlider</h2>
+        <span class="yui3-slider"></span>
+        <div>
+            <input type="text" id="mastervalue" value="0" style="width: 2em;" readonly />
+            <input type="text" id="childvalue" value="0" style="width: 2em;" readonly />
+        </div>
+        <p><input type="button" value="Run Tests" id="btnRun" disabled="true"></p>
+        <script type="text/javascript">
+        (function() {
+            YUI({
+                filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                allowRollup: false,
+                modules : {
+                    'gallery-ebisu-childslider' : {
+                        'fullpath' : '../../../build/gallery-ebisu-childslider/gallery-ebisu-childslider-debug.js',
+                        'requires' : ['plugin', 'slider']
+                    }
+                }
+            }).use("console", "test", "dump"
+                , "gallery-ebisu-childslider", function(Y) {
+
+                var BTNRUN = Y.one("#btnRun");
+                BTNRUN.set("disabled", false);
+                Y.on("click", function(e){
+                    Y.Test.Runner.run();
+                }, BTNRUN);
+                var myConsole = new Y.Console().render();
+
+
+                var testBasic = new Y.Test.Case({ 
+                    name: "Ebisu.ChildSlider Test",
+                    
+                    setUp: function() {
+                        // Master slider controls the rail, rail length and min/max
+                        this.masterSlider = new Y.Slider({
+                            value : 0
+                        });  
+                    },
+                    
+                    tearDown: function() {
+                        this.masterSlider.destroy();
+                        this.childSlider.destroy();
+                    },
+                    
+                    "test child creation before master is rendered" : function() {
+                        
+                        // Child slider adheres to the master rail
+                        this.childSlider = new Y.Slider({
+                            value : 100,
+                            plugins : [{ fn: Y.Ebisu.ChildSlider, cfg: {
+                                    parent: this.masterSlider,
+                                    constrained: true
+                                }
+                            }]
+                        });
+                    },
+                    
+                    "test render master then create child" : function() {
+                        
+                        this.masterSlider.render('.yui3-slider');
+                        
+                         // Child slider adheres to the master rail
+                        this.childSlider = new Y.Slider({
+                            value : 100,
+                            plugins : [{ fn: Y.Ebisu.ChildSlider, cfg: {
+                                    parent: this.masterSlider,
+                                    constrained: true
+                                }
+                            }]
+                        });
+                        
+                        this.childSlider.render('.yui3-slider');
+                    }
+                    
+                    /*,
+                    
+                    "test " : function() {
+                        
+                    }*/
+                });
+
+                var suite = new Y.Test.Suite({name:"Ebisu.ChildSlider Test Suite"});
+                suite.add(testBasic);
+
+                Y.Test.Runner.setName("Test Runner");
+                Y.Test.Runner.add(suite);
+                Y.Test.Runner.run();
+            });
+        })();
+        </script>
+    </body>
+</html>
