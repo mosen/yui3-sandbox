@@ -42,7 +42,8 @@
                     setUp: function() {
                         // Master slider controls the rail, rail length and min/max
                         this.masterSlider = new Y.Slider({
-                            value : 0
+                            value : 0,
+                            length: 300
                         });  
                     },
                     
@@ -56,6 +57,7 @@
                         // Child slider adheres to the master rail
                         this.childSlider = new Y.Slider({
                             value : 100,
+                            length : 300,
                             plugins : [{ fn: Y.Ebisu.ChildSlider, cfg: {
                                     parent: this.masterSlider,
                                     constrained: true

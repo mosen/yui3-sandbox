@@ -31,20 +31,20 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
     initializer : function (config) {
         // TODO: ensure that clickableRail is disabled for both sliders, this doesn't make sense in the context of 2 sliders.
         // can't set clickablerail false if we have no rail.
-        //this.get('host').set('clickableRail', false);
+        this.get('host').set('clickableRail', false);
         
         this.beforeHostMethod('renderUI', this.renderUI);
         this.afterHostMethod('bindUI', this._bindConstraints);
         
         // Cannot unbind from a rail that does not exist in the host instance.
         // Raises an error after destroy();
-        this.beforeHostMethod('_unbindClickableRail', this._preventUnbindRail);
-        
+        this.beforeHostMethod('_unbindClickableRail', this._preventUnbindClickableRail);
+
         // Bind constraints before or after parent rendering.
         if (this.get('parent')._dd) {
             this._bindParentConstraints();
         } else {
-            this.get('parent').after('render', this._bindParentConstraints);
+            this.get('parent').after('render', this._bindParentConstraints, this);
         }
         
         // Bind host values to parent values to prevent different ranges of values on our slider
@@ -66,7 +66,7 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
         
         // We don't use our own rail.
         this.get('host').rail = this.get('parent').rail;
-
+        
         // Render as normal
         /**
          * The Node instance of the Slider's thumb element.  Do not write to
@@ -221,13 +221,13 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
     /**
      * Prevent the host rail from double unbinding, which causes an error.
      *
-     * @method _preventUnbindRail
+     * @method _preventUnbindClickableRail
      * @private
      */
-    _preventUnbindRail : function() {
-        var host = this.get('host');
+    _preventUnbindClickableRail : function() {
+        //var host = this.get('host');
         
-        Y.log("this._preventUnbindRail", "info", "Y.Ebisu.ChildSlider");
+        Y.log("this._preventUnbindClickableRail", "info", "Y.Ebisu.ChildSlider");
         
         return Y.Do.Prevent();
     }

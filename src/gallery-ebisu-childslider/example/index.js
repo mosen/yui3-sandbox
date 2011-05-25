@@ -5,7 +5,7 @@ YUI({
             'requires' : ['plugin', 'slider']
         }
     }
-  /*  ,filter : 'debug' */
+  /*,filter : 'debug' */
 }).use('gallery-ebisu-childslider', 'console', function(Y) {
 
         // Set up the master slider, this provides the constraints/rail for the child
@@ -13,7 +13,7 @@ YUI({
             value : 0
         });
         
-        masterSlider.render('.yui3-slider');
+        //masterSlider.render('.yui3-slider');
         masterSlider.after('valueChange', function(e) {
             Y.one('#mastervalue').set('value', e.newVal);
         });
@@ -26,6 +26,9 @@ YUI({
                 }
             }]
         });
+        
+        
+        masterSlider.render('.yui3-slider');
         
         childSlider.render('.yui3-slider');
         childSlider.after('valueChange', function(e) {
