@@ -64,8 +64,9 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
     renderUI : function () {
         Y.log("renderUI", "info", "Y.Ebisu.ChildSlider");
         
+        var host = this.get('host');
         // We don't use our own rail.
-        this.get('host').rail = this.get('parent').rail;
+        host.rail = this.get('parent').rail;
         
         // Render as normal
         /**
@@ -75,11 +76,16 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
          * @property thumbs
          * @type {Node}
          */
-        this.get('host').thumb = this.get('host').renderThumb();
-        this.get('host').rail.appendChild( this.get('host').thumb );
+        host.thumb = host.renderThumb();
+        
+        if (Y.Lang.isString(this.get('extraClass'))) {
+            host.thumb.addClass(this.get('extraClass'));
+        }
+        
+        host.rail.appendChild( host.thumb );
 
 
-        this.get('host').get('contentBox').addClass( this.get('host').getClassName( this.get('host').axis ) );
+        host.get('contentBox').addClass( host.getClassName( host.axis ) );
         
         // Do not run the original renderUI
         return new Y.Do.Prevent();
@@ -297,6 +303,16 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
          */
         thumbwidth : {
             value : 14
+        },
+        
+        /**
+         * Additional class for the thumb node owned by the host
+         *
+         * @attribute extraClass
+         * @type String
+         */
+        extraClass : {
+            value : null
         }
     }
 });
