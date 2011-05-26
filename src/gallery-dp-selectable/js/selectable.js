@@ -2,7 +2,7 @@
  *
  *
  * @module Selectable
- * @requires
+ * @requires base, plugin, node
  */
 
 /* Any frequently used shortcuts, strings and constants */
@@ -10,7 +10,12 @@ var Lang = Y.Lang,
     YgetClassName = Y.ClassNameManager.getClassName;
 
 /**
- *
+ * A generic node plugin which allows you to add a selection feature to almost any node and its sub-items.
+ * 
+ * TODO: keyboard shortcuts, keyboard modifiers.
+ * TODO: drag selection
+ * TODO: select by node filter (supplied by developer)
+ * TODO: blacklist, or callback to quality selectable nodes
  *
  * @class Selectable
  * @extends Plugin
