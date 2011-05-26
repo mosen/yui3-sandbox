@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Selectable Test Case</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+    <div id="testnode">
+        <ul>
+            <li>Item #1</li>
+            <li>Item #2</li>
+        </ul>
+    </div>
+        
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    groups : {
+                        testgroup: {
+                            combine: false,
+                            base : '../../../build/',
+                            root : '../../../build',
+                            modules : {
+                              'gallery-dp-selectable' : {
+                                    'path' : '/gallery-dp-selectable/gallery-dp-selectable-debug.js',
+                                    'requires' : ['base', 'plugin', 'node'],
+                                    'skinnable' : true
+                                }
+                            }
+                        }
+                    }
+                }).use("console", "test", "dump", "gallery-dp-selectable", function(Y) {
+                
+                    var myConsole = new Y.Console({ useBrowserConsole: true }).render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "Selectable Test Case",
+                    
+                        setUp: function() {
+
+                        },
+                    
+                        tearDown: function() {
+
+                        },
+                    
+                        "test something": function() {
+                            Y.one('#testnode').plug(Y.DP.Selectable, {
+                                allowMultiple: false, 
+                                allowDeselect: true
+                            });
+                        }
+                    });
+
+                    var suite = new Y.Test.Suite({name:"Selectable Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>

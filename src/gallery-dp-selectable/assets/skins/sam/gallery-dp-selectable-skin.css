@@ -1,0 +1,9 @@
+.yui3-node-highlighted {
+    background-color: #AADAFF;
+    cursor: pointer;
+}
+
+.yui3-node-selected {
+    background-color: #60add5;
+    cursor: pointer;
+}
