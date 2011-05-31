@@ -11,6 +11,9 @@ YUI.add('gallery-dp-datatable-plugin-footer', function(Y) {
 //YUI.add('dp-datatable-plugin-footer', function(Y) {
 	
 	var Lang = Y.Lang,
+            YgetClassName = Y.ClassNameManager.getClassName,
+            DATATABLE = "datatable",
+            CLASS_LINER = YgetClassName(DATATABLE, "liner"),
             Node = Y.Node;
 	
 	/**
@@ -90,7 +93,7 @@ YUI.add('gallery-dp-datatable-plugin-footer', function(Y) {
 				
 				columnNode = Node.create(Y.substitute(this.get('tdTemplate'), {
 					tdClassName: this.get('host').getClassName('footer', 'col'),
-					linerClassName: this.get('host').getClassName('liner'),
+					linerClassName: CLASS_LINER,
 					tdColSpan: span,
 					value: v
 				}));

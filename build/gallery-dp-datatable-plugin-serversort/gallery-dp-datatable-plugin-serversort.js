@@ -154,7 +154,7 @@ Y.namespace('DP').DataTableServerSort = Y.Base.create( 'gallery-dp-datatable-plu
         var dt = this.get("host"),
             column = dt.get("columnset").idHash[e.currentTarget.get("id")];
             
-        if(column.get("sortable")) {
+        if (column.get("sortable")) {
             this.sort(column);
         }
     },
@@ -165,22 +165,28 @@ Y.namespace('DP').DataTableServerSort = Y.Base.create( 'gallery-dp-datatable-plu
      *
      * @method sort
      * @public
-     * @param col {Object} Column to sort
+     * @param column {Object} Column to sort
      * @param dir {Integer} Direction to sort, one of SORT_ASC, SORT_DESC, SORT_NONE
      */
-    sort : function(col, dir) {
+    sort : function(column, dir) {
+        var sorting = this.get('sorting'),
+            columnId = column.get('id'),
+            currentDir = sorting[columnId];
         
-        if (dir === undefined) {
-            col.sort = SORT_ASC;
-        } else if (dir === SORT_ASC) {
-            col.sort = SORT_DESC;
-        } else {
-            col.sort = SORT_NONE;
+        
+        if (dir !== undefined) {
+            sorting[column.get('id')] = dir;
+        } else { // Rotate through states
+            if (currentDir === undefined || currentDir === SORT_NONE) {
+                sorting[columnId] = SORT_ASC;
+            } else if (currentDir === SORT_ASC) {
+                sorting[columnId] = SORT_DESC;
+            } else if (currentDir === SORT_DESC) {
+                sorting[columnId] = SORT_NONE;
+            }
         }
         
-        this.get("host").get("columnset").idHash[col.get("id")] = col;
-        
-        this.fire("sort", { column: col, direction: col.sort });
+        this.fire("sort", { column: column, direction: sorting[columnId] });
     },
     
     /**
@@ -206,6 +212,26 @@ Y.namespace('DP').DataTableServerSort = Y.Base.create( 'gallery-dp-datatable-plu
             default:
                 col.removeClass(YgetClassName(DATATABLE, DESC));
                 col.removeClass(YgetClassName(DATATABLE, ASC));
+        }
+    },
+    
+    /**
+     * Grab a set of query parameters as a joinable array
+     * 
+     * eg. [ key, value, key, value ] becomes key=value&key=value
+     *
+     * @method getQueryParameters
+     * @returns Array
+     * @public
+     */
+    getQueryParameters : function() {
+        var sorting = this.get('sorting'),
+            params = [];
+          
+        
+        for (key in sorting) {
+            params.push(key);
+            params.push(sorting[key]);
         }
     }
     
@@ -235,13 +261,16 @@ Y.namespace('DP').DataTableServerSort = Y.Base.create( 'gallery-dp-datatable-plu
      * @static
      */
     ATTRS : {
+
+        sorting : {
+            value : []
+        },
         
         template : {
             value : TEMPLATE
         }
-    }
         
-
+    }
 });
 
 
