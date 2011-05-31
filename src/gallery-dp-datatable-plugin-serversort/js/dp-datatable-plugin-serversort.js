@@ -20,6 +20,12 @@ var Lang = Y.Lang,
     SORT_ASC = 1001,
     SORT_DESC = 1002,
     SORT_NONE = 1000,
+    
+    SORT_VALUES = {
+        1000: 'NONE',
+        1001: 'ASC',
+        1002: 'DESC'
+    },
 
     //TODO: Don't use hrefs - use tab/arrow/enter
     TEMPLATE = '<a class="{link_class}" title="{link_title}" href="{link_href}">{value}</a>';
@@ -184,7 +190,7 @@ Y.namespace('DP').DataTableServerSort = Y.Base.create( 'gallery-dp-datatable-plu
             } else if (currentDir === SORT_ASC) {
                 sorting[columnId] = SORT_DESC;
             } else if (currentDir === SORT_DESC) {
-                sorting[columnId] = SORT_NONE;
+                delete sorting[columnId];
             }
         }
         
@@ -230,14 +236,18 @@ Y.namespace('DP').DataTableServerSort = Y.Base.create( 'gallery-dp-datatable-plu
      */
     getQueryParameters : function() {
         var sorting = this.get('sorting'),
-            params = [];
+            params = [],
+            column;
           
         Y.log("getQueryParameters", "info", this.NS);
         
         for (key in sorting) {
-            params.push(key);
-            params.push(sorting[key]);
+            column = this.get('host').get('columnset').idHash[key];
+            Y.log("sort " + column.get('key') + "=" + sorting[key], "info", this.NS);
+            params.push('sort[' + column.get('key') + "]=" + SORT_VALUES[sorting[key]]);
         }
+        
+        return params;
     }
     
 }, {

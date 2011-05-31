@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>DataList Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    modules : {
+                        'gallery-dp-datalist' : {
+                            'fullpath' : '../../../build/gallery-dp-datalist/gallery-dp-datalist-debug.js',
+                            'requires' : ['widget', 'datasource']
+                        }
+                    }
+                }).use("console", "test", "dump", "gallery-dp-datalist", function(Y) {
+                
+                    var myConsole = new Y.Console().render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "Datalist Test Case",
+                    
+                        setUp: function() {
+                            
+                            this.mockresponse = [
+                                        { "id" : "1", "name" : "Joe" },
+                                        { "id" : "2", "name" : "Bob" },
+                                        { "id" : "3", "name" : "Andrew" }
+                                    ];
+                            
+                            this.testDataSource = new Y.DataSource.Local({ 
+                                results: this.mockresponse
+                            });
+                            
+                            this.dl = new Y.DP.DataList({ source: this.testDataSource });
+                        },
+                    
+                        tearDown: function() {
+
+                        },
+                    
+                        "test render": function() {
+                            this.dl.render();
+                        }
+                    });
+
+                    var suite = new Y.Test.Suite({name:"Datalist Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>
