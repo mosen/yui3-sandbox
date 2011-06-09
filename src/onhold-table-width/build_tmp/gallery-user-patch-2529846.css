@@ -1,0 +1,7 @@
+/*
+    Patch for ticket #2529846 : Setting width in the constructor does not affect the width
+    of the table.
+*/
+.yui3-datatable table {
+    width: 100%;
+}

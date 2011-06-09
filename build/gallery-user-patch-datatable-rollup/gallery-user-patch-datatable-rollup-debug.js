@@ -1,12 +1,16 @@
 YUI.add('gallery-user-patch-datatable-rollup', function(Y) {
 
-// patch for YUI 3.3.0 DataTable bug
-// forum post: http://yuilibrary.com/forum/viewtopic.php?f=92&t=6355
-// bug ticket: http://yuilibrary.com/projects/yui3/ticket/2529808
-//
+/**
+ * This patch addresses YUI ticket #2529808
+ * 
+ * forum post: http://yuilibrary.com/forum/viewtopic.php?f=92&t=6355
+ * bug ticket: http://yuilibrary.com/projects/yui3/ticket/2529808
+ *
+ * @module gallery-user-patch-2529808
+ * @requires datatable, datatable-scroll
+ */
 
-
-
+// TODO: Use AOP for these methods? Can't figure out how to correct the context on a prototype method.
 Y.Plugin.DataTableScroll.prototype.injected_initializer = Y.Plugin.DataTableScroll.prototype.initializer;
 
 Y.Plugin.DataTableScroll.prototype.initializer = function(config) {

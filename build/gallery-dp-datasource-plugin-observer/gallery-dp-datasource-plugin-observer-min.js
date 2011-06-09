@@ -1,0 +1,1 @@
+YUI.add("gallery-dp-datasource-plugin-observer",function(c){var b=c.Lang;function a(d){a.superclass.constructor.apply(this,arguments);}c.mix(a,{NS:"observer",NAME:"dataSourceObserver",ATTRS:{}});c.extend(a,c.Plugin.Base,{initializer:function(d){},destructor:function(){}});c.namespace("DP").DataSourceObserver=a;},"@VERSION@",{requires:["plugin","datasource"]});

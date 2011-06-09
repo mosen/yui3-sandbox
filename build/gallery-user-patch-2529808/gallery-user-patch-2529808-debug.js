@@ -6,7 +6,7 @@ YUI.add('gallery-user-patch-2529808', function(Y) {
 //
 
 
-
+// TODO: Use AOP for these methods? Can't figure out how to correct the context on a prototype method.
 Y.Plugin.DataTableScroll.prototype.injected_initializer = Y.Plugin.DataTableScroll.prototype.initializer;
 
 Y.Plugin.DataTableScroll.prototype.initializer = function(config) {

@@ -6,6 +6,7 @@ YUI.add('gallery-dp-datatable-formatters', function(Y) {
  * @module gallery-dp-datatable-formatters
  * @requires lang, datatype, datatable
  */
+var YgetClassName = Y.ClassNameManager.getClassName;
 
 Y.namespace('DP').DataTableFormatters = {
 
@@ -160,6 +161,30 @@ Y.namespace('DP').DataTableFormatters = {
             
             o.liner.append(link);
             return true;
+        };
+    },
+    
+    
+    /**
+     * Display a percentage as a visual progress bar
+     */
+    getProgressFormatter : function() {
+        
+        return function(o) {
+
+            var percentage_value = parseInt(o.value, 0),
+                CLASS_TEXT = YgetClassName('gallery', 'dp', 'datatable', 'formatter', 'progresstext'),
+                CLASS_BAR = YgetClassName('gallery', 'dp', 'datatable', 'formatter', 'progressbar'),
+                CLASS_BG = YgetClassName('gallery', 'dp', 'datatable', 'formatter', 'progressbg'),
+                TEXT_TEMPLATE = '<div class="{className}">{text}</div>',
+                BAR_TEMPLATE = '<div class="{className}" style="width: {width}%">{textnode}</div>',
+                BG_TEMPLATE = '<div class="{className}">{bar}</div>';
+
+            var text_percent = Y.substitute(TEXT_TEMPLATE, {className: CLASS_TEXT, text: percentage_value + '%'});
+            var bar = Y.substitute(BAR_TEMPLATE, {className: CLASS_BAR, width: percentage_value, textnode: text_percent});
+            var back = Y.substitute(BG_TEMPLATE, {className: CLASS_BG, bar: bar});
+
+            o.td.append(Y.Node.create(back));
         };
     }
 

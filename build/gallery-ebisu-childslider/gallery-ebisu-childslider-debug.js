@@ -148,8 +148,9 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
 
             // TODO : proper thumb detection
             // TODO : specify which thumb is the upper bound
-            if (dd.actXY[0] < (parentOffset + thumbWidth + (thumbWidth / 2))) {
-                dd.actXY[0] = parentOffset + thumbWidth + (thumbWidth / 2);
+            //if (dd.actXY[0] < (parentOffset + thumbWidth + (thumbWidth / 2))) {
+            if (myOffset < (parentOffset + thumbWidth + (thumbWidth / 2))) {
+                dd.actXY[0] = parent._dd.actXY[0] + thumbWidth + (thumbWidth / 2);
             }
     },
     
@@ -174,10 +175,18 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
             dd = parent._dd,
             thumbWidth = this.get('thumbwidth');
 
+
             // TODO : proper thumb detection
             // TODO : specify which thumb is the upper bound
-            if (dd.actXY[0] > (myOffset - (thumbWidth / 2))) {
-                dd.actXY[0] = (myOffset - (thumbWidth / 2));
+            if (parentOffset > (myOffset - (thumbWidth / 2))) {
+                  Y.log("parentActX: " + dd.actXY[0] + " > myValueToOffset: " + myOffset, "info", this.NS);
+                Y.log("parentNodeX:" + dd.nodeXY[0]);
+                Y.log("parentDeltaX:" + dd.deltaXY[0]);
+                Y.log("parentRealX:" + dd.realXY[0]);              
+
+                
+               
+                dd.actXY[0] = (host._dd.actXY[0] - (thumbWidth / 2));
             }
     },
 

@@ -75,7 +75,7 @@ YUI.add('gallery-dp-datatable-plugin-footer', function(Y) {
                             v = "",
                             span = 1;
                             
-                        trContainer.set('content', '');
+                        trContainer.set('innerHTML', '');
 			
 			Y.Array.each(columns, function(c) {
 				

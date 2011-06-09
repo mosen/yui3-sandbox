@@ -66,12 +66,16 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @protected
      */
     _renderItems : function(items) {
+        var i = 0,
+            fnRender = Y.bind(this.get('fnRender'), this),
+            o = {
+                ul : this.get('contentBox').one('ul')
+            };
         
-        for (i in items) {
-            this.get('contentBox').one('ul').append(Y.substitute(this.ITEM_TEMPLATE, {
-                className: this.getClassName('item'),
-                title: i
-            }));
+
+        for (; i < items.length; i++) {
+            o.item = items[i];
+            fnRender(o);
         }
     },
 
@@ -82,6 +86,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     bindUI : function () {
         this.after('dataChange', this._uiSetItems, this);
+        this.get('contentBox').delegate('click', Y.bind(this._handleItemClicked, this), 'a');
     },
     
     /**
@@ -90,7 +95,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @method syncUI
      */
     syncUI : function () {
-        this.get('source').sendRequest({ request: this.get('initialRequest'), callback: this._ioCallback });
+        this.get('source').sendRequest({request: this.get('initialRequest'), callback: this._ioCallback});
     },
 
     /**
@@ -122,8 +127,8 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     _defResponseSuccessFn : function(o) {
 
-            this.set('data', o.response);
-            this.set('loading', false);
+        this.set('data', o.response.results);
+        this.set('loading', false);
     },
 
     /**
@@ -137,6 +142,16 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
             this.set('loading', true);
     },
     
+    /**
+     * Handle a list item being clicked.
+     *
+     * @method _handleItemClicked
+     * @param
+     * @returns
+     * @protected
+     */
+    _handleItemClicked : function() {
+    },
     
     /**
      * Update the UI with new data
@@ -146,8 +161,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     _uiSetItems : function(e) {
         
-        console.dir(this.get('data'));
-        
+        this.get('contentBox').one('ul').set('innerHTML', '');
         this._renderItems(this.get('data'));
     },
     
@@ -166,7 +180,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @property ITEM_TEMPLATE
      * @type String
      */
-    ITEM_TEMPLATE: '<li class="{className}">{title}</li>',
+    ITEM_TEMPLATE: '<li class="{className}"><a href="#{anchor}">{title}</a></li>',
 
     /**
      * A tokenized template used to create this widget's list node.
@@ -270,6 +284,49 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         loading : {
             value : false,
             readOnly : true
+        },
+        
+        /**
+         * Key to use in the datasource result for the list item title
+         *
+         * @attribute titlekey
+         * @type String
+         * @default "value"
+         */
+        titlekey : {
+            value : 'value'
+        },
+        
+        /**
+         * Key to use for the anchor element
+         *
+         * @attribute anchorkey
+         * @type String
+         */
+        anchorkey : {
+            value : 'key'
+        },
+        
+        /**
+         * Function used to render each list item.
+         *
+         * @attribute fnRender
+         * @type Function
+         */
+        fnRender : {
+            value : function(o) { // Default renderer
+                var item = o.item,
+                    titlekey = this.get('titlekey'),
+                    anchorkey = this.get('anchorkey');
+
+
+                o.ul.append(Y.substitute(this.ITEM_TEMPLATE, {
+                    className: this.getClassName('item'),
+                    anchor: item[anchorkey],
+                    title: item[titlekey]
+                }));           
+            },
+            validator : Y.Lang.isFunction
         }
 
     }

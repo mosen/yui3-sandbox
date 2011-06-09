@@ -15,6 +15,7 @@
         (function() {
             YUI({
                 filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                combine: false,
                 allowRollup: false,
                    modules : {
                     'gallery-user-patch-2529808' : {

@@ -34,10 +34,13 @@
                                     ];
                             
                             this.testDataSource = new Y.DataSource.Local({ 
-                                results: this.mockresponse
+                                source: this.mockresponse
                             });
                             
-                            this.dl = new Y.DP.DataList({ source: this.testDataSource });
+                            this.dl = new Y.DP.DataList({ 
+                                source: this.testDataSource,
+                                titlekey : "name"
+                            });
                         },
                     
                         tearDown: function() {

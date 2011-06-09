@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Y.DP.DataSourceInput Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        
+        <label for="testarea">TEXTAREA Element with JSON</label>
+        <textarea name="testarea" id="testarea">{ "response" : { "results" : [ 
+            { "id" : 1, "name" : "Joe" } 
+        ] } }</textarea>
+        
+        <label for="testinput">INPUT Element with JSON value</label>
+        <input type="text" id="testinput" name="testinput" size="100" value="{ &quot;response&quot; : { &quot;results&quot; : [ { &quot;id&quot; : 1, &quot;name&quot; : &quot;Joe&quot; } ] } }" />
+        
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    modules : {
+                        'gallery-dp-datasource-input' : {
+                            'fullpath' : '../../../build/gallery-dp-datasource-input/gallery-dp-datasource-input-debug.js',
+                            'requires' : ['datasource', 'json-parse']
+                        }
+                    }
+                }).use("console", "test", "dump", "gallery-dp-datasource-input", function(Y) {
+                
+                    var myConsole = new Y.Console().render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "DataSourceInput Test Case",
+                    
+                        setUp: function() {
+                            this.testDataSource = new Y.DP.DataSourceInput();
+                        },
+                    
+                        tearDown: function() {
+                            this.testDataSource.destroy();
+                        },
+                    
+                        "test parsing textarea using selector": function() {
+                            this.testDataSource.set('node', '#testarea');
+                            
+                            this.testDataSource.sendRequest({ callback: {
+                                    success: function(e) {
+                                        Y.Assert.isNotUndefined(e.data);
+                                        Y.log("First row name attribute: " + e.data.response.results[0].name);
+                                    }
+                            }});
+                        },
+                        
+                        "test parsing textarea using node reference": function() {
+                            this.testDataSource.set('node', Y.one('#testarea'));
+                            
+                            this.testDataSource.sendRequest({ callback: {
+                                    success: function(e) {
+                                        Y.Assert.isNotUndefined(e.data);
+                                        Y.log("First row name attribute: " + e.data.response.results[0].name);
+                                    }
+                            }});
+                        },
+                        
+                        "test parsing text input using selector": function() {
+                            this.testDataSource.set('node', '#testinput');
+                            
+                            this.testDataSource.sendRequest({ callback: {
+                                    success: function(e) {
+                                        Y.Assert.isNotUndefined(e.data);
+                                        Y.log("First row name attribute: " + e.data.response.results[0].name);
+                                    }
+                            }});
+                        }
+                    });
+
+                    var suite = new Y.Test.Suite({name:"DataSourceInput Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>

@@ -144,8 +144,9 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
 
             // TODO : proper thumb detection
             // TODO : specify which thumb is the upper bound
-            if (dd.actXY[0] < (parentOffset + thumbWidth + (thumbWidth / 2))) {
-                dd.actXY[0] = parentOffset + thumbWidth + (thumbWidth / 2);
+            //if (dd.actXY[0] < (parentOffset + thumbWidth + (thumbWidth / 2))) {
+            if (myOffset < (parentOffset + thumbWidth + (thumbWidth / 2))) {
+                dd.actXY[0] = parent._dd.actXY[0] + thumbWidth + (thumbWidth / 2);
             }
     },
     
@@ -169,10 +170,14 @@ Y.namespace('Ebisu').ChildSlider = Y.Base.create( 'gallery-ebisu-childslider', Y
             dd = parent._dd,
             thumbWidth = this.get('thumbwidth');
 
+
             // TODO : proper thumb detection
             // TODO : specify which thumb is the upper bound
-            if (dd.actXY[0] > (myOffset - (thumbWidth / 2))) {
-                dd.actXY[0] = (myOffset - (thumbWidth / 2));
+            if (parentOffset > (myOffset - (thumbWidth / 2))) {
+
+                
+               
+                dd.actXY[0] = (host._dd.actXY[0] - (thumbWidth / 2));
             }
     },
 
