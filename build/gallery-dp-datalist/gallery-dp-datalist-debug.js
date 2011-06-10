@@ -140,9 +140,9 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @param e {Event} Event
      */
     _defLoadingFn : function(e) {
-            Y.log('_defLoadingFn', 'info', this.NAME);
+        Y.log('_defLoadingFn', 'info', this.NAME);
 
-            this.set('loading', true);
+        this.set('loading', true);
     },
     
     /**
@@ -334,7 +334,6 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
             },
             validator : Y.Lang.isFunction
         }
-
     }
 });
 

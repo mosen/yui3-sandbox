@@ -4,7 +4,7 @@ YUI.add('gallery-dp-datasource-plugin-observer', function(Y) {
  *
  *
  * @module gallery-dp-datasource-plugin-observer
- * @author eamonb
+ * @author mosen
  * @requires plugin, datasource
  */
 
@@ -14,6 +14,9 @@ var Lang = Y.Lang;
 /**
  * Observer class adds the ability for datasources to observe multiple sources that would
  * alter the results, combining the conditions provided by those sources.
+ * 
+ * The datasource observer differs from the normal observer pattern by defining a standard protocol
+ * for the subjects.
  *
  * @class Observer
  * @extends Plugin.Base
@@ -55,6 +58,19 @@ Y.mix(Observer, {
      */
     ATTRS : {
         
+        /**
+         * List of subjects currently being observed.
+         *
+         * @attribute subjects
+         * @type Array
+         */
+        subjects : {
+            value : [],
+            readOnly: true // Only add subjects via observe() method.
+        }
+
+    }
+        
 /*
          * Attribute properties:
          *  
@@ -74,7 +90,7 @@ Y.mix(Observer, {
          *                                // You should use listeners to update alternate state). 
          * , broadcast: 1                 // Whether the attribute change event should be broadcast or not.
          */
-}    
+   
 });
 
 Y.extend(Observer, Y.Plugin.Base, {
@@ -104,7 +120,44 @@ Y.extend(Observer, Y.Plugin.Base, {
      */
     destructor: function() { 
     
-    }    
+    },
+    
+    /**
+     * Notify this observer of a change in the subject.
+     * The subject must adhere to IDataSourceSubject
+     *
+     * @method notify
+     * @param
+     * @returns
+     * @public
+     */
+    notify : function() {
+        
+        // iterate through subjects
+    },
+    
+    /**
+     * Add a subject that this observer will observe.
+     *
+     * @method observe
+     * @param subject {Object} The object to observe
+     * @returns
+     * @public
+     */
+    observe : function(subject) {
+        var subjects = this.get('subjects');
+        
+        
+        // Don't add duplicates
+        if (Y.Array.indexOf(subjects, subject) !== undefined) {
+            return false;
+        } else {
+            subjects.unshift(subject);
+            this.set('subjects', subjects);
+        }
+    }
+
+    
 });
 
 Y.namespace("DP").DataSourceObserver = Observer;

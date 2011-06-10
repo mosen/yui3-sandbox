@@ -42,3 +42,21 @@ Y.DataTable.Base.prototype._createTbodyTdNode = function(o) {
 
     return o.td;
 };
+
+// Use a custom function in the substitution to omit null results
+// Realistically, Y.sub should have an option to remove and not preserve tokens.
+Y.DataTable.Base.prototype.formatDataCell = function(o) {
+    var record = o.record,
+        column = o.column,
+        formatter = column.get("formatter"),
+        fnSubstituteNulls = function(key, v, meta) {
+            return v ? v : "";
+        };
+    o.data = record.get("data");
+    o.value = record.getValue(column.get("field"));
+    return Y.Lang.isString(formatter) ?
+        Y.substitute(formatter, o, fnSubstituteNulls) : // Custom template
+        Y.Lang.isFunction(formatter) ?
+            formatter.call(this, o) :  // Custom function
+            Y.substitute(this.get("tdValueTemplate"), o, fnSubstituteNulls);  // Default template
+};

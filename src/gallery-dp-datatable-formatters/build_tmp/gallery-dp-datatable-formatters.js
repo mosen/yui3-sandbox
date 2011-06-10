@@ -8,7 +8,19 @@ YUI.add('gallery-dp-datatable-formatters', function(Y) {
  */
 var YgetClassName = Y.ClassNameManager.getClassName;
 
-Y.namespace('DP').DataTableFormatters = {
+var DataTableFormatters = {
+    
+    /**
+     * Pass with Y.substitute to remove tokens if the value does not exist.
+     * 
+     * @param key {String} Current key or token
+     * @param v {String} Current value that would be used
+     * @param meta {Object} Other data passed to substitute
+     * @return String value substitution
+     */
+    fnSubstituteNulls: function(key, v, meta) {
+        return v ? v : "";
+    },
 
     /**
      * Get a function which applies text to html entity substitution to the relevant cell.
@@ -103,6 +115,7 @@ Y.namespace('DP').DataTableFormatters = {
      * @param field {String} First field to add
      * @param field2 {String} Second field to add..
      * @param fnFormatter {Function} Last parameter is the formatter function
+     * @return Function formatting function
      */
     getSumFormatter: function() {
         
@@ -157,7 +170,7 @@ Y.namespace('DP').DataTableFormatters = {
                 link = Y.Node.create(Y.substitute('<a href="{location}">{displayText}</a>', {
                     location: href,
                     displayText: o.record.getValue(displayField)
-                }));
+                }, DataTableFormatters.fnSubstituteNulls));
             
             o.liner.append(link);
             return true;
@@ -189,6 +202,8 @@ Y.namespace('DP').DataTableFormatters = {
     }
 
 };
+
+Y.namespace('DP').DataTableFormatters = DataTableFormatters;
 
 
 }, '@VERSION@' ,{requires:['datatable', 'datatype']});

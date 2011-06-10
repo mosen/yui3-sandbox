@@ -1,13 +1,10 @@
 /**
  *
  *
- * @module gallery-dp-datasource-plugin-observer
+ * @module gallery-dp-plugin-queryobserver
  * @author mosen
  * @requires plugin, datasource
  */
-
-/* Frequently used shortcuts, strings and constants */
-var Lang = Y.Lang;
 
 /**
  * Observer class adds the ability for datasources to observe multiple sources that would
@@ -19,11 +16,11 @@ var Lang = Y.Lang;
  * @class Observer
  * @extends Plugin.Base
  */
-function Observer(config) {
-    Observer.superclass.constructor.apply(this, arguments);
+function QueryObserverPlugin(config) {
+    QueryObserverPlugin.superclass.constructor.apply(this, arguments);
 }
 
-Y.mix(Observer, {
+Y.mix(QueryObserverPlugin, {
 
     /**
      * The plugin namespace identifies the property on the host
@@ -33,7 +30,7 @@ Y.mix(Observer, {
      * @type String
      * @static
      */
-    NS : "observer",
+    NS : "qobserver",
 
     /**
      * The plugin name identifies the event prefix and is a basis for generating
@@ -43,7 +40,7 @@ Y.mix(Observer, {
      * @type String
      * @static
      */
-    NAME : "dataSourceObserver",
+    NAME : "queryObserverPlugin",
 
     /**
      * The attribute configuration represents the core user facing state of 
@@ -91,7 +88,7 @@ Y.mix(Observer, {
    
 });
 
-Y.extend(Observer, Y.Plugin.Base, {
+Y.extend(QueryObserverPlugin, Y.Plugin.Base, {
 
     /**
      * Initializer runs when the plugin is constructed or plugged into the host instance.
@@ -121,18 +118,73 @@ Y.extend(Observer, Y.Plugin.Base, {
     },
     
     /**
-     * Notify this observer of a change in the subject.
+     * Add a subject that this observer will observe.
+     * 
+     * By default the observer will observe changes in the subject's subjectParameters attribute.
+     * You can supply a custom event hook in the configuration.
+     * 
+     * 
      *
-     * @method notify
-     * @param
-     * @returns
+     * @method observe
+     * @param subject {Object} The object to observe
+     * @param condition {Object} The on / after or before events that cause the state to be updated
+     * @param fnTransform {Function} The function which converts widget state into query parameters
+     * @returns Boolean true if added
      * @public
      */
-    notify : function() {
-        Y.log("notify", "info", this.NAME);
+    observe : function(subject, condition, fnTransform) {
+        /* 
+          Example case: search box causes datasource to query, no coupling between search box and datasource.
+        
+        - on page script connects observer to search box using observe()
+        - observer gets initial state via fnTransform which returns hash of query parameters
+        - observer immediately loads datasource OR waits until sync() is called after all subjects have been added
+        - observer is told that it should run fnTransform on search box whenever valueChange happens.
+        - valueChange -> observer, observer fnTransform(subject), observer calls datasource.sendRequest with result
+        - datasource returns data, data updates (data based) widgets.
+        
+        - now we observe a list of tags, fnTransform gets the currently selected tag as a key=value
+        - selectedTagChange -> observer, observer fnTransform(tagsubject) and fnTransform(searchbox) = all parameters, datasource.sendRequest(allparams)
+        
+        - cant close over fnTransform with subject included because?? no idea which subject originated the request
+        - does that matter? actually can use e.target
+        
+        - multiple events fnTransform? how? eventspec can be array { before: [] | 'event', on: [] | 'event', after: [] | 'event' }
+        
+        - AutoComplete
+        - observe(ac, { on: 'select' }, fnTransform( get selected item, return k:v ), datasource.sendRequest()
+        - supply built-in transformers for common components
+        - xfAutocomplete / xfSlider / xfTabView (filtering tabs) / gallery junk
+        
+        
+        // this event will cause the observer to re-query every subject for state information using fnTransform...
+        var eventDefault = (config.eventDefault == undefined) ? 'subjectParametersChange' : config.eventDefault, 
+            fnTransformParams = config.fnTransformParams; // this function is called to transform the subject state into query parameter hashes
+        
+        // grab a closure that will take a subject change, transform the internal state
+        subject.after(eventDefault, this._getQueryUpdateFn(this, subject));
+        
+        // grab initial state from subject
+        // sync state only if waitForSync == false, otherwise only load datasource on sync() call
+        
+        // subject.on(queryParametersChange, this.updateParametersCollection THEN
+        // afterParametersChange(this.datasource.sendRequest(with serialised parameters collection))
+        /*
+        var subjects = this.get('subjects');
+        
+        Y.log("observe", "info", this.NAME);
+        
+        // Don't add duplicates
+        if (Y.Array.indexOf(subjects, subject) !== undefined) {
+            return false;
+        } else {
+            subjects.unshift(subject);
+            this.set('subjects', subjects);
+            return true;
+        }*/
     }
 
     
 });
 
-Y.namespace("DP").DataSourceObserver = Observer;
+Y.namespace("DP").QueryObserverPlugin = QueryObserverPlugin;

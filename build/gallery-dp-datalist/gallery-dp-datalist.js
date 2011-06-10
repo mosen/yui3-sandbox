@@ -139,7 +139,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     _defLoadingFn : function(e) {
 
-            this.set('loading', true);
+        this.set('loading', true);
     },
     
     /**
@@ -328,7 +328,6 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
             },
             validator : Y.Lang.isFunction
         }
-
     }
 });
 
