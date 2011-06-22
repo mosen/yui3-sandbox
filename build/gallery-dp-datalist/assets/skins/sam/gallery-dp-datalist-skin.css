@@ -2,3 +2,9 @@
     margin-left: 0.2em;
     list-style-type: square;
 }
+
+.yui3-gallery-dp-datalist a.remove {
+    visibility: hidden;
+    font-size: 75%;
+    margin: 0em 0.5em 0em 0.5em;
+}

@@ -1,3 +1,5 @@
+YUI.add('gallery-dp-plugin-queryobserver', function(Y) {
+
 /**
  *
  *
@@ -246,3 +248,6 @@ Y.extend(QueryObserverPlugin, Y.Plugin.Base, {
 });
 
 Y.namespace("DP").QueryObserverPlugin = QueryObserverPlugin;
+
+
+}, '@VERSION@' ,{requires:['plugin', 'datasource']});

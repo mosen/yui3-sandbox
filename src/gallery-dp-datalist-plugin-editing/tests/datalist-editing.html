@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>DataList Test</title>
+        <title>DataListEditing Test</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
         charset="utf-8"></script>
@@ -18,14 +18,18 @@
                         'gallery-dp-datalist' : {
                             'fullpath' : '../../../build/gallery-dp-datalist/gallery-dp-datalist-debug.js',
                             'requires' : ['widget', 'datasource']
+                        },
+                        'gallery-dp-datalist-plugin-editing' : {
+                            'fullpath' : '../../../build/gallery-dp-datalist-plugin-editing/gallery-dp-datalist-plugin-editing-debug.js',
+                            'requires' : ['gallery-dp-datalist', 'plugin']
                         }
                     }
-                }).use("console", "test", "dump", "gallery-dp-datalist", function(Y) {
+                }).use("console", "test", "dump", "gallery-dp-datalist", "gallery-dp-datalist-plugin-editing", function(Y) {
                 
                     var myConsole = new Y.Console().render();
 
                     var testBasic = new Y.Test.Case({ 
-                        name: "Datalist Test Case",
+                        name: "DatalistEditing Test Case",
                     
                         setUp: function() {
                             
@@ -41,7 +45,9 @@
                             
                             this.dl = new Y.DP.DataList({ 
                                 source: this.testDataSource,
-                                titlekey : "name"
+                                plugins: [
+                                    { fn: Y.DP.DatalistEditing, cfg: {} }
+                                ]
                             });
                         },
                     
@@ -54,7 +60,7 @@
                         }
                     });
 
-                    var suite = new Y.Test.Suite({name:"Datalist Test Suite"});
+                    var suite = new Y.Test.Suite({name:"DatalistEditing Test Suite"});
                     suite.add(testBasic);
 
                     Y.Test.Runner.setName("Test Runner");

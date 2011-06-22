@@ -1,3 +1,5 @@
+YUI.add('gallery-dp-plugin-queryobserver', function(Y) {
+
 /**
  *
  *
@@ -69,8 +71,6 @@ Y.mix(QueryObserverPlugin, {
          */
         callback : {
             value : {
-                success : function() { Y.log('success', 'info', 'queryObserver'); },
-                failure : function() { Y.log('failure', 'info', 'queryObserver'); }
             }
         }
     }
@@ -110,7 +110,6 @@ Y.extend(QueryObserverPlugin, Y.Plugin.Base, {
      * @public
      */
     notify : function(subject, e, fnTransform) {
-        Y.log("notify", "info", this.NAME);
         
         var newParameters = fnTransform(subject, e),
             subject_id = subject.get('id') || subject.get('host').get('id'), // TODO: better way of generating identifiers for subjects.
@@ -198,7 +197,6 @@ Y.extend(QueryObserverPlugin, Y.Plugin.Base, {
 
         var subjects = this.get('subjects');
         
-        Y.log("observe", "info", this.NAME);
         
         // Don't add duplicates
         if (Y.Array.indexOf(subjects, subject) !== undefined) {
@@ -233,8 +231,6 @@ Y.extend(QueryObserverPlugin, Y.Plugin.Base, {
         }
             
         
-        Y.log(params_collected);
-        Y.log("hostRequestWithNewParameters", "info", this.NAME);
         
         this.get('host').sendRequest({
             request: '?' + params_collected.join('&'),
@@ -246,3 +242,6 @@ Y.extend(QueryObserverPlugin, Y.Plugin.Base, {
 });
 
 Y.namespace("DP").QueryObserverPlugin = QueryObserverPlugin;
+
+
+}, '@VERSION@' ,{requires:['plugin', 'datasource']});

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>queryobserver Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <input type="text" id="query" />
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    modules : {
+                        'testmodule' : {
+                            'fullpath' : '../../../build/gallery-dp-datasource-plugin-observer/gallery-dp-datasource-plugin-observer-debug.js',
+                            'requires' : ['datasource']
+                        }
+                    }
+                }).use("console", "test", "dump", "datasource", "gallery-dp-datasource-plugin-observer", function(Y) {
+                
+                    var myConsole = new Y.Console().render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "queryobserver Test Case",
+                    
+                        setUp: function() {
+                            this.mockresponse = {
+                                response: {
+                                    results: [
+                                        { "id" : "1", "name" : "Joe" },
+                                        { "id" : "2", "name" : "Mark" },
+                                        { "id" : "3", "name" : "Andrew" }
+                                    ]
+                                }
+                            };
+
+                            this.testDataSource = new Y.DataSource.Local(this.mockresponse);
+
+                            this.testDataTable = new Y.DataTable.Base({
+                                columnset : ["id", "name"],
+                                summary : "User patched DataTable Instance",
+                                plugins : [
+                                    { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } }
+                                ]
+                            });
+
+                            this.testDataTable.render();
+                        },
+                    
+                        tearDown: function() {
+
+                        },
+                    
+                        "test something": function() {
+                        
+                        }
+                    });
+
+                    var suite = new Y.Test.Suite({name:"queryobserver Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>

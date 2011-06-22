@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>EditablePlugin Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <span class="yui3-editable">This text should be editable now</span>
+        <span class="yui3-editable-ph"></span>
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    modules : {
+                        'gallery-dp-editable' : {
+                            'fullpath' : '../../../build/gallery-dp-editable/gallery-dp-editable-debug.js',
+                            'requires' : ['plugin', 'base']
+                        }
+                    }
+                }).use("console", "test", "dump", "gallery-dp-editable", function(Y) {
+                
+                    var myConsole = new Y.Console().render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "EditablePlugin Test Case",
+                    
+                        setUp: function() {
+                        },
+                    
+                        tearDown: function() {
+
+                        },
+                    
+                        "test plugin on node with content renders": function() {
+                            Y.one('.yui3-editable').plug(Y.DP.EditablePlugin);
+                        },
+                        
+                        "test plugin on node with no children produces placeholder": function() {
+                            Y.one('.yui3-editable-ph').plug(Y.DP.EditablePlugin);
+                        }
+                    });
+
+                    var suite = new Y.Test.Suite({name:"EditablePlugin Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>

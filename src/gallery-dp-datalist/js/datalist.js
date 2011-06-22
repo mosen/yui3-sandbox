@@ -1,16 +1,14 @@
 /**
- *
- *
- * @module Datalist
+ * @module gallery-dp-datalist
  * @requires widget, datasource
  */
 
 /* Any frequently used shortcuts, strings and constants */
-var Lang = Y.Lang,
-    Node = Y.Node;
+var Node = Y.Node,
+    YGetClassName = Y.ClassNameManager.getClassName;
 
 /**
- * A list element that uses datasource to create its items.
+ * A (unordered) list element that uses datasource to create its items.
  *
  * @class Datalist
  * @namespace Y.DP
@@ -19,8 +17,6 @@ var Lang = Y.Lang,
 Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [], {
 
     /**
-     *
-     *
      * @method initializer
      * @param config {Object} Configuration object
      * @protected
@@ -31,34 +27,28 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         // IO
         this.publish('success', {defaultFn: this._defResponseSuccessFn});
 
-        // Just after sendRequest()
-        this.publish('loading', {defaultFn: this._defLoadingFn});
-
         // Configure single handler for IO reponses
         this._ioCallback = {
-                complete: Y.bind(this._handleResponse, this, 'complete'),
-                success: Y.bind(this._handleResponse, this, 'success'),
-                failure: Y.bind(this._handleResponse, this, 'failure'),
-                end: Y.bind(this._handleResponse, this, 'end')
+            complete: Y.bind(this._handleResponse, this, 'complete'),
+            success: Y.bind(this._handleResponse, this, 'success'),
+            failure: Y.bind(this._handleResponse, this, 'failure'),
+            end: Y.bind(this._handleResponse, this, 'end')
         };
     },
 
     /**
-     * Create the DOM structure for the datalist.
+     * Create the DOM structure for the datalist container.
+     * Items will be rendered later, when the data is received.
      *
      * @method renderUI
-     * @protected
+     * @public
      */
     renderUI : function () {
-        var listContainer = Node.create(Y.substitute(this.NODE_TEMPLATE, {
-            className : this.getClassName('list')
-        }));
         
-        this.get('contentBox').append(listContainer);
     },
     
     /**
-     * Render all of the items into the list
+     * Iterate through list items and call render on each.
      *
      * @method _renderItems
      * @protected
@@ -66,32 +56,50 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     _renderItems : function(items) {
         var i = 0,
             fnRender = Y.bind(this.get('fnRender'), this),
-            o = {
-                ul : this.get('contentBox').one('ul')
-            };
+            listContainer = this.get('contentBox');
         
         Y.log("_renderItems", "info", this.NAME);
 
         for (; i < items.length; i++) {
-            o.item = items[i];
-            fnRender(o);
+            this._renderItem(listContainer, fnRender, items[i]);
         }
-    },
-
-    /**
-     *
-     * @method bindUI
-     * @protected
-     */
-    bindUI : function () {
-        this.after('dataChange', this._uiSetItems, this);
-        this.get('contentBox').delegate('click', Y.bind(this._handleItemClicked, this), 'a');
     },
     
     /**
-     * Synchronizes the DOM state with the attribute settings
+     * Render a single list item
      *
+     * @method _renderItem
+     * @param container {Node} The node that we will append the item to
+     * @param fnRender {Function} The custom function given to us to render the item content
+     * @param item {Object} The item data
+     * @returns null
+     * @protected
+     */
+    _renderItem : function(container, fnRender, item) {
+        //Y.log("_renderItem", "info", this.NAME);
+        
+        container.append(Y.Node.create(Y.substitute(this.LISTITEM_TEMPLATE, {
+            content: fnRender(item),
+            className: this.get('item'),
+            id: item[this.get('anchorkey')]
+        })));
+    },
+
+    /**
+     * @method bindUI
+     * @public
+     */
+    bindUI : function () {
+        // ATTR
+        this.after('dataChange', this._uiSetItems, this);
+        
+        // DOM
+        this.get('contentBox').delegate('click', Y.bind(this._handleItemClicked, this), '.' + this.getClassName('itemlink')); // TODO make this classname configurable
+    },
+    
+    /**
      * @method syncUI
+     * @public
      */
     syncUI : function () {
         this.get('source').sendRequest({request: this.get('initialRequest'), callback: this._ioCallback});
@@ -101,9 +109,11 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * Destructor lifecycle implementation for the datalist class.
      *
      * @method destructor
-     * @protected
+     * @public
      */
-    destructor: function() { },
+    destructor: function() { 
+        this.get('contentBox').detach('click');
+    },
     
     /**
      * Single interface for io responses, fires custom event at each stage of datasource request.
@@ -112,8 +122,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @param e {Object} Response Object
      * @protected
      */
-    _handleResponse : function (type, e) {
-        
+    _handleResponse : function (type, e) {      
         this.fire(type, {id: this._io, response: e.response});
         this._io = null;
     },
@@ -128,30 +137,17 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         Y.log('_defResponseSuccessFn', 'info', this.NAME);
 
         this.set('data', o.response.results);
-        this.set('loading', false);
-    },
-
-    /**
-     * Default handler for the loading event
-     * 
-     * @method _defLoadingFn
-     * @param e {Event} Event
-     */
-    _defLoadingFn : function(e) {
-        Y.log('_defLoadingFn', 'info', this.NAME);
-
-        this.set('loading', true);
     },
     
     /**
      * Handle a list item being clicked.
      *
      * @method _handleItemClicked
-     * @param
-     * @returns
+     * @param e {Object} Event facade
+     * @returns undefined
      * @protected
      */
-    _handleItemClicked : function() {
+    _handleItemClicked : function(e) {
         Y.log("_handleItemClicked", "info", this.NAME);
     },
     
@@ -159,12 +155,13 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * Update the UI with new data
      *
      * @method _uiSetItems
-     * @private
+     * @param e {Object} ATTR Event facade
+     * @protected
      */
     _uiSetItems : function(e) {
         Y.log("_uiSetItems", "info", this.NAME);
         
-        this.get('contentBox').one('ul').set('innerHTML', '');
+        this.get('contentBox').set('innerHTML', ''); // Reset content
         this._renderItems(this.get('data'));
     },
     
@@ -183,15 +180,24 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @property ITEM_TEMPLATE
      * @type String
      */
-    ITEM_TEMPLATE: '<li class="{className}"><a href="#{anchor}">{title}</a></li>',
+    ITEM_TEMPLATE: '<a href="#{anchor}">{title}</a>',
+    
+    /**
+     * Template for each list item, will wrap the rendered list item content.
+     *
+     * @property LISTITEM_TEMPLATE
+     * @type String
+     * @value 
+     */
+    LISTITEM_TEMPLATE: '<li class="{className}">{content}</li>',
 
     /**
      * A tokenized template used to create this widget's list node.
      *
-     * @property NODE_TEMPLATE
+     * @property CONTENT_TEMPLATE
      * @type String
      */
-    NODE_TEMPLATE: '<ul class="{className}"></ul>'
+    CONTENT_TEMPLATE: '<ul></ul>'
 
 }, {
 
@@ -231,20 +237,6 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     ATTRS : {
         
         /**
-         * Strings that need to be localized can be placed here
-         *
-         * @property Datalist.ATTRS
-         * @type Object
-         * @protected
-         * @static
-         */
-        strings: {
-            value: {
-        
-            }
-        },
-        
-        /**
          * The datasource that will be used to create the list items
          *
          * @attribute source
@@ -278,57 +270,23 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         },
         
         /**
-         * Whether the datasource is currently in a loading state
-         *
-         * @attribute loading
-         * @type Boolean
-         * @default false
-         */
-        loading : {
-            value : false,
-            readOnly : true
-        },
-        
-        /**
-         * Key to use in the datasource result for the list item title
-         *
-         * @attribute titlekey
-         * @type String
-         * @default "value"
-         */
-        titlekey : {
-            value : 'value'
-        },
-        
-        /**
-         * Key to use for the anchor element
-         *
-         * @attribute anchorkey
-         * @type String
-         */
-        anchorkey : {
-            value : 'key'
-        },
-        
-        /**
          * Function used to render each list item.
+         * 
+         * The default simply serves as a basis for customisation.
          *
          * @attribute fnRender
          * @type Function
          */
         fnRender : {
-            value : function(o) { // Default renderer
-                var item = o.item,
-                    titlekey = this.get('titlekey'),
-                    anchorkey = this.get('anchorkey');
+            value : function(item) { // Default renderer
 
                 Y.log("rendering item", "info", this.NAME);
 
-                o.ul.append(Y.substitute(this.ITEM_TEMPLATE, {
+                return Y.substitute(this.ITEM_TEMPLATE, {
                     className: this.getClassName('item'),
-                    anchor: item[anchorkey],
-                    title: item[titlekey]
-                }));           
+                    anchor: item['id'],
+                    title: item['title']
+                });           
             },
             validator : Y.Lang.isFunction
         }

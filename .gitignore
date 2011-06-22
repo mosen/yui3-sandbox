@@ -29,3 +29,5 @@
 /src/gallery-dp-datatable-plugin-footer/build_tmp/
 /src/gallery-dp-datasource-plugin-observer/build_tmp/
 /src/gallery-dp-plugin-queryobserver/build_tmp/
+/src/gallery-dp-datalist-plugin-editing/build_tmp/
+/src/gallery-dp-editable/build_tmp/
