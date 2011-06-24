@@ -55,6 +55,17 @@ Y.mix(DatalistEditing, {
      */
     ATTRS : {
         
+        /**
+         * The URI to use for the create/add operation
+         *
+         * @attribute uriCreate
+         * @type type
+         */
+        uriCreate : {
+            value : null
+        }
+
+        
         /*
          * Attribute properties:
          *  
@@ -87,13 +98,6 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      */
     initializer : function (config) {
 
-        // See Y.Do.before, Y.Do.after
-        //this.beforeHostMethod("show", this._beforeHostShowMethod);
-        //this.afterHostMethod("show", this._afterHostShowMethod);
-
-        // See Y.EventTarget.on, Y.EventTarget.after
-        //this.onHostEvent("render", this._onHostRenderEvent);             
-        //this.afterHostEvent("render", this._afterHostRenderEvent);
         
         //this.afterHostEvent("render", this._renderEditingTools);
         this.afterHostMethod("_renderItems", this._renderEditingTools);
@@ -126,18 +130,28 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         
         var list = this.get('host').get('contentBox');
         
-        this.get('host')._renderItem(list, this._renderAddControl, { 
+        list.append(this.get('host')._renderItem(this._renderAddControl, { 
             className: this.get('host').getClassName('add'), 
             label: 'Add an item', 
             template: this.ITEM_ADD_TEMPLATE 
+        }));
+        
+        Y.one('.' + this.get('host').getClassName('add')).plug(Y.DP.EditablePlugin, { 
+            submitto: this.get('uriCreate'), 
+            loadfrom: function(n) {return '';} // Placeholder becomes nothing.
         });
+        
+        list.plug(Y.DP.EditablePlugin, {
+            delegate: '.' + this.get('host').getClassName('item'),
+            submitto: this.get('uriCreate'),
+            fnNodeToEditor: function(o) {
+                return o.one('a').get('textContent');
+            },
+            fnEditorToNode: Y.bind(function(o) {
+                return this.get('host')._renderItem(Y.bind(this.get('host').get('fnRender'), this.get('host')), { title: o.get('value') });
+            }, this)
+        })
 
-        list.delegate('click', Y.bind(this._handleAddClicked, this), '.' + this.get('host').getClassName('add'));
-        
-        
-        // remove control
-        // add control
-        // rename control
     },
     
     /**
@@ -166,26 +180,6 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         Y.log("_handleRemoveItemClicked", "info", this.NAME);
         
         this.remove(e.target);
-    },
-    
-    /**
-     * Handle the add link being clicked.
-     *
-     * @method _handleAddClicked
-     * @param
-     * @returns
-     * @public
-     */
-    _handleAddClicked : function() {
-        Y.log("_handleAddClicked", "info", this.NAME);
-        
-        var itemEditor = Node.create(Y.substitute(this.EDITOR_TEMPLATE, {
-            className: this.get('host').getClassName('editor')
-        }));
-        
-        this.get('host').get('contentBox').one('.' + this.get('host').getClassName('add')).replace(itemEditor);
-        
-        Y.one('.' + this.get('host').getClassName('editor')).focus();
     },
     
     /**
@@ -229,23 +223,12 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      *
      * @property ITEM_ADD_TEMPLATE
      * @type String
-     * @value '<a href="javascript:void()" class="{className}">{label}</a>'
+     * @value '<span class="{className}">{label}</span>'
      */
-    ITEM_ADD_TEMPLATE : '<a href="javascript:void(0)" class="{className}">{label}</a>',
-    
-    
-    /**
-     * Template for the item editor, just a text label editor
-     *
-     * @property EDITOR_TEMPLATE
-     * @type {$type default=String}
-     * @value 
-     */
-    EDITOR_TEMPLATE: '<input type="text" class="{className}" />Tick Cross'
-
+    ITEM_ADD_TEMPLATE : '<span class="{className}">{label}</span>'
 });
 
 Y.namespace("DP").DatalistEditing = DatalistEditing;
 
 
-}, '@VERSION@' ,{requires:['plugin', 'substitute', 'gallery-dp-datalist']});
+}, '@VERSION@' ,{requires:['plugin', 'substitute', 'gallery-dp-datalist', 'gallery-dp-editable']});

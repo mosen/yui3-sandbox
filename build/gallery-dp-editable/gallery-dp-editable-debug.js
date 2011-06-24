@@ -1,8 +1,6 @@
 YUI.add('gallery-dp-editable', function(Y) {
 
 /**
- * 
- *
  * @module gallery-dp-editable
  * @author eamonb
  * @requires Node
@@ -21,14 +19,17 @@ var Lang = Y.Lang,
 
 /**
  * Editable creates an in-place editor for html element text content.
- * It is loosely based on jEditable for jquery
+ * It is loosely based on jEditable/jquery
  *
  * @class EditableBase
  * @extends Widget
  * @constructor
  */
 function EditableBase() {
-    
+    Y.log("init", "info", this.NAME);
+
+    this.publish('afterSave', {defaultFn: this._defFnAfterSave});
+    this.publish('afterCancel', {defaultFn: this._defFnAfterCancel});    
 }
 
 Y.mix(EditableBase, {
@@ -41,7 +42,7 @@ Y.mix(EditableBase, {
      * @type String
      * @static
      */
-    NAME : "editable-base",
+    NAME : "editableBase",
 
     /**
      * The attribute configuration represents the core user facing state of 
@@ -53,6 +54,9 @@ Y.mix(EditableBase, {
      * @static
      */
     ATTRS : {
+        // TODO: add rows/cols for textarea
+        
+        // TODO: add datasource for select
         
         /**
          * The collection of strings to be used for the widget UI
@@ -72,14 +76,47 @@ Y.mix(EditableBase, {
         },
         
         /**
-         * Reference to the node where the click event is attached,
-         * and where the editor will appear.
+         * Reference to the node where the events are attached.
+         * When editing a single node, this will be the same as editingnode.
+         * When delegating, this will be the node where the delegate is attached.
          *
-         * @attribute editnode
+         * @attribute targetnode
+         * @type type
+         */
+        targetnode : {
+            value : null
+        },
+  
+        /**
+         * Reference to the node being edited / where the editor will appear
+         *
+         * @attribute editingnode
          * @type Node
          * @default null
          */
-        editnode : {
+        editingnode : {
+            value : null
+        },
+        
+        /**
+         * The event which will start editing of the node.
+         *
+         * @attribute event
+         * @type String
+         */
+        event : {
+            value : 'click'
+        },
+        
+        /**
+         * Contains the content of the node before editing started.
+         * This provides an easy way to restore state without parsing back the
+         * value
+         *
+         * @attribute prevContent
+         * @type String
+         */
+        prevContent : {
             value : null
         },
 
@@ -98,13 +135,46 @@ Y.mix(EditableBase, {
         },
         
         /**
-         * The URL that the new data will be submitted to
+         * The rows attribute applied to a textarea field (if that is the selected type)
          *
-         * @attribute url
-         * @type String
+         * @attribute rows
+         * @type Number
          */
-        url : {
+        rows : {
             value : null
+        },
+        
+        /**
+         * The cols attribute applied to a textarea field (if that is the selected type)
+         *
+         * @attribute cols
+         * @type Number
+         */
+        cols : {
+            value : null
+        },
+
+        /**
+         * Where the editor data will be posted during save.
+         * 
+         * If this is a string then we will invoke IO.get
+         * 
+         * If this is a function, the function will receive the submitted data.
+         * 
+         * TODO: If this is a datasource, the datasource will be sent a request.
+         *
+         * @attribute submitto
+         * @type String|Function
+         */
+        submitto : {
+            value : null
+        },
+        
+        // create submit subs with this function
+        fnGetSubmitParameters : {
+            value : function(editnode, editor) {
+                
+            }
         },
         
         /**
@@ -118,14 +188,47 @@ Y.mix(EditableBase, {
         },
 
         /**
-         * The URL that will provide a textual representation of the data, if the data
-         * is formatted in some way
+         * The source to load data from, if the html content does not contain the data.
+         * eg. markdown/textile
+         * 
+         * If the source is a string, then we will invoke IO to get the data.
+         * 
+         * TODO: If the source is an instance of DataSource then that will be used.
+         * 
+         * TODO: if the source is a function then call the function when loading data.
          *
-         * @attribute loadUrl
-         * @type String
+         * @attribute loadfrom
+         * @type String|Function
          */
-        loadurl : {
+        loadfrom : {
             value : null
+        },
+        
+        /**
+         * Function invoked to parse structured element(s) into the editor content
+         *
+         * This allows you to retrieve the value from surrounding markup
+         *
+         * @attribute fnNodeToEditor
+         * @type Function
+         */
+        fnNodeToEditor : {
+            value : function(node) {
+                return node.get('textContent');
+            }
+        },
+
+        /**
+         * Function invoked to take editor input and recreate the markup when transformed back into
+         * structured element(s)
+         *
+         * @attribute fnEditorToNode
+         * @type Function
+         */
+        fnEditorToNode : {
+            value : function(editor) {
+                return editor.get('value');
+            }
         },
         
         /**
@@ -151,6 +254,7 @@ Y.mix(EditableBase, {
         
         /**
          * Width of the input, applied to its inner style
+         * If the value is 'auto' then the width is set from the width of the original element to be edited.
          *
          * @attribute inputWidth
          * @type String
@@ -161,69 +265,43 @@ Y.mix(EditableBase, {
         
         /**
          * Height of the input, applied to its inner style
+         * If the value is 'auto' then the height is set from the height of the original element to be edited.
          *
          * @attribute inputHeight
          * @type String
          */
         inputHeight : {
             value : 'auto'
-        }
+        },
         
-        /*
-         * Attribute properties:
-         *  
-         * , valueFn: "_defAttrAVal"      // Can be used as a substitute for "value", when you need access to "this" to set the default value.
-         *   
-         * , setter: "_setAttrA"          // Used to normalize attrA's value while during set. Refers to a prototype method, to make customization easier
-         * , getter: "_getAttrA"          // Used to normalize attrA's value while during get. Refers to a prototype method, to make customization easier
-         * , validator: "_validateAttrA"  // Used to validate attrA's value before updating it. Refers to a prototype method, to make customization easier
-         * , readOnly: true               // Cannot be set by the end user. Can be set by the component developer at any time, using _set
-         * , writeOnce: true              // Can only be set once by the end user (usually during construction). Can be set by the component developer at any time, using _set
-         * 
-         * , lazyAdd: false               // Add (configure) the attribute during initialization. 
-         * 
-         *                                // You only need to set lazyAdd to false if your attribute is
-         *                                // setting some other state in your setter which needs to be set during initialization 
-         *                                // (not generally recommended - the setter should be used for normalization. 
-         *                                // You should use listeners to update alternate state). 
-         * , broadcast: 1                 // Whether the attribute change event should be broadcast or not.
+        /**
+         * What action to take when the editor receives the blur event.
+         *
+         * @attribute onblur
+         * @type String
          */
-    },
-    
-    /**
-     * The HTML_PARSER attribute is used if the Widget supports progressive enhancement.
-     * It is used to populate the widget attribute configuration from existing markup.
-     * 
-     * @property HTML_PARSER
-     * @type Object
-     * @static
-     */
-    HTML_PARSER : {
-    
-        // attrA : '#nodeselector' or
-        // attrA : function(srcNode) { do something and return attrA value }
+        onblur : {
+            // TODO validator: in array ['cancel', 'submit', function, null?]
+            value : 'cancel'
+        },
+        
+        /**
+         * Selector to use when delegating to multiple editable elements.
+         * Non-null value means we do want to delegate.
+         *
+         * @attribute delegate
+         * @type String
+         */
+        delegate : {
+            value : null
+        }
+
     }
 });
 
 EditableBase.prototype = {
+    // Initialiser doesn't run on mixed prototypes
 
-    /**
-     * Initializer runs when the widget is constructed.
-     *
-     * @method initializer
-     * @param config {Object} Configuration object
-     */
-    initializer : function (config) {
-        // Hook into hostChange for plugin to add the placeholder
-        // Widget will add placeholder in render stage
-        // remove title attribute if set
-        // calculate initial width and height based on replaced element
-        
-        // publish save event -- instead of specified callback
-        // publish cancel event
-        // publish editing event
-    },
-    
     /**
      * Destructor runs when destroy() is called.
      * 
@@ -234,7 +312,7 @@ EditableBase.prototype = {
      * @protected
      */
     destructor: function() { 
-    
+        this.get('targetnode').detach(this.get('event'));
     },
     
     /**
@@ -248,7 +326,15 @@ EditableBase.prototype = {
     _bindEditableBase : function() {
         Y.log("_bindEditableBase", "info", this.NAME);
         
-        this.get('editnode').on('click', Y.bind(this.startEditing, this));
+        // Only delegate editor if delegate contains a selector
+        if (null == this.get('delegate')) {
+            this.get('targetnode').on(this.get('event'), Y.bind(this._onClick, this));
+        } else {
+            this.get('targetnode').delegate(this.get('event'), this._onClick, this.get('delegate'), this);
+        }
+        // TODO: find a way to allow blur but not fire it upon cancel or submit
+        //this.get('editingnode').on('blur', Y.bind(this.stopEditor, this));
+        
     },
     
     /**
@@ -260,15 +346,26 @@ EditableBase.prototype = {
      * @public
      */
     _syncEditableBase : function() {
+        var editablenodes;
+        
         Y.log("_syncEditableBase", "info", this.NAME);
         
-        this.get('editnode').set('title', this.get('strings.tooltip'));
-        if (this.get('editnode').get('innerHTML').length == 0) {
-            this.get('editnode').append(Y.Node.create(Y.substitute(this.TEMPLATE_PLACEHOLDER, {
+        if (null == this.get('delegate')) {
+            editablenodes = this.get('editingnode');
+        } else {
+            editablenodes = this.get('targetnode').all(this.get('delegate'));
+        }
+        
+        editablenodes.set('title', this.get('strings.tooltip'));
+        
+        // TODO: suggest placeholder for delegated items
+        /*
+        if (this.get('editingnode').get('innerHTML').length == 0) {
+            this.get('editingnode').append(Y.Node.create(Y.substitute(this.TEMPLATE_PLACEHOLDER, {
                 className: CLASS_PLACEHOLDER,
                 text: this.get('strings.placeholder')
             })));
-        }
+        }*/
     },
     
     /**
@@ -281,6 +378,133 @@ EditableBase.prototype = {
      */
     _validateAttrType : function(v) {
         return ('textarea' == v || 'text' == v || 'select' == v) ? true : false;
+    },
+    
+
+
+    /**
+     * Handle the editing node being clicked
+     *
+     * @method _onClick
+     * @param e {Event} Event facade
+     * @returns
+     * @protected
+     */
+    _onClick : function(e) {
+        Y.log("_onClick", "info", this.NAME);
+        
+        e.halt();
+        
+        // TODO: Editing modes for multiple editors visible or single editor.
+        if (this._input == e.target) {
+            return false;
+        }
+        
+        // We're already editing something, so save it first
+        if (this.get('editingnode') !== null && this.get('editingnode') !== e.currentTarget) {
+            this.save();
+        }
+        
+        this.set('editingnode', e.currentTarget);
+        this.startEditor();
+    },
+    
+    /**
+     * Cancel button clicked in editor
+     *
+     * @method _onClickCancel
+     * @param e {Event} Event facade
+     * @returns
+     * @public
+     */
+    _onClickCancel : function(e) {
+        Y.log("_onClickCancel", "info", this.NAME);
+        e.stopPropagation();
+        
+        this.discard();
+    },
+    
+    /**
+     * Save button clicked in editor
+     *
+     * @method _onClickSave
+     * @param
+     * @returns
+     * @public
+     */
+    _onClickSave : function(e) {
+        Y.log("_onClickSave", "info", this.NAME);
+        e.stopPropagation();
+        
+        this.save();
+    },
+    
+    /**
+     * Default function fired after save event.
+     * Calls requestSave to perform the XHR
+     *
+     * @method _defFnAfterSave
+     * @param e {Event} Event facade
+     * @returns undefined
+     * @protected
+     */
+    _defFnAfterSave : function(e) {
+        Y.log("_defFnAfterSave", "info", this.NAME);
+        
+        this.requestSave(e.value);
+    },
+    
+    /**
+     * Default function fired after cancel event.
+     *
+     * @method _defFnAfterCancel
+     * @param
+     * @returns
+     * @protected
+     */
+    _defFnAfterCancel : function() {
+        Y.log("_defFnAfterCancel", "info", this.NAME);
+    },
+    
+    /**
+     * Start editing the node
+     *
+     * @method startEditor
+     * @returns {Boolean} False if editing was disallowed
+     * @public
+     */
+    startEditor : function() {
+        Y.log("startEditor", "info", this.NAME);
+        
+        if (true == this.get('editing')) return false;
+        
+        var form = this._renderForm(),
+        
+            inputWidth = this.get('inputWidth'),
+            inputHeight = this.get('inputHeight'),
+            
+            editingnode = this.get('editingnode'),
+            edittext,
+            editloadfrom = this.get('loadfrom');
+          
+        this.set('prevContent', editingnode.get('innerHTML'));
+        
+        // jEditable would set the content from either GET, POST, inner or even supplied data.
+        edittext = this.get('fnNodeToEditor')(editingnode);
+        
+        editingnode.set('innerHTML', '');  
+        editingnode.append(form);
+        
+        this._input.set('value', edittext);
+        
+
+        this._input.focus();
+        
+        if (true == this.get('select')) {
+            this._input.select();
+        }
+        
+        this.set('editing', true);
     },
     
     /**
@@ -298,26 +522,36 @@ EditableBase.prototype = {
                 className : CLASS_FORM
             })),
             input,
-            buttons;
+            buttons,
+            inputWidth = this.get('inputWidth'),
+            inputHeight = this.get('inputHeight');;
 
         switch(type) {
             case 'textarea':
                 input = Y.Node.create(Y.substitute(this.TEMPLATE_INPUT_TEXTAREA, {className: CLASS_INPUT}));
+                
+                if (this.get('rows') !== null) { input.setAttribute('rows', this.get('rows')); }
+                if (this.get('cols') !== null) { input.setAttribute('cols', this.get('cols')); }
                 break;
+                
             case 'select':
                 input = Y.Node.create(Y.substitute(this.TEMPLATE_INPUT_SELECT, {className: CLASS_INPUT}));
                 break;
+                
             case 'text':
             default:
                 input = Y.Node.create(Y.substitute(this.TEMPLATE_INPUT_TEXT, {className: CLASS_INPUT}));
                 break;
         }
         
-        input.setStyle('width', this.get('inputWidth'));
-        input.setStyle('height', this.get('inputHeight'));
+        // Consider that the settings still apply to textareas with cols and rows specified.
+        if (inputWidth !== 'auto') { input.setStyle('width', inputWidth); }
+        if (inputHeight !== 'auto') { input.setStyle('height', inputHeight); }
+        // TODO: automatic sizing of editor based on original element?
         
-        frm.append(input);
+        // TODO: Do we really need to keep a node reference to the input? some editors might not use inputs
         this._input = input;
+        frm.append(this._input);
         
         buttons = Y.Node.create(Y.substitute(this.TEMPLATE_BUTTONS, { 
             classNameSubmit: CLASS_BTN_SUBMIT,
@@ -326,57 +560,98 @@ EditableBase.prototype = {
             labelCancel: this.get('strings.cancel')
         }));
         
-        frm.append(buttons);
+        buttons.one('.'+CLASS_BTN_CANCEL).on('click', this._onClickCancel, this);
+        buttons.one('.'+CLASS_BTN_SUBMIT).on('click', this._onClickSave, this);
         
+        frm.append(buttons);
         return frm;
     },
     
     /**
-     * Start editing the node
+     * Save changes
      *
-     * @method startEditing
-     * @param e {Event} Event facade
-     * @returns
-     * @public
-     */
-    startEditing : function(e) {
-        Y.log("startEditing", "info", this.NAME);
-        
-        if (true == this.get('editing')) return false;
-        
-        var form = this._renderForm(),
-        
-            inputWidth = this.get('inputWidth'),
-            inputHeight = this.get('inputHeight'),
-            
-            editnode = this.get('editnode'),
-            edittext = editnode.get('textContent'),
-            editwidth = 'auto' == inputWidth ? editnode.get('offsetWidth') : inputWidth,
-            editheight = 'auto' == inputHeight ? editnode.get('offsetHeight') : inputHeight;
-            
-        editnode.set('innerHTML', '');  
-        editnode.append(form);
-        
-        this._input.set('value', edittext);
-        
-        // TODO should probably set these before the element is painted
-        this._input.setStyle('width', editwidth);
-        this._input.setStyle('height', editheight);
-        this._input.focus();
-        
-        this.set('editing', true);
-    },
-    
-    /**
-     * Stop editing the nominated element
-     *
-     * @method stopEditing
+     * @method save
      * @param
      * @returns
      * @public
      */
-    stopEditing : function() {
-        Y.log("stopEditing", "info", this.NAME);
+    save : function() {
+        var editingnode = this.get('editingnode'),
+            editorvalue = this._input.get('value');
+        
+        Y.log("save", "info", this.NAME);
+        
+        editingnode.set('innerHTML', '');
+        editingnode.append(this.get('fnEditorToNode')(this._input));
+
+        this.set('prevContent', null);
+        this.set('editingnode', null);
+        this.set('editing', false);
+        
+        this.fire('afterSave', {value: editorvalue});
+    },
+    
+    /**
+     * Request that changes be saved (async)
+     *
+     * @method requestSave
+     * @param value {String} Value to save
+     * @returns
+     * @public
+     */
+    requestSave : function(value) {
+        var submitto = this.get('submitto');
+        
+        Y.log("requestSave", "info", this.NAME);
+        Y.log("Saving value " + value, "info", this.NAME);
+        
+        if (Y.Lang.isString(submitto)) {
+            Y.io(Y.substitute(submitto, {
+                value : value
+            }), {
+                on : {
+                    start: this._saveStart,
+                    success: this._saveSuccess,
+                    failure: this._saveFailure
+                },
+                context : this
+            });
+        } else if (Y.Lang.isFunction(submitto)) {
+            submitto();
+        }
+    },
+    
+    /**
+     * Discard changes and revert to initial state
+     *
+     * @method discard
+     * @param
+     * @returns
+     * @public
+     */
+    discard : function() {
+        var editingnode = this.get('editingnode');
+        
+        Y.log("discard", "info", this.NAME);
+        
+        editingnode.set('innerHTML', this.get('prevContent'));
+        this.set('prevContent', null);
+        this.set('editingnode', null);
+        this.set('editing', false);
+        
+        this.fire('afterCancel');
+    },
+    
+    /**
+     * Handler for all key events.
+     *
+     * @method _onKey
+     * @param
+     * @returns
+     * @protected
+     */
+    _onKey : function() {
+        Y.log("_onKey", "info", this.NAME);
     },
     
     /**
@@ -424,7 +699,6 @@ EditableBase.prototype = {
      */
     TEMPLATE_BUTTONS: '<input type="button" value="{labelCancel}" class="{classNameCancel}"></input><input type="button" value="{labelSubmit}" class="{classNameSubmit}"></input>',
     
-    
     /**
      * Template used to display a placeholder when there is no text content.
      *
@@ -466,8 +740,13 @@ Y.namespace("DP").EditableBase = EditableBase;
 EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.EditableBase], {
     
     initializer : function(config) {
+        Y.log("init", "info", this.NAME);
 
-        this.set('editnode', config.host);
+        this.set('targetnode', config.host);
+        
+        if (!config.delegate) {
+            this.set('editingnode', config.host);
+        }
         
         this._bindEditableBase();
         this._syncEditableBase();
@@ -497,4 +776,4 @@ EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.EditableBa
 Y.namespace("DP").EditablePlugin = EditablePlugin;
 
 
-}, '@VERSION@' ,{requires:['base', 'plugin']});
+}, '@VERSION@' ,{requires:['base', 'plugin', 'io']});

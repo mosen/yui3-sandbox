@@ -7,18 +7,30 @@
         charset="utf-8"></script>
     </head>
     <body class="yui3-skin-sam">
-        <span class="yui3-editable">This text should be editable now</span>
-        <span class="yui3-editable-ph"></span>
+        <div class="yui3-editable-container">
+            <span class="yui3-editable-test1 editable-delegate">This is some editable text</span>
+            <span class="yui3-editable-test2 editable-delegate">This should also be editable</span>
+        </div>
+        <span class="yui3-editable-test3">This should be a textarea editor</span>
+        <input type="text" id="test" />
         <script type="text/javascript">
             (function() {
                 YUI({
                     filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
                     allowRollup: false,
-                    modules : {
-                        'gallery-dp-editable' : {
-                            'fullpath' : '../../../build/gallery-dp-editable/gallery-dp-editable-debug.js',
-                            'requires' : ['plugin', 'base']
-                        }
+                    groups : {
+                            dp : {
+                                combine : false,
+                                base: '../../../build/',
+                                root: '../../../build',
+                                modules : {
+                                    'gallery-dp-editable' : {
+                                        'path' : '/gallery-dp-editable/gallery-dp-editable-debug.js',
+                                        'requires' : ['plugin', 'base', 'io'],
+                                        'skinnable' : true
+                                    }
+                                }
+                            }
                     }
                 }).use("console", "test", "dump", "gallery-dp-editable", function(Y) {
                 
@@ -35,11 +47,21 @@
                         },
                     
                         "test plugin on node with content renders": function() {
-                            Y.one('.yui3-editable').plug(Y.DP.EditablePlugin);
+                            //Y.one('.yui3-editable-test1').plug(Y.DP.EditablePlugin);
                         },
                         
                         "test plugin on node with no children produces placeholder": function() {
-                            Y.one('.yui3-editable-ph').plug(Y.DP.EditablePlugin);
+                            //Y.one('.yui3-editable-ph').plug(Y.DP.EditablePlugin);
+                        },
+                        
+                        "test plugin delegate to multiple fields" : function() {
+                            Y.one('.yui3-editable-container').plug(Y.DP.EditablePlugin, { delegate: 'span.editable-delegate', submitto: 'test.php', select: true });
+                        },
+                        
+                        "test plugin with textarea editor" : function() {
+                            Y.one('.yui3-editable-test3').plug(Y.DP.EditablePlugin, { type: 'textarea', cols: 40, rows: 4 });
+                            
+                            Y.one('#test').on('key', function(e) { Y.log('key pressed'); }, this, {});
                         }
                     });
 

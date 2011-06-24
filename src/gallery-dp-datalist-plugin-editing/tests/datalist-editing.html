@@ -14,17 +14,29 @@
                 YUI({
                     filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
                     allowRollup: false,
-                    modules : {
-                        'gallery-dp-datalist' : {
-                            'fullpath' : '../../../build/gallery-dp-datalist/gallery-dp-datalist-debug.js',
-                            'requires' : ['widget', 'datasource']
-                        },
-                        'gallery-dp-datalist-plugin-editing' : {
-                            'fullpath' : '../../../build/gallery-dp-datalist-plugin-editing/gallery-dp-datalist-plugin-editing-debug.js',
-                            'requires' : ['gallery-dp-datalist', 'plugin']
-                        }
+                    groups : {
+                            dp : {
+                                combine : false,
+                                base: '../../../build/',
+                                root: '../../../build',
+                                modules : {
+                                    'gallery-dp-editable' : {
+                                        'path' : '/gallery-dp-editable/gallery-dp-editable-debug.js',
+                                        'requires' : ['plugin', 'base', 'io'],
+                                        'skinnable' : true
+                                    },
+                                    'gallery-dp-datalist' : {
+                                        'path' : '/gallery-dp-datalist/gallery-dp-datalist-debug.js',
+                                        'requires' : ['widget', 'datasource']
+                                    },
+                                    'gallery-dp-datalist-plugin-editing' : {
+                                        'path' : '/gallery-dp-datalist-plugin-editing/gallery-dp-datalist-plugin-editing-debug.js',
+                                        'requires' : ['gallery-dp-datalist', 'plugin', 'gallery-dp-editable']
+                                    }                                    
+                                }
+                            }
                     }
-                }).use("console", "test", "dump", "gallery-dp-datalist", "gallery-dp-datalist-plugin-editing", function(Y) {
+                }).use("console", "test", "dump", "gallery-dp-datalist", "gallery-dp-datalist-plugin-editing", "gallery-dp-editable", function(Y) {
                 
                     var myConsole = new Y.Console().render();
 

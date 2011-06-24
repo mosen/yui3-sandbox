@@ -19,8 +19,13 @@
 EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.EditableBase], {
     
     initializer : function(config) {
+        Y.log("init", "info", this.NAME);
 
-        this.set('editnode', config.host);
+        this.set('targetnode', config.host);
+        
+        if (!config.delegate) {
+            this.set('editingnode', config.host);
+        }
         
         this._bindEditableBase();
         this._syncEditableBase();

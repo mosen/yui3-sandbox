@@ -63,7 +63,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         Y.log("_renderItems", "info", this.NAME);
 
         for (; i < items.length; i++) {
-            this._renderItem(listContainer, fnRender, items[i]);
+            listContainer.append(this._renderItem(fnRender, items[i]));
         }
     },
     
@@ -71,20 +71,19 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * Render a single list item
      *
      * @method _renderItem
-     * @param container {Node} The node that we will append the item to
      * @param fnRender {Function} The custom function given to us to render the item content
      * @param item {Object} The item data
-     * @returns null
+     * @returns {Node} the created node, to append
      * @protected
      */
-    _renderItem : function(container, fnRender, item) {
+    _renderItem : function(fnRender, item) {
         //Y.log("_renderItem", "info", this.NAME);
         
-        container.append(Y.Node.create(Y.substitute(this.LISTITEM_TEMPLATE, {
+        return Y.Node.create(Y.substitute(this.LISTITEM_TEMPLATE, {
             content: fnRender(item),
-            className: this.get('item'),
+            className: this.getClassName('item'),
             id: item[this.get('anchorkey')]
-        })));
+        }));
     },
 
     /**

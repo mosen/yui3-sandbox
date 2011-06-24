@@ -1,3 +1,7 @@
-.yui3-gallery-dp-editable input {
+.yui3-gallery-dp-editable-form {
+    display: inline;
+}
+
+.yui3-gallery-dp-editable-form input {
     display: inline;
 }
