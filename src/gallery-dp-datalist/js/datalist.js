@@ -51,18 +51,18 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * Iterate through list items and call render on each.
      *
      * @method _renderItems
+     * @param rs {Y.Recordset} Recordset
      * @protected
      */
-    _renderItems : function(items) {
-        var i = 0,
-            fnRender = Y.bind(this.get('fnRender'), this),
+    _renderItems : function(rs) {
+        var fnRender = Y.bind(this.get('fnRender'), this),
             listContainer = this.get('contentBox');
         
         Y.log("_renderItems", "info", this.NAME);
 
-        for (; i < items.length; i++) {
-            listContainer.append(this._renderItem(fnRender, items[i]));
-        }
+        rs.each(function(record) {
+            listContainer.append(this._renderItem(fnRender, { value: record.get('data'), id: record.get('id') }));
+        }, this);
     },
     
     /**
@@ -70,17 +70,18 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      *
      * @method _renderItem
      * @param fnRender {Function} The custom function given to us to render the item content
-     * @param item {Object} The item data
+     * @param record {Y.Record} The item record
      * @returns {Node} the created node, to append
      * @protected
      */
-    _renderItem : function(fnRender, item) {
+    _renderItem : function(fnRender, o) {
         //Y.log("_renderItem", "info", this.NAME);
         
         return Y.Node.create(Y.substitute(this.LISTITEM_TEMPLATE, {
-            content: fnRender(item),
+            content: fnRender(o.value),
             className: this.getClassName('item'),
-            id: Y.guid()
+            wrapperClassName: this.getClassName('wrapper'),
+            id: o.id || Y.guid()
         }));
     },
 
@@ -90,7 +91,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     bindUI : function () {
         // ATTR
-        this.after('dataChange', this._uiSetItems, this);
+        this.after('recordsetChange', this._uiSetItems, this);
         
         // DOM
         this.get('contentBox').delegate('click', Y.bind(this._handleItemClicked, this), '.' + this.getClassName('itemlink')); // TODO make this classname configurable
@@ -135,7 +136,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     _defResponseSuccessFn : function(o) {
         Y.log('_defResponseSuccessFn', 'info', this.NAME);
 
-        this.set('data', o.response.results);
+        this.set('recordset', new Y.Recordset({ records: o.response.results }));
     },
     
     /**
@@ -159,9 +160,10 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     _uiSetItems : function(e) {
         Y.log("_uiSetItems", "info", this.NAME);
+        var rs = this.get('recordset');
         
         this.get('contentBox').set('innerHTML', ''); // Reset content
-        this._renderItems(this.get('data'));
+        this._renderItems(rs);
     },
     
     /**
@@ -183,6 +185,9 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     
     /**
      * Template for each list item, will wrap the rendered list item content.
+     * 
+     * I'm using an additional span wrapper so that content can be inserted inside the list item
+     * but outside of the data which changes.
      *
      * @property LISTITEM_TEMPLATE
      * @type String
@@ -249,11 +254,11 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         /**
          * The last set of data that was retrieved from the datasource
          *
-         * @attribute data
+         * @attribute recordset
          * @type Object
          * @default null
          */
-        data : {
+        recordset : {
             value : null
         },
 

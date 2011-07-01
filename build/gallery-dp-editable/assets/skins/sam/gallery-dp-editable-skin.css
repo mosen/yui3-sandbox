@@ -3,11 +3,16 @@
     cursor: pointer;
 }
 
-.yui3-gallery-dp-editable-field:hover {
-    background-color: #eeeeee;
+.yui3-gallery-dp-editable-field span:hover {
+    text-decoration: underline;
 }
 
 .yui3-gallery-dp-editable-field-saving {
     color: #aaaaaa;
     font-style: italic;
+}
+
+.yui3-gallery-dp-editable-placeholder {
+    color: #888888;
+    font-style: italic;   
 }

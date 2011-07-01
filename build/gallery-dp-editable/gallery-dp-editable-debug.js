@@ -30,8 +30,11 @@ var Lang = Y.Lang,
 function EditableBase() {
     Y.log("init", "info", this.NAME);
 
-    this.publish('afterSave', {defaultFn: this._defFnAfterSave});
-    this.publish('afterCancel', {defaultFn: this._defFnAfterCancel});    
+    this.publish('save', {defaultFn: this._defFnSave});
+    this.publish('cancel', {defaultFn: this._defFnCancel});
+    
+    this.after('savingChange', this._uiSetSaving, this);
+    this.after('editingChange', this._uiSetEditing, this);
 }
 
 Y.mix(EditableBase, {
@@ -67,10 +70,15 @@ Y.mix(EditableBase, {
          */
         strings : {
             value : {
+                // added as a title attribute
                 tooltip : 'Click to edit...',
+                // caption for the cancel button
                 cancel : 'Cancel',
+                // caption for the save button
                 submit : 'OK',
+                // span is added with this text during XHR transactions
                 indicator : 'Saving...',
+                // this will be used when there is an empty field to edit, to provide somewhere to click
                 placeholder : 'Click to edit...'
             }
         },
@@ -169,17 +177,6 @@ Y.mix(EditableBase, {
         submitto : {
             value : null
         },
-        
-        /**
-         * This function will be called in order to substitute values into the url provided
-         * in the "submitto" attribute.
-         *
-         * @attribute fnSubmitValues
-         * @type Function
-         */
-        fnSubmitValues : {
-            value : null
-        },
 
         /**
          * HTTP method to use when submitting data.
@@ -209,34 +206,6 @@ Y.mix(EditableBase, {
         },
         
         /**
-         * Function invoked to parse structured element(s) into the editor content
-         *
-         * This allows you to retrieve the value from surrounding markup
-         *
-         * TODO: consider saving the state of other fields within the node, and restoring them afterSave
-         * @attribute fnNodeToObject
-         * @type Function
-         */
-        fnNodeToObject : {
-            value : function(node) {
-                return { value: node.get('textContent') };
-            }
-        },
-
-        /**
-         * Function invoked to take editor input and recreate the markup when transformed back into
-         * structured element(s)
-         *
-         * @attribute fnObjectToNode
-         * @type Function
-         */
-        fnObjectToNode : {
-            value : function(editor) {
-                return editor.get('value');
-            }
-        },
-        
-        /**
          * Whether we are currently editing or not.
          *
          * @attribute editing
@@ -245,6 +214,16 @@ Y.mix(EditableBase, {
          */
         editing : {
             value : false
+        },
+        
+        /**
+         * Whether saving is in progress
+         *
+         * @attribute saving
+         * @type Boolean
+         */
+        saving : {
+            value : true
         },
         
         /**
@@ -305,8 +284,6 @@ Y.mix(EditableBase, {
 });
 
 EditableBase.prototype = {
-    // Initialiser doesn't run on mixed prototypes
-
     /**
      * Destructor runs when destroy() is called.
      * 
@@ -337,9 +314,6 @@ EditableBase.prototype = {
         } else {
             this.get('targetnode').delegate(this.get('event'), this._onClick, this.get('delegate'), this);
         }
-        // TODO: find a way to allow blur but not fire it upon cancel or submit
-        //this.get('editingnode').on('blur', Y.bind(this.stopEditor, this));
-        
     },
     
     /**
@@ -364,14 +338,15 @@ EditableBase.prototype = {
         editablenodes.set('title', this.get('strings.tooltip'));
         editablenodes.addClass(CLASS_FIELD);
         
+        Y.log(this.get('targetnode').get('innerHTML'));
+        
         // TODO: suggest placeholder for delegated items
-        /*
-        if (this.get('editingnode').get('innerHTML').length == 0) {
-            this.get('editingnode').append(Y.Node.create(Y.substitute(this.TEMPLATE_PLACEHOLDER, {
+        if (this.get('targetnode').get('innerHTML').length == 0) {
+            this.get('targetnode').append(Y.Node.create(Y.substitute(this.TEMPLATE_PLACEHOLDER, {
                 className: CLASS_PLACEHOLDER,
                 text: this.get('strings.placeholder')
             })));
-        }*/
+        }
     },
     
     /**
@@ -385,8 +360,6 @@ EditableBase.prototype = {
     _validateAttrType : function(v) {
         return ('textarea' == v || 'text' == v || 'select' == v) ? true : false;
     },
-    
-
 
     /**
      * Handle the editing node being clicked
@@ -403,6 +376,7 @@ EditableBase.prototype = {
         
         // TODO: Editing modes for multiple editors visible or single editor.
         if (this._input == e.target) {
+            Y.log("Multiple editing disabled", "info", "this.NAME");
             return false;
         }
         
@@ -412,7 +386,7 @@ EditableBase.prototype = {
         }
         
         this.set('editingnode', e.currentTarget);
-        this.startEditor();
+        this.set('editing', true);
     },
     
     /**
@@ -446,69 +420,123 @@ EditableBase.prototype = {
     },
     
     /**
-     * Default function fired after save event.
-     * Calls requestSave to perform the XHR
+     * Handler for all key events.
      *
-     * @method _defFnAfterSave
+     * @method _onKey
+     * @param e {Event} Event facade
+     * @returns
+     * @protected
+     */
+    _onKey : function(e) {
+        Y.log("_onKey", "info", this.NAME);
+
+        e.halt();
+        
+        if (e.keyCode == 27) {
+            this.discard();
+        } else if (e.keyCode = 13) {
+            this.save();
+        }
+    },
+    
+    /**
+     * An event fired which indicated that we are saving the editor data.
+     *
+     * @method _uiSetSaving
+     * @param e {Event} Event facade
+     * @returns
+     * @public
+     */
+    _uiSetSaving : function(e) {
+        Y.log("_uiSetSaving:" + e.newVal, "info", this.NAME);
+        
+        if (null != this.get('editingnode')) {     
+            if (true == this.get('saving')) {
+                this.get('editingnode').addClass(CLASS_FIELD_SAVING);
+            } else {
+                this.get('editingnode').removeClass(CLASS_FIELD_SAVING);
+            }
+        }
+    },
+    
+    /**
+     * The state of this variable determines if the editor is shown or not.
+     *
+     * @method _uiSetEditing
+     * @param e {Event} Event facade
+     * @returns
+     * @public
+     */
+    _uiSetEditing : function(e) {
+        Y.log("_uiSetEditing:" + e.newVal, "info", this.NAME);
+        
+        if (true == this.get('editing')) {
+            
+            Y.log("start editing", "info", this.NAME);
+
+            if (true == e.prevVal) return false; // Don't edit twice
+
+            var form = this._renderForm(),
+                editingnode = this.get('editingnode'),
+                placeholder = this.get('editingnode').one('.'+CLASS_PLACEHOLDER),
+                value,
+                loadfrom = this.get('loadfrom');
+
+            this.set('prevContent', editingnode.get('innerHTML'));
+            
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            if (Y.Lang.isFunction(loadfrom)) {
+                value = loadfrom(editingnode);
+                
+            } else if (Y.Lang.isString(loadfrom)) {
+                // dispatch xhr request
+                
+            } else if (Y.Lang.isNull(loadfrom)) {
+                Y.log("No load method found, using textContent", "info", "this.NAME");
+                value = editingnode.get('textContent');
+            }
+
+            editingnode.set('innerHTML', '');  
+            editingnode.append(form);
+
+            this._input.set('value', value);
+            this._input.focus();
+
+            if (true == this.get('select')) {
+                this._input.select();
+            }
+            
+        } else {
+            // implicit save or cancel?         
+        }
+    },
+    
+    /**
+     * Default function fired after save event.
+     * Uses submitto attribute to determine how the change will be processed
+     *
+     * @method _defFnSave
      * @param e {Event} Event facade
      * @returns undefined
      * @protected
      */
-    _defFnAfterSave : function(e) {
-        Y.log("_defFnAfterSave", "info", this.NAME);
-        
-        this.requestSave(e.value, e.node);
+    _defFnSave : function(e) {
+        Y.log("_defFnSave", "info", this.NAME);
     },
     
     /**
      * Default function fired after cancel event.
      *
-     * @method _defFnAfterCancel
+     * @method _defFnCancel
      * @param
      * @returns
      * @protected
      */
-    _defFnAfterCancel : function() {
-        Y.log("_defFnAfterCancel", "info", this.NAME);
-    },
-    
-    /**
-     * Start editing the node
-     *
-     * @method startEditor
-     * @returns {Boolean} False if editing was disallowed
-     * @public
-     */
-    startEditor : function() {
-        Y.log("startEditor", "info", this.NAME);
-        
-        if (true == this.get('editing')) return false;
-        
-        var form = this._renderForm(),
-        
-            inputWidth = this.get('inputWidth'),
-            inputHeight = this.get('inputHeight'),
-            
-            editingnode = this.get('editingnode'),
-            edittext,
-            editloadfrom = this.get('loadfrom');
-          
-        this.set('prevContent', editingnode.get('innerHTML'));
-        
-        // jEditable would set the content from either GET, POST, inner or even supplied data.
-        edittext = this.get('fnNodeToObject')(editingnode);
-        
-        editingnode.set('innerHTML', '');  
-        editingnode.append(form);
-        
-        this._input.set('value', edittext);
-        this._input.focus();
-        
-        if (true == this.get('select')) {
-            this._input.select();
-        }
-        
-        this.set('editing', true);
+    _defFnCancel : function() {
+        Y.log("_defFnCancel", "info", this.NAME);
     },
     
     /**
@@ -521,6 +549,7 @@ EditableBase.prototype = {
      */
     _renderForm : function() {
         Y.log("_renderForm", "info", this.NAME);
+        
         var type = this.get('type'),
             frm = Y.Node.create(Y.substitute(this.TEMPLATE_FORM, {
                 className : CLASS_FORM
@@ -583,18 +612,53 @@ EditableBase.prototype = {
      */
     save : function() {
         var editingnode = this.get('editingnode'),
-            editorvalue = this._input.get('value');
+            submitto = this.get('submitto');
         
         Y.log("save", "info", this.NAME);
-        
-        editingnode.set('innerHTML', '');
-        editingnode.append(this.get('fnObjectToNode')(this._input));
 
-        this.set('prevContent', null);
-        this.set('editingnode', null);
-        this.set('editing', false);
+        this.set('saving', true);
+
+        if (Y.Lang.isFunction(submitto)) {
+            submitto(editingnode);
+            
+        } else if (Y.Lang.isString(submitto)) {
+            // XHR
+            var value = this._input.get('value');
+            this.get('editingnode').set('innerHTML', '');
+            this.get('editingnode').append(value);
+            
+            Y.io(Y.substitute(submitto, { value: this._input.get('value') }), {
+                on : {
+                    start: function(id, o, args) { this.set('saving', true); },
+                    success: function(id, o, args) { 
+                        this.set('saving', false);
+                        this.fire('save', o);
+                    },
+                    failure: function(id, o, args) { 
+                        this.set('saving', false);
+                        this.get('editingnode').set('innerHTML', this.get('prevContent'));
+                        // TODO: display a warning
+                    }
+                },
+                context : this,
+                arguments : {
+                    node : editingnode
+                }
+            });           
+        } else if (null == submitto) {
+            Y.log("No save method specified, converting to text", "info", this.NAME);
+            
+            var value = this._input.get('value');
+            this.get('editingnode').set('innerHTML', '');
+            this.get('editingnode').append(value);
+            
+            this.set('prevContent', null);
+            this.set('editingnode', null);
+            this.set('editing', false);
+            this.set('saving', false);
+        }
         
-        this.fire('afterSave', {value: editorvalue, node: editingnode});
+        //this.fire('save', {value: editorvalue, node: editingnode});
     },
     
     /**
@@ -649,61 +713,9 @@ EditableBase.prototype = {
         this.set('editingnode', null);
         this.set('editing', false);
         
-        this.fire('afterCancel');
+        this.fire('cancel');
     },
-    
-    /**
-     * Handler for all key events.
-     *
-     * @method _onKey
-     * @param e {Event} Event facade
-     * @returns
-     * @protected
-     */
-    _onKey : function(e) {
-        Y.log("_onKey", "info", this.NAME);
-        
-        Y.log("preventDefault", "info", this.NAME);
-        //console.dir(e);
-        e.halt();
-        
-        if (e.keyCode == 27) {
-            this.discard();
-        } else if (e.keyCode = 13) {
-            this.save();
-        }
-    },
-    
-    /**
-     * An event fired which indicated that we are saving the editor data.
-     *
-     * @method _uiSetSaving
-     * @param e {Event} Event facade
-     * @returns
-     * @public
-     */
-    _uiSetSaving : function(e, args) {
-        Y.log("_uiSetSaving", "info", this.NAME);
-        
-        console.dir(args);
-        
-        args.node.addClass(CLASS_FIELD_SAVING);
-    },
-    
-    /**
-     * An event fired which indicated that saving was a success
-     *
-     * @method _uiSetSaveSuccess
-     * @param
-     * @returns
-     * @public
-     */
-    _uiSetSaveSuccess : function(e, o, args) {
-        Y.log("_uiSetSaveSuccess", "info", this.NAME);
-        
-        args.node.removeClass(CLASS_FIELD_SAVING);
-    },
-    
+
     /**
      * Template used to create the form which contains the editor.
      *
@@ -826,4 +838,4 @@ EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.EditableBa
 Y.namespace("DP").EditablePlugin = EditablePlugin;
 
 
-}, '@VERSION@' ,{requires:['base', 'plugin', 'io']});
+}, '@VERSION@' ,{requires:['base', 'event', 'plugin', 'io']});

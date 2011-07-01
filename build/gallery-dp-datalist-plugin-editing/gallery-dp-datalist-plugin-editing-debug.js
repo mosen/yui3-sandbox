@@ -75,33 +75,14 @@ Y.mix(DatalistEditing, {
             value : null
         },
 
-       
+        /**
+         * Strings for i18n
+         */
         strings : {
             value : {
                 add : 'Add an item'
             }
         }
-
-        
-        /*
-         * Attribute properties:
-         *  
-         * , valueFn: "_defAttrAVal"      // Can be used as a substitute for "value", when you need access to "this" to set the default value.
-         *   
-         * , setter: "_setAttrA"          // Used to normalize attrA's value while during set. Refers to a prototype method, to make customization easier
-         * , getter: "_getAttrA"          // Used to normalize attrA's value while during get. Refers to a prototype method, to make customization easier
-         * , validator: "_validateAttrA"  // Used to validate attrA's value before updating it. Refers to a prototype method, to make customization easier
-         * , readOnly: true               // Cannot be set by the end user. Can be set by the component developer at any time, using _set
-         * , writeOnce: true              // Can only be set once by the end user (usually during construction). Can be set by the component developer at any time, using _set
-         * 
-         * , lazyAdd: false               // Add (configure) the attribute during initialization. 
-         * 
-         *                                // You only need to set lazyAdd to false if your attribute is
-         *                                // setting some other state in your setter which needs to be set during initialization 
-         *                                // (not generally recommended - the setter should be used for normalization. 
-         *                                // You should use listeners to update alternate state). 
-         * , broadcast: 1                 // Whether the attribute change event should be broadcast or not.
-         */
     }    
 });
 
@@ -118,7 +99,6 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         
         //this.afterHostEvent("render", this._renderEditingTools);
         this.afterHostMethod("_renderItems", this._renderEditingTools);
-        
         
         this.publish('add', {defaultFn: this._defFnAdd}); // When a placeholder is successfully saved
         //this.get('host').get('contentBox').delegate('click', Y.bind(this._handleRemoveItemClicked, this), '.remove');
@@ -148,30 +128,50 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         Y.log("_renderEditingTools", "info", this.NAME);
         
         var list = this.get('host').get('contentBox'),
-            placeholder = this.get('host')._renderItem(this._renderAddControl, { 
-                className: this.get('host').getClassName('add'), 
-                label: this.get('strings.add'), 
-                template: this.ITEM_ADD_TEMPLATE 
-            });
+            phlistitem = this.get('host')._renderItem(this._renderAddControl, {
+                value : { 
+                    className: this.get('host').getClassName('add'), 
+                    label: this.get('strings.add'), 
+                    template: this.ITEM_ADD_TEMPLATE 
+                }
+            }),
+            placeholder = phlistitem.one('span'),
+            uriEdit = this.get('uriEdit');
         
-        list.append(placeholder);
+        this._phlistitem = phlistitem;
+        
+        list.append(phlistitem);
         placeholder.plug(Y.DP.EditablePlugin, { 
-            submitto: this.get('uriCreate'),
-            fnSubmitValues: null,
-            fnNodeToEditor: function(o) {return '';} // Placeholder becomes nothing.
+            submitto: this.get('uriCreate')
         });
+        placeholder.editable.on('save', Y.bind(this._newItemAdded, this));
+        this._placeholder = placeholder;
         
         list.plug(Y.DP.EditablePlugin, {
             delegate: '.' + this.get('host').getClassName('item'),
-            submitto: this.get('uriEdit'),
             event: 'dblclick',
-            fnNodeToEditor: function(o) {
-                return o.one('a').get('textContent');
-            },
-            fnEditorToNode: Y.bind(function(o) {
-                return this.get('host')._renderItem(Y.bind(this.get('host').get('fnRender'), this.get('host')), {title: o.get('value')});
-            }, this)
+            loadfrom: function(n) { return n.one('a').get('textContent'); },
+            submitto: function(li) {
+                Y.log(li);
+                Y.io(Y.substitute(uriEdit, { value: li.one('input').get('value'), id: 1 }), {
+                on : {
+                    start: function(id, o, args) { Y.log('started updating'); },
+                    success: function(id, o, args) { 
+                        Y.log('saved update');
+                    },
+                    failure: function(id, o, args) { 
+                        Y.log('failed to update');
+                        // TODO: display a warning
+                    }
+                },
+                context : this,
+                arguments : {
+                    node : li
+                }
+            });
+            }
         });
+        list.editable.on('save', Y.bind(this._itemSaved, this));
 
     },
     
@@ -201,6 +201,29 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         Y.log("_handleRemoveItemClicked", "info", this.NAME);
         
         this.remove(e.target);
+    },
+    
+    /**
+     * Fired when a new item is saved by the underlying placeholder editor.
+     *
+     * @method _newItemAdded
+     * @param o {Object} Response from Y.IO
+     * @returns
+     * @protected
+     */
+    _newItemAdded : function(o) {
+        Y.log("_newItemAdded", "info", this.NAME);
+        
+        var newItem = Y.JSON.parse(o.details[0].responseText),
+            newNode = this.get('host')._renderItem(Y.bind(this.get('host').get('fnRender'), this.get('host')), { value: newItem });
+
+        this._placeholder.set('innerHTML', '');
+        this.get('host').get('contentBox').insert(newNode, this._phlistitem);
+        
+        this._placeholder.append(Node.create(Y.substitute(this.ITEM_ADD_TEMPLATE, {
+            className: this.get('host').getClassName('add'), 
+            label: this.get('strings.add')           
+        })));
     },
     
     /**
@@ -244,12 +267,32 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      *
      * @property ITEM_ADD_TEMPLATE
      * @type String
-     * @value '<span class="{className}">{label}</span>'
+     * @value '<span class="{className}"></span>'
      */
-    ITEM_ADD_TEMPLATE : '<span class="{className}"><a href="#">{label}</a></span>'
+    ITEM_ADD_TEMPLATE : '<span class="{className}"></span>',
+    
+    /**
+     * Reference to the placeholder element, used to add new items.
+     *
+     * @property _placeholder
+     * @type Node
+     * @value 
+     */
+    _placeholder: null,
+    
+    /**
+     * Reference to the list item holding the placeholder.
+     *
+     * @property _phlistitem
+     * @type Node
+     * @value 
+     */
+    _phlistitem: null
+
+
 });
 
 Y.namespace("DP").DatalistEditing = DatalistEditing;
 
 
-}, '@VERSION@' ,{requires:['plugin', 'substitute', 'gallery-dp-datalist', 'gallery-dp-editable']});
+}, '@VERSION@' ,{requires:['plugin', 'substitute', 'json-parse', 'gallery-dp-datalist', 'gallery-dp-editable']});
