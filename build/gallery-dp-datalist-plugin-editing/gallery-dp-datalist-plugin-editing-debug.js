@@ -63,6 +63,23 @@ Y.mix(DatalistEditing, {
          */
         uriCreate : {
             value : null
+        },
+        
+        /**
+         * The URI to use for the edit/update operation
+         *
+         * @attribute uriEdit
+         * @type String
+         */
+        uriEdit : {
+            value : null
+        },
+
+       
+        strings : {
+            value : {
+                add : 'Add an item'
+            }
         }
 
         
@@ -102,6 +119,8 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         //this.afterHostEvent("render", this._renderEditingTools);
         this.afterHostMethod("_renderItems", this._renderEditingTools);
         
+        
+        this.publish('add', {defaultFn: this._defFnAdd}); // When a placeholder is successfully saved
         //this.get('host').get('contentBox').delegate('click', Y.bind(this._handleRemoveItemClicked, this), '.remove');
         
         //this.get('contentBox').delegate('click', Y.bind(this._handleRemoveItemClicked, this), '.remove');
@@ -128,29 +147,31 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
     _renderEditingTools : function() {
         Y.log("_renderEditingTools", "info", this.NAME);
         
-        var list = this.get('host').get('contentBox');
+        var list = this.get('host').get('contentBox'),
+            placeholder = this.get('host')._renderItem(this._renderAddControl, { 
+                className: this.get('host').getClassName('add'), 
+                label: this.get('strings.add'), 
+                template: this.ITEM_ADD_TEMPLATE 
+            });
         
-        list.append(this.get('host')._renderItem(this._renderAddControl, { 
-            className: this.get('host').getClassName('add'), 
-            label: 'Add an item', 
-            template: this.ITEM_ADD_TEMPLATE 
-        }));
-        
-        Y.one('.' + this.get('host').getClassName('add')).plug(Y.DP.EditablePlugin, { 
-            submitto: this.get('uriCreate'), 
-            loadfrom: function(n) {return '';} // Placeholder becomes nothing.
+        list.append(placeholder);
+        placeholder.plug(Y.DP.EditablePlugin, { 
+            submitto: this.get('uriCreate'),
+            fnSubmitValues: null,
+            fnNodeToEditor: function(o) {return '';} // Placeholder becomes nothing.
         });
         
         list.plug(Y.DP.EditablePlugin, {
             delegate: '.' + this.get('host').getClassName('item'),
-            submitto: this.get('uriCreate'),
+            submitto: this.get('uriEdit'),
+            event: 'dblclick',
             fnNodeToEditor: function(o) {
                 return o.one('a').get('textContent');
             },
             fnEditorToNode: Y.bind(function(o) {
-                return this.get('host')._renderItem(Y.bind(this.get('host').get('fnRender'), this.get('host')), { title: o.get('value') });
+                return this.get('host')._renderItem(Y.bind(this.get('host').get('fnRender'), this.get('host')), {title: o.get('value')});
             }, this)
-        })
+        });
 
     },
     
@@ -225,7 +246,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @type String
      * @value '<span class="{className}">{label}</span>'
      */
-    ITEM_ADD_TEMPLATE : '<span class="{className}">{label}</span>'
+    ITEM_ADD_TEMPLATE : '<span class="{className}"><a href="#">{label}</a></span>'
 });
 
 Y.namespace("DP").DatalistEditing = DatalistEditing;

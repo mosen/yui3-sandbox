@@ -80,7 +80,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         return Y.Node.create(Y.substitute(this.LISTITEM_TEMPLATE, {
             content: fnRender(item),
             className: this.getClassName('item'),
-            id: item[this.get('anchorkey')]
+            id: Y.guid()
         }));
     },
 
@@ -188,7 +188,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @type String
      * @value 
      */
-    LISTITEM_TEMPLATE: '<li class="{className}">{content}</li>',
+    LISTITEM_TEMPLATE: '<li class="{className}" id="{id}">{content}</li>',
 
     /**
      * A tokenized template used to create this widget's list node.

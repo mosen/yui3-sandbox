@@ -15,7 +15,9 @@ var Lang = Y.Lang,
     CLASS_INPUT = CLASS_BASE + '-input',
     CLASS_BTN_SUBMIT = CLASS_BASE + '-submit',
     CLASS_BTN_CANCEL = CLASS_BASE + '-cancel',
-    CLASS_PLACEHOLDER = CLASS_BASE + '-placeholder';
+    CLASS_PLACEHOLDER = CLASS_BASE + '-placeholder',
+    CLASS_FIELD = CLASS_BASE + '-field',
+    CLASS_FIELD_SAVING = CLASS_BASE + '-field-saving';
 
 /**
  * Editable creates an in-place editor for html element text content.
@@ -53,9 +55,7 @@ Y.mix(EditableBase, {
      * @static
      */
     ATTRS : {
-        // TODO: add rows/cols for textarea
-        
-        // TODO: add datasource for select
+        // TODO: implement the select editor
         
         /**
          * The collection of strings to be used for the widget UI
@@ -169,13 +169,17 @@ Y.mix(EditableBase, {
             value : null
         },
         
-        // create submit subs with this function
-        fnGetSubmitParameters : {
-            value : function(editnode, editor) {
-                
-            }
+        /**
+         * This function will be called in order to substitute values into the url provided
+         * in the "submitto" attribute.
+         *
+         * @attribute fnSubmitValues
+         * @type Function
+         */
+        fnSubmitValues : {
+            value : null
         },
-        
+
         /**
          * HTTP method to use when submitting data.
          *
@@ -208,12 +212,13 @@ Y.mix(EditableBase, {
          *
          * This allows you to retrieve the value from surrounding markup
          *
-         * @attribute fnNodeToEditor
+         * TODO: consider saving the state of other fields within the node, and restoring them afterSave
+         * @attribute fnNodeToObject
          * @type Function
          */
-        fnNodeToEditor : {
+        fnNodeToObject : {
             value : function(node) {
-                return node.get('textContent');
+                return { value: node.get('textContent') };
             }
         },
 
@@ -221,10 +226,10 @@ Y.mix(EditableBase, {
          * Function invoked to take editor input and recreate the markup when transformed back into
          * structured element(s)
          *
-         * @attribute fnEditorToNode
+         * @attribute fnObjectToNode
          * @type Function
          */
-        fnEditorToNode : {
+        fnObjectToNode : {
             value : function(editor) {
                 return editor.get('value');
             }
@@ -354,6 +359,7 @@ EditableBase.prototype = {
         }
         
         editablenodes.set('title', this.get('strings.tooltip'));
+        editablenodes.addClass(CLASS_FIELD);
         
         // TODO: suggest placeholder for delegated items
         /*
@@ -444,7 +450,7 @@ EditableBase.prototype = {
      */
     _defFnAfterSave : function(e) {
         
-        this.requestSave(e.value);
+        this.requestSave(e.value, e.node);
     },
     
     /**
@@ -481,14 +487,12 @@ EditableBase.prototype = {
         this.set('prevContent', editingnode.get('innerHTML'));
         
         // jEditable would set the content from either GET, POST, inner or even supplied data.
-        edittext = this.get('fnNodeToEditor')(editingnode);
+        edittext = this.get('fnNodeToObject')(editingnode);
         
         editingnode.set('innerHTML', '');  
         editingnode.append(form);
         
         this._input.set('value', edittext);
-        
-
         this._input.focus();
         
         if (true == this.get('select')) {
@@ -520,8 +524,8 @@ EditableBase.prototype = {
             case 'textarea':
                 input = Y.Node.create(Y.substitute(this.TEMPLATE_INPUT_TEXTAREA, {className: CLASS_INPUT}));
                 
-                if (this.get('rows') !== null) { input.setAttribute('rows', this.get('rows')); }
-                if (this.get('cols') !== null) { input.setAttribute('cols', this.get('cols')); }
+                if (this.get('rows') !== null) {input.setAttribute('rows', this.get('rows'));}
+                if (this.get('cols') !== null) {input.setAttribute('cols', this.get('cols'));}
                 break;
                 
             case 'select':
@@ -535,12 +539,14 @@ EditableBase.prototype = {
         }
         
         // Consider that the settings still apply to textareas with cols and rows specified.
-        if (inputWidth !== 'auto') { input.setStyle('width', inputWidth); }
-        if (inputHeight !== 'auto') { input.setStyle('height', inputHeight); }
+        if (inputWidth !== 'auto') {input.setStyle('width', inputWidth);}
+        if (inputHeight !== 'auto') {input.setStyle('height', inputHeight);}
         // TODO: automatic sizing of editor based on original element?
         
         // TODO: Do we really need to keep a node reference to the input? some editors might not use inputs
         this._input = input;
+        this._input.on('key', this._onKey, 'down:13', this); // Enter = save
+        this._input.on('key', this._onKey, 'down:27', this); // ESC = discard
         frm.append(this._input);
         
         buttons = Y.Node.create(Y.substitute(this.TEMPLATE_BUTTONS, { 
@@ -571,13 +577,13 @@ EditableBase.prototype = {
         
         
         editingnode.set('innerHTML', '');
-        editingnode.append(this.get('fnEditorToNode')(this._input));
+        editingnode.append(this.get('fnObjectToNode')(this._input));
 
         this.set('prevContent', null);
         this.set('editingnode', null);
         this.set('editing', false);
         
-        this.fire('afterSave', {value: editorvalue});
+        this.fire('afterSave', {value: editorvalue, node: editingnode});
     },
     
     /**
@@ -585,23 +591,27 @@ EditableBase.prototype = {
      *
      * @method requestSave
      * @param value {String} Value to save
+     * @param node {Node} Node which is currently having its content saved.
      * @returns
      * @public
      */
-    requestSave : function(value) {
-        var submitto = this.get('submitto');
+    requestSave : function(value, node) {
+        var submitto = this.get('submitto'),
+            submitvalues = this.get('fnSubmitValues') !== null ? this.get('fnSubmitValues')(this.get('editingnode'), value) : {value : value};
         
         
         if (Y.Lang.isString(submitto)) {
-            Y.io(Y.substitute(submitto, {
-                value : value
-            }), {
+            Y.io(Y.substitute(submitto, submitvalues), {
                 on : {
-                    start: this._saveStart,
-                    success: this._saveSuccess,
-                    failure: this._saveFailure
+                    start: this._uiSetSaving,
+                    success: this._uiSetSaveSuccess,
+                    failure: this._uiSetSaveFailure
                 },
-                context : this
+                context : this,
+                arguments : {
+                    value : value,
+                    node : node
+                }
             });
         } else if (Y.Lang.isFunction(submitto)) {
             submitto();
@@ -632,11 +642,48 @@ EditableBase.prototype = {
      * Handler for all key events.
      *
      * @method _onKey
-     * @param
+     * @param e {Event} Event facade
      * @returns
      * @protected
      */
-    _onKey : function() {
+    _onKey : function(e) {
+        
+        //console.dir(e);
+        e.halt();
+        
+        if (e.keyCode == 27) {
+            this.discard();
+        } else if (e.keyCode = 13) {
+            this.save();
+        }
+    },
+    
+    /**
+     * An event fired which indicated that we are saving the editor data.
+     *
+     * @method _uiSetSaving
+     * @param e {Event} Event facade
+     * @returns
+     * @public
+     */
+    _uiSetSaving : function(e, args) {
+        
+        console.dir(args);
+        
+        args.node.addClass(CLASS_FIELD_SAVING);
+    },
+    
+    /**
+     * An event fired which indicated that saving was a success
+     *
+     * @method _uiSetSaveSuccess
+     * @param
+     * @returns
+     * @public
+     */
+    _uiSetSaveSuccess : function(e, o, args) {
+        
+        args.node.removeClass(CLASS_FIELD_SAVING);
     },
     
     /**
