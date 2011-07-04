@@ -8,3 +8,12 @@
     font-size: 75%;
     margin: 0em 0.5em 0em 0.5em;
 }
+
+.yui3-gallery-dp-datalist-item {
+    
+}
+
+.yui3-gallery-dp-datalist-item-selected {
+    font-weight: bold;
+    margin-left: 0.25em;
+}

@@ -74,6 +74,21 @@ Y.mix(DatalistEditing, {
         uriEdit : {
             value : null
         },
+        
+        /**
+         * Temporary function to get the desired value for a token in the edit or create URI's
+         * This is bad design really, but stretched for time
+         * 
+         * The function takes the object of values as the first parameter,
+         * and the desired token as the second
+         *
+         * @attribute fnGetValue
+         * @type String
+         */
+        fnGetValue : {
+            value : null,
+            validator : Y.Lang.isFunction
+        },
 
         /**
          * Strings for i18n
@@ -97,12 +112,12 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
     initializer : function (config) {
 
         
-        //this.afterHostEvent("render", this._renderEditingTools);
-        this.afterHostMethod("_renderItems", this._renderEditingTools);
+        this.afterHostEvent("render", this._renderEditingTools);
+        this.afterHostMethod("_renderItems", this._repositionEditingTools); // Host will append items below our editor
         
         this.publish('add', {defaultFn: this._defFnAdd}); // When a placeholder is successfully saved
-        //this.get('host').get('contentBox').delegate('click', Y.bind(this._handleRemoveItemClicked, this), '.remove');
         
+        //this.get('host').get('contentBox').delegate('click', Y.bind(this._handleRemoveItemClicked, this), '.remove');
         //this.get('contentBox').delegate('click', Y.bind(this._handleRemoveItemClicked, this), '.remove');
     },
 
@@ -128,13 +143,20 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         Y.log("_renderEditingTools", "info", this.NAME);
         
         var list = this.get('host').get('contentBox'),
+            phlistitem = Y.Node.create(Y.substitute(this.ITEM_ADD_TEMPLATE, {
+                className: this.get('host').getClassName('add'),
+                label: this.get('strings.add'),
+                wrapperClassName: this.get('host').getClassName('add', 'wrapper'),
+                id: Y.guid()
+            })),
+        /*
             phlistitem = this.get('host')._renderItem(this._renderAddControl, {
                 value : { 
                     className: this.get('host').getClassName('add'), 
                     label: this.get('strings.add'), 
                     template: this.ITEM_ADD_TEMPLATE 
                 }
-            }),
+            }),*/
             placeholder = phlistitem.one('span'),
             uriEdit = this.get('uriEdit');
         
@@ -142,7 +164,8 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         
         list.append(phlistitem);
         placeholder.plug(Y.DP.EditablePlugin, { 
-            submitto: this.get('uriCreate')
+            submitto: this.get('uriCreate'),
+            loadfrom: function(n) {return '';}
         });
         placeholder.editable.on('save', Y.bind(this._newItemAdded, this));
         this._placeholder = placeholder;
@@ -150,29 +173,55 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         list.plug(Y.DP.EditablePlugin, {
             delegate: '.' + this.get('host').getClassName('item'),
             event: 'dblclick',
-            loadfrom: function(n) { return n.one('a').get('textContent'); },
-            submitto: function(li) {
-                Y.log(li);
-                Y.io(Y.substitute(uriEdit, { value: li.one('input').get('value'), id: 1 }), {
-                on : {
-                    start: function(id, o, args) { Y.log('started updating'); },
-                    success: function(id, o, args) { 
-                        Y.log('saved update');
+            loadfrom: function(n) {return n.one('a').get('textContent');},
+            submitto: Y.bind(function(li) {
+                //Y.log(li);
+                var record = this.get('host').get('recordset').getRecord(li.get('id')),
+                    recordValue = record.getValue(),
+                    fnGetValue = this.get('fnGetValue');
+                
+                //Y.log(recordValue);
+                
+                Y.io(Y.substitute(uriEdit, {value: li.one('input').get('value'), id: fnGetValue(recordValue, 'id')}), {
+                    on : {
+                        start: function(id, o, args) {
+                            Y.log('started updating');
+                        },
+                        success: function(id, o, args) { 
+                            this._itemSaved(o, args);
+                        },
+                        failure: function(id, o, args) { 
+                            Y.log('failed to update');
+                            // TODO: display a warning
+                        }
                     },
-                    failure: function(id, o, args) { 
-                        Y.log('failed to update');
-                        // TODO: display a warning
+                    context : this,
+                    arguments : {
+                        node : li,
+                        record : record
                     }
-                },
-                context : this,
-                arguments : {
-                    node : li
-                }
-            });
-            }
+                });
+            }, this)
         });
         list.editable.on('save', Y.bind(this._itemSaved, this));
 
+    },
+    
+    /**
+     * Reposition the editing tools below the list of items
+     *
+     * @method _repositionEditingTools
+     * @param
+     * @returns
+     * @protected
+     */
+    _repositionEditingTools : function() {
+        Y.log("_repositionEditingTools", "info", this.NAME);
+        
+        var listNodes = this.get('host').get('contentBox').all('li.'+this.get('host').getClassName('item')),
+            lastNode = listNodes.pop();
+        
+        this.get('host').get('contentBox').append(this._phlistitem);
     },
     
     /**
@@ -204,6 +253,45 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
     },
     
     /**
+     * Fired when an existing item is saved
+     *
+     * @method _itemSaved
+     * @param o {Object} Y.IO Response
+     * @param args {Object} Additional IO Arguments { li: list node saved, record: record changed }
+     * @returns
+     * @public
+     */
+    _itemSaved : function(o, args) {
+        Y.log("_itemSaved", "info", this.NAME);
+        
+        
+        var updatedItem = Y.JSON.parse(o.responseText),
+            records = this.get('host').get('recordset'),
+            recordId = args.node.get('id'),
+            rec;
+        
+        // = ,
+        Y.log('Saving item with ID:' + recordId);
+        Y.log(updatedItem.record);
+        
+        records.after('tableChange', function(e) {
+            Y.log("Hash table got updated", "info", "this.NAME");
+        });
+        
+        records.update(updatedItem.record);
+        //records.add(updatedItem.record, recordId);
+        //newNode = this.get('host')._renderItem(Y.bind(this.get('host').get('fnRender'), this.get('host')), { value: updatedItem.record })
+        
+        //args.record.setValue(updatedItem);
+        //args.node.replace(newNode);
+        var hashTable = records.get('table'); // Force table update?
+        Y.log(hashTable);
+        Y.log(records.getLength());
+        
+        this.get('host').set('recordset', records);
+    },
+    
+    /**
      * Fired when a new item is saved by the underlying placeholder editor.
      *
      * @method _newItemAdded
@@ -215,15 +303,13 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         Y.log("_newItemAdded", "info", this.NAME);
         
         var newItem = Y.JSON.parse(o.details[0].responseText),
-            newNode = this.get('host')._renderItem(Y.bind(this.get('host').get('fnRender'), this.get('host')), { value: newItem });
+            records = this.get('host').get('recordset');
 
-        this._placeholder.set('innerHTML', '');
-        this.get('host').get('contentBox').insert(newNode, this._phlistitem);
+        records.add(newItem);
+        Y.log("setting new records", "info", "this.NAME");
+        this.get('host').set('recordset', records);
         
-        this._placeholder.append(Node.create(Y.substitute(this.ITEM_ADD_TEMPLATE, {
-            className: this.get('host').getClassName('add'), 
-            label: this.get('strings.add')           
-        })));
+        this._placeholder.editable.clear();
     },
     
     /**
@@ -269,7 +355,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @type String
      * @value '<span class="{className}"></span>'
      */
-    ITEM_ADD_TEMPLATE : '<span class="{className}"></span>',
+    ITEM_ADD_TEMPLATE : '<li class="{className}" id="{id}"><span class="{wrapperClassName}"></span></li>',
     
     /**
      * Reference to the placeholder element, used to add new items.

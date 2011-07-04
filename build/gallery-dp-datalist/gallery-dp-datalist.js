@@ -62,7 +62,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         
 
         rs.each(function(record) {
-            listContainer.append(this._renderItem(fnRender, { value: record.get('data'), id: record.get('id') }));
+            listContainer.append(this._renderItem(fnRender, {value: record.get('data'), id: record.get('id')}));
         }, this);
     },
     
@@ -92,9 +92,10 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     bindUI : function () {
         // ATTR
         this.after('recordsetChange', this._uiSetItems, this);
+        this.after('selectionChange', this._uiSetSelected, this);
         
         // DOM
-        this.get('contentBox').delegate('click', Y.bind(this._handleItemClicked, this), '.' + this.getClassName('itemlink')); // TODO make this classname configurable
+        this.get('contentBox').delegate('click', Y.bind(this._handleItemClicked, this), '.' + this.getClassName('item')); // TODO make this classname configurable
     },
     
     /**
@@ -135,7 +136,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     _defResponseSuccessFn : function(o) {
 
-        this.set('recordset', new Y.Recordset({ records: o.response.results }));
+        this.set('recordset', new Y.Recordset({records: o.response.results}));
     },
     
     /**
@@ -147,6 +148,18 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @protected
      */
     _handleItemClicked : function(e) {
+        
+        var li = e.currentTarget,
+            rId = li.get('id'),
+            record = this.get('recordset').getRecord(rId),
+            value;
+            
+        if (undefined == record) {
+            this.get('recordset')._setHashTable();
+        }    
+        value = record.getValue();
+        
+        this.set('selection', [ '#'+rId ]); // CSSify the item so that the entire array can be selected by Y.all
     },
     
     /**
@@ -157,10 +170,30 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @protected
      */
     _uiSetItems : function(e) {
-        var rs = this.get('recordset');
+        var rs = e.newVal;
         
-        this.get('contentBox').set('innerHTML', ''); // Reset content
+        //console.dir(rs);
+        
+        //this.get('contentBox').set('innerHTML', ''); // Reset content
+        this.get('contentBox').all('.'+this.getClassName('item')).remove();
         this._renderItems(rs);
+    },
+    
+    /**
+     * Update the UI with new selection
+     *
+     * @method _uiSetSelected
+     * @param e {Object} ATTR change event
+     * @returns
+     * @protected
+     */
+    _uiSetSelected : function(e) {
+        var selection = this.get('selection'),
+            list = this.get('contentBox');
+        
+        
+        list.all('.' + this.getClassName('item', 'selected')).removeClass(this.getClassName('item', 'selected'));
+        list.all(selection.join(',')).addClass(this.getClassName('item', 'selected'));
     },
     
     /**
@@ -258,17 +291,6 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         recordset : {
             value : null
         },
-
-        /**
-         * The initial datasource request string.
-         *
-         * @attribute initialRequest
-         * @type String
-         * @default empty string
-         */
-        initialRequest : {
-            value : ''
-        },
         
         /**
          * Function used to render each list item.
@@ -289,7 +311,19 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
                 });           
             },
             validator : Y.Lang.isFunction
+        },
+        
+        /**
+         * The currently selected item(s)
+         *
+         * @attribute selection
+         * @type Array
+         */
+        selection : {
+            value : [],
+            validator : Y.Lang.isArray
         }
+
     }
 });
 

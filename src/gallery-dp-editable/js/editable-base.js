@@ -340,11 +340,25 @@ EditableBase.prototype = {
         
         // TODO: suggest placeholder for delegated items
         if (this.get('targetnode').get('innerHTML').length == 0) {
-            this.get('targetnode').append(Y.Node.create(Y.substitute(this.TEMPLATE_PLACEHOLDER, {
-                className: CLASS_PLACEHOLDER,
-                text: this.get('strings.placeholder')
-            })));
+            this.get('targetnode').append(this._renderPlaceHolder());
         }
+    },
+    
+    /**
+     * Render the placeholder
+     *
+     * @method _renderPlaceHolder
+     * @param
+     * @returns
+     * @protected
+     */
+    _renderPlaceHolder : function() {
+        Y.log("_renderPlaceHolder", "info", this.NAME);
+        
+        return Y.Node.create(Y.substitute(this.TEMPLATE_PLACEHOLDER, {
+                    className: CLASS_PLACEHOLDER,
+                    text: this.get('strings.placeholder')
+               }));
     },
     
     /**
@@ -625,9 +639,9 @@ EditableBase.prototype = {
             this.get('editingnode').set('innerHTML', '');
             this.get('editingnode').append(value);
             
-            Y.io(Y.substitute(submitto, { value: this._input.get('value') }), {
+            Y.io(Y.substitute(submitto, {value: this._input.get('value')}), {
                 on : {
-                    start: function(id, o, args) { this.set('saving', true); },
+                    start: function(id, o, args) {this.set('saving', true);},
                     success: function(id, o, args) { 
                         this.set('saving', false);
                         this.fire('save', o);
@@ -712,6 +726,28 @@ EditableBase.prototype = {
         this.set('editing', false);
         
         this.fire('cancel');
+    },
+    
+    /**
+     * Clear editor data and return to placeholder state
+     *
+     * @method clear
+     * @param
+     * @returns
+     * @public
+     */
+    clear : function() {
+        var editingnode = this.get('editingnode'),
+            targetnode = this.get('targetnode');
+        
+        Y.log("clear", "info", this.NAME);
+
+        targetnode.set('innerHTML', '');
+        targetnode.append(this._renderPlaceHolder());
+        this.set('prevContent', null);
+        //this.set('editingnode', null);
+        this.set('editing', false);
+        
     },
 
     /**

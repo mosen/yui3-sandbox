@@ -16,10 +16,12 @@ var Lang = Y.Lang,
     YNode = Y.Node,
     YgetClassName = Y.ClassNameManager.getClassName,
     Ycreate = YNode.create,
+    Ysubstitute = Y.substitute,
     
     DATATABLE = "datatable",
     CLASS_LINER = YgetClassName(DATATABLE, "liner"),
     TD_TEMPLATE = '<td headers="{headers}" class="{classnames}"><div class="'+CLASS_LINER+'"></div></td>',
+    TEMPLATE_TH = '<th id="{id}" rowspan="{rowspan}" colspan="{colspan}" class="{classnames}" abbr="{abbr}"><div class="'+CLASS_LINER+'">{value}</div></th>',
     COLUMN_TEMPLATE_EXT = '<col></col>';
 
 
@@ -34,60 +36,6 @@ var Lang = Y.Lang,
  * @extends DataTable.Base
  */
 Y.namespace('DP').DataTableEnhanced = Y.Base.create( 'gallery-dp-datatable-enhanced', Y.DataTable.Base, [], {
-
-
-    /**
-     *
-     *
-     * @method initializer
-     * @param config {Object} Configuration object
-     * @protected
-     * @constructor
-     */
-//    initializer : function (config) {
-//
-//
-//    },
-
-    /**
-     * Create the DOM structure for the dp-datatable-enhanced.
-     *
-     * @method renderUI
-     * @protected
-     */
-//    renderUI : function () {
-//
-//    },
-
-
-    /**
-     *
-     * @method bindUI
-     * @protected
-     */
-//    bindUI : function () {
-//
-//    },
-    
-    /**
-     * Synchronizes the DOM state with the attribute settings
-     *
-     * @method syncUI
-     */
-//    syncUI : function () {
-//        
-//    },
-
-    /**
-     * Destructor lifecycle implementation for the dp-datatable-enhanced class.
-     *
-     * @method destructor
-     * @protected
-     */
-//    destructor: function() { }
-    
-    
-    // Use NetBeans Code template "ymethod" to add methods here
 
     /**
      * Create DataTable TD Nodes
@@ -132,6 +80,46 @@ Y.namespace('DP').DataTableEnhanced = Y.Base.create( 'gallery-dp-datatable-enhan
         }
 
         return o.td;
+    },
+    
+   /**
+    * Creates header cell element.
+    *
+    * Enhanced to set width on header cell elements.
+    *
+    * @method _createTheadThNode
+    * @param o {Object} {value, column, tr}.
+    * @protected
+    * @returns Y.Node
+    */
+    _createTheadThNode: function(o) {
+        var column = o.column,
+            thNode;
+        
+        // Populate template object
+        o.id = column.get("id");//TODO: validate 1 column ID per document
+        o.colspan = column.colSpan;
+        o.rowspan = column.rowSpan;
+        o.abbr = column.get("abbr");
+        o.classnames = column.get("classnames");
+        o.value = Ysubstitute(this.get("thValueTemplate"), o);
+        
+        thNode = Ycreate(Ysubstitute(this.thTemplate, o));
+        
+        o.liner = thNode.one('div');
+        
+        if (column.get('width') !== undefined) {
+            o.liner.setStyle('width', column.get('width'));
+        }
+
+        /*TODO
+        // Clear minWidth on hidden Columns
+        if(column.get("hidden")) {
+            //this._clearMinWidth(column);
+        }
+        */
+        
+        return thNode;
     },
     
    /**
