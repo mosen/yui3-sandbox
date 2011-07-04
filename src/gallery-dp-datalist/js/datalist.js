@@ -2,8 +2,6 @@
  * @module gallery-dp-datalist
  * @requires widget, datasource
  */
-
-/* Any frequently used shortcuts, strings and constants */
 var Node = Y.Node,
     YGetClassName = Y.ClassNameManager.getClassName;
 
@@ -26,6 +24,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
 
         // IO
         this.publish('success', {defaultFn: this._defResponseSuccessFn});
+        this.publish('select');
 
         // Configure single handler for IO reponses
         this._ioCallback = {
@@ -35,17 +34,8 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
             end: Y.bind(this._handleResponse, this, 'end')
         };
     },
-
-    /**
-     * Create the DOM structure for the datalist container.
-     * Items will be rendered later, when the data is received.
-     *
-     * @method renderUI
-     * @public
-     */
-    renderUI : function () {
-        
-    },
+    
+    // No renderUI method because CONTENT_TEMPLATE fulfills requirements.
     
     /**
      * Iterate through list items and call render on each.
@@ -103,7 +93,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @public
      */
     syncUI : function () {
-        this.get('source').sendRequest({request: this.get('initialRequest'), callback: this._ioCallback});
+        this.get('source').sendRequest({ request: this.get('initialRequest'), callback: this._ioCallback });
     },
 
     /**
@@ -165,10 +155,11 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         value = record.getValue();
         
         this.set('selection', [ '#'+rId ]); // CSSify the item so that the entire array can be selected by Y.all
+        this.fire('select', { itemid: rId, item: value });
     },
     
     /**
-     * Update the UI with new data
+     * Update the UI with new data when recordset changes.
      *
      * @method _uiSetItems
      * @param e {Object} ATTR Event facade
@@ -178,11 +169,10 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         Y.log("_uiSetItems", "info", this.NAME);
         var rs = e.newVal;
         
-        //console.dir(rs);
-        
-        //this.get('contentBox').set('innerHTML', ''); // Reset content
+        // Note: clearing the content also blows away plugin content/or user content, so we use all/remove
         this.get('contentBox').all('.'+this.getClassName('item')).remove();
         this._renderItems(rs);
+        this._uiSetSelected(); // If selection state was set, but not through the UI
     },
     
     /**

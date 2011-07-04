@@ -1,0 +1,1 @@
+YUI.add("gallery-dp-datatable-enhanced-plugin-editable",function(c){var b=c.Lang;function a(d){a.superclass.constructor.apply(this,arguments);}c.mix(a,{NS:"editable",NAME:"editable",ATTRS:{}});c.extend(a,c.Plugin.Base,{initializer:function(d){},destructor:function(){}});c.namespace("DP").DatatableEnhancedEditable=a;},"@VERSION@",{requires:["gallery-dp-datatable-enhanced"]});
