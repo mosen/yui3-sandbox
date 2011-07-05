@@ -86,7 +86,7 @@ Y.extend(DatatableEnhancedEditable, Y.Plugin.Base, {
      * @param config {Object} Configuration object
      */
     initializer : function (config) {
-
+        Y.log("init", "info", this.NAME);
     // See Y.Do.before, Y.Do.after
     //this.beforeHostMethod("show", this._beforeHostShowMethod);
     //this.afterHostMethod("show", this._afterHostShowMethod);

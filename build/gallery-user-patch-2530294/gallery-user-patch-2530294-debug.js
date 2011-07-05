@@ -61,4 +61,4 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
     };
 
 
-}, '@VERSION@' ,{skinnable:true, requires:['datatable']});
+}, '@VERSION@' ,{requires:['datatable'], skinnable:true});

@@ -1,95 +1,97 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Test for ticket #2529975</title>
+        <title>#2529975 defect test suite</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
         charset="utf-8"></script>
+        <style type="text/css" media="screen">
+            body { font: 14px Gotham, "Helvetica Neue", sans-serif; }
+        </style>
     </head>
     <body class="yui3-skin-sam">
-        <h2>Test defect ticket #2529975</h2>
-        <p>The DataTableDataSource plugin creates a new instance of Y.RecordSet when data returns from DataSource. This causes the RecordSet to lose its
-        plugins and instance specific configuration. The test asserts that this problem is solved by the patch.</p>
-        <p><input type="button" value="Run Tests" id="btnRun" disabled=true></p>
+        <h2>#2529975 defect test suite</h2>
+        <p>The DataTableDataSource plugin creates a new instance of Y.RecordSet when data returns from DataSource.
+        <p>This causes the RecordSet to lose its
+        plugins and instance specific configuration. This breaks DataTableSort and potentially other plugins</p>
+        <p>
+            <input type="button" value="Run Tests (Patched)" id="btnRun" onClick="testFn('gallery-user-patch-2529975')();">
+            <input type="button" value="Run Tests (Unpatched)" id="btnRun" onClick="testFn(null)();">
+        </p>
+        <div id="testsubject"></div>
         <script type="text/javascript">
-        (function() {
-            YUI({
-                filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
-                allowRollup: false,
-                   modules : {
-                    'gallery-user-patch-2529975' : {
-                       'fullpath' : '../../../build/gallery-user-patch-2529975/gallery-user-patch-2529975.js',
-                       'requires' : ['datatable-datasource']
+        var testFn = function(patchname) {    
+            return function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                       modules : {
+                        'gallery-user-patch-2529975' : {
+                           'fullpath' : '../../../build/gallery-user-patch-2529975/gallery-user-patch-2529975.js',
+                           'requires' : ['datatable-datasource']
+                        }
                     }
-                }
-            }).use("console", "test", "dump", "datatable", "gallery-user-patch-2529975", function(Y) {
+                }).use("console", "test", "dump", "datatable", "datatable-datasource", patchname, function(Y) {
+                    var myConsole = new Y.Console().render(),
+                        testBasic = new Y.Test.Case({ 
+                            name: "Patch Ticket 2529975 Test",
 
-                var BTNRUN = Y.one("#btnRun");
-                BTNRUN.set("disabled", false);
-                Y.on("click", function(e){
-                    Y.Test.Runner.run();
-                }, BTNRUN);
-                var myConsole = new Y.Console().render();
+                            setUp: function() {
+                                this.testDataSource = new Y.DataSource.Local();
 
+                                this.testDataTable = new Y.DataTable.Base({
+                                    columnset : ["id", "name"],
+                                    summary : "User patched DataTable Instance",
+                                    plugins : [
+                                        { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } }
+                                    ]
+                                });
 
-                var testBasic = new Y.Test.Case({ 
-                    name: "Patch Ticket 2529975 Test",
-                    
-                    setUp: function() {
-                        this.testDataSource = new Y.DataSource.Local();
+                                this.testDataTable.render('#testsubject');
 
-                        this.testDataTable = new Y.DataTable.Base({
-                            columnset : ["id", "name"],
-                            summary : "User patched DataTable Instance",
-                            plugins : [
-                                { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } }
-                            ]
-                        });
+                                this.mockresponse = {
+                                    response: {
+                                        results: [
+                                            { "id" : "1", "name" : "Joe" },
+                                            { "id" : "2", "name" : "Mark" },
+                                            { "id" : "3", "name" : "Andrew" }
+                                        ]
+                                    }
+                                };
+                            },
 
-                        this.testDataTable.render();
+                            tearDown: function() {
+                                delete this.testDataSource;
+                                delete this.testDataTable;
+                            },
 
-                        this.mockresponse = {
-                            response: {
-                                results: [
-                                    { "id" : "1", "name" : "Joe" },
-                                    { "id" : "2", "name" : "Mark" },
-                                    { "id" : "3", "name" : "Andrew" }
-                                ]
+                            "test Y.RecordSet instance keeps plugins" : function() {
+                                var firstRecordSet,
+                                    secondRecordSet;
+
+                                // Set up first recordset with the sort plugin.
+                                this.testDataTable.datasource.onDataReturnInitializeTable(this.mockresponse);
+                                firstRecordSet = this.testDataTable.get('recordset');
+                                firstRecordSet.plug(Y.Plugin.RecordsetSort);
+
+                                // After second response, the recordset should keep its plugin instance.
+                                this.testDataTable.datasource.onDataReturnInitializeTable(this.mockresponse);
+                                secondRecordSet = this.testDataTable.get('recordset');
+
+                                Y.Assert.areEqual(firstRecordSet.sort, secondRecordSet.sort);
                             }
-                        };
-                    },
-                    
-                    tearDown: function() {
-                        delete this.testDataSource;
-                        delete this.testDataTable;
-                    },
-                    
-                    "test Y.RecordSet instance keeps plugins" : function() {
-                        var firstRecordSet,
-                            secondRecordSet;
 
-                        // Set up first recordset with the sort plugin.
-                        this.testDataTable.datasource.onDataReturnInitializeTable(this.mockresponse);
-                        firstRecordSet = this.testDataTable.get('recordset');
-                        firstRecordSet.plug(Y.Plugin.RecordsetSort);
+                        }),
+                        suite = new Y.Test.Suite({name:"Patch Ticket 2529975 Test Suite"});
                         
-                        // After second response, the recordset should keep its plugin instance.
-                        this.testDataTable.datasource.onDataReturnInitializeTable(this.mockresponse);
-                        secondRecordSet = this.testDataTable.get('recordset');
-                        
-                        Y.Assert.areEqual(firstRecordSet.sort, secondRecordSet.sort);
-                    }
+                    suite.add(testBasic);
 
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
                 });
-
-                var suite = new Y.Test.Suite({name:"Patch Ticket 2529975 Test Suite"});
-                suite.add(testBasic);
-
-                Y.Test.Runner.setName("Test Runner");
-                Y.Test.Runner.add(suite);
-                Y.Test.Runner.run();
-            });
-        })();
+            };
+        };
         </script>
     </body>
 </html>

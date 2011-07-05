@@ -2,15 +2,15 @@ YUI.add('gallery-user-patch-2530026', function(Y) {
 
 /**
  * This patch addresses YUI ticket #2530026
+ * http://yuilibrary.com/projects/yui3/ticket/2530026
  * 
  * The tr node inside the thead section of datatable has a bogus id. The id attribute is
  * not supplied to the template upon creation, and so the TR receives an id of
  * "{id}".
  *
  * @module gallery-user-patch-2530026
- * @requires DataTable.Base
+ * @requires datatable
  */
-
 var YgetClassName = Y.ClassNameManager.getClassName,
     
     DATATABLE = "datatable",
@@ -19,7 +19,6 @@ var YgetClassName = Y.ClassNameManager.getClassName,
     CLASS_LAST = YgetClassName(DATATABLE, "last");
 
 Y.DataTable.Base.prototype._createTheadTrNode = function(o, isFirst, isLast) {
-    //TODO: custom classnames
 
     // FIX: generate a guid for the TR element
     o.id = Y.guid();

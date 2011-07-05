@@ -1,130 +1,139 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Test for ticket #2530294</title>
+        <title>#2530294 defect test suite</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
         charset="utf-8"></script>
         <!--
-        <link type="text/css" media="screen" href="../../../build/gallery-user-patch-2530294/assets/gallery-user-patch-2530294-core.css" />
+        <link type="text/css" media="screen" href="../../../build/gallery-user-patch-2530294/assets/skins/sam/gallery-user-patch-2530294.css" />
         -->
+        <style type="text/css" media="screen">
+            body { font: 14px Gotham, "Helvetica Neue", sans-serif; }
+            
+/*            .yui3-skin-sam td .yui3-datatable-liner {
+                padding-right: 20px;
+            }*/
+        </style>
     </head>
     <body class="yui3-skin-sam">
-        <h2>Test defect ticket #2530294</h2>
+        <h2>#2530294 defect test suite</h2>
         <p>Combining DataTableScroll with DataTableSort causes a column size mismatch. This problem only presents itself when earlier
-        errors are patched around, so those patches are also included. Sometimes the problem will only be exposed when the column label is shorter
+        errors are patched around, so those patches are also included.</p>
+        <p>Sometimes the problem will only be exposed when the column label is shorter
         than the data, so columns here are labelled with single characters.</p>
         <p>This fix requires the CSS file to make sure that all columns have equal padding upon instantiation</p>
-        <p><input type="button" value="Run Tests" id="btnRun" disabled="true"></p>
+        <p>
+            <input type="button" value="Run Tests (Patched)" id="btnRun" onClick="testFn('gallery-user-patch-2530026')();">
+            <input type="button" value="Run Tests (Unpatched)" id="btnRun" onClick="testFn(null)();">
+        </p>
+        <div id="testsubject"></div>
         <script type="text/javascript">
-        (function() {
-            YUI({
-                filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
-                allowRollup: false,
-                groups : {
-                    userpatch: {
-                        combine: false,
-                        base : '../../../build/',
-                        root : '../../../build',
-                        modules : {
-                            'gallery-user-patch-2529808' : {
-                                path: '/gallery-user-patch-2529808/gallery-user-patch-2529808-debug.js'
-                            },
-                            'gallery-user-patch-2529920-2529921' : {
-                                path: '/gallery-user-patch-2529920-2529921/gallery-user-patch-2529920-2529921-debug.js'
-                            },
-                            'gallery-user-patch-2529943' : {
-                                path: '/gallery-user-patch-2529943/gallery-user-patch-2529943-debug.js'
-                            },
-                            'gallery-user-patch-2529968' : {
-                                path: '/gallery-user-patch-2529968/gallery-user-patch-2529968-debug.js'
-                            },
-                            'gallery-user-patch-2529975' : {
-                                path: '/gallery-user-patch-2529975/gallery-user-patch-2529975-debug.js'
-                            },
-                            'gallery-user-patch-2530026' : {
-                                path: '/gallery-user-patch-2530026/gallery-user-patch-2530026-debug.js'
-                            },
-                            'gallery-user-patch-2530294' : {
-                                path: '/gallery-user-patch-2530294/gallery-user-patch-2530294-debug.js',
-                                skinnable: true // TODO: builder makes module-skin.css but loader expects module.css ???
+        var testFn = function(patchname) {    
+            return function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    groups : {
+                        userpatch: {
+                            combine: false,
+                            base : '../../../build/',
+                            root : '../../../build',
+                            modules : {
+                                'gallery-user-patch-2529808' : {
+                                    path: '/gallery-user-patch-2529808/gallery-user-patch-2529808-debug.js'
+                                },
+                                'gallery-user-patch-2529920-2529921' : {
+                                    path: '/gallery-user-patch-2529920-2529921/gallery-user-patch-2529920-2529921-debug.js'
+                                },
+                                'gallery-user-patch-2529943' : {
+                                    path: '/gallery-user-patch-2529943/gallery-user-patch-2529943-debug.js'
+                                },
+                                'gallery-user-patch-2529968' : {
+                                    path: '/gallery-user-patch-2529968/gallery-user-patch-2529968-debug.js'
+                                },
+                                'gallery-user-patch-2529975' : {
+                                    path: '/gallery-user-patch-2529975/gallery-user-patch-2529975-debug.js'
+                                },
+                                'gallery-user-patch-2530026' : {
+                                    path: '/gallery-user-patch-2530026/gallery-user-patch-2530026-debug.js'
+                                },
+                                'gallery-user-patch-2530294' : {
+                                    path: '/gallery-user-patch-2530294/gallery-user-patch-2530294-debug.js',
+                                    skinnable: true // TODO: builder makes module-skin.css but loader expects module.css ???
+                                }
                             }
                         }
                     }
-                }
-            }).use("console", "test", "dump", "datatable"
-                , "gallery-user-patch-2529808"
-                , "gallery-user-patch-2529920-2529921"
-                , "gallery-user-patch-2529943"
-                , "gallery-user-patch-2529968"
-                , "gallery-user-patch-2529975"
-                , "gallery-user-patch-2530026"
-                , "gallery-user-patch-2530294"
-                , function(Y) {
-                
+                }).use("console", "test", "dump", "datatable"
+                    , "gallery-user-patch-2529808"
+                    , "gallery-user-patch-2529920-2529921"
+                    , "gallery-user-patch-2529943"
+                    , "gallery-user-patch-2529968"
+                    , "gallery-user-patch-2529975"
+                    , "gallery-user-patch-2530026"
+                    , patchname
+                    , function(Y) {
 
-                var BTNRUN = Y.one("#btnRun");
-                BTNRUN.set("disabled", false);
-                Y.on("click", function(e){
-                    Y.Test.Runner.run();
-                }, BTNRUN);
-                var myConsole = new Y.Console().render();
+                    var myConsole = new Y.Console().render(),
+                        testBasic = new Y.Test.Case({ 
+                            name: "Patch Ticket 2530294 Test",
 
+                            setUp: function() {
+                                this.mockresponse = {
+                                    response: {
+                                        results: [
+                                            { "id" : "100", "name" : "Joe", "last": "Johnson"},
+                                            { "id" : "200", "name" : "Mark", "last": "Smith" },
+                                            { "id" : "300", "name" : "Andrew", "last": "Newton" }
+                                        ]
+                                    }
+                                };
 
-                var testBasic = new Y.Test.Case({ 
-                    name: "Patch Ticket 2530294 Test",
-                    
-                    setUp: function() {
-                        this.mockresponse = {
-                            response: {
-                                results: [
-                                    { "id" : "100", "name" : "Joe", "last": "Johnson"},
-                                    { "id" : "200", "name" : "Mark", "last": "Smith" },
-                                    { "id" : "300", "name" : "Andrew", "last": "Newton" }
-                                ]
+                                this.testDataSource = new Y.DataSource.Local({ source: this.mockresponse.response.results });
+
+                                this.testDataTable = new Y.DataTable.Base({
+                                    columnset : [ 
+                                        { key: "id", sortable: true }
+                                        , { key: "name", label:"first name", sortable: true }
+                                        , { key: "last", label: "last name", sortable: true }
+                                    ],
+                                    summary : "User patched DataTable Instance",
+                                    plugins : [
+                                        { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } }
+                                        , { fn: Y.Plugin.DataTableSort }                                
+                                        , { fn: Y.Plugin.DataTableScroll, cfg: { height: '200px' } }
+
+                                    ]
+                                });
+                            },
+
+                            tearDown: function() {
+                                //this.testDataTable.destroy();
+                                //delete this.testDataTable;
+                            },
+
+                            "test scroll+sort+datasource causes column mismatch" : function() {
+                                this.testDataTable.render('#testsubject');
+                                this.testDataTable.datasource.load();
+
+                                var dt = this.testDataTable;
+
+                                this.testDataTable.sort.after('lastSortedByChange', function(e) {
+                                    dt.scroll._syncWidths();
+                                }, this);
                             }
-                        };
-                        
-                        this.testDataSource = new Y.DataSource.Local({ source: this.mockresponse.response.results });
-
-                        this.testDataTable = new Y.DataTable.Base({
-                            columnset : [ { key: "id", sortable: true }, { key: "name", label:"f", sortable: true }
-                                , { key: "last", label: "l", sortable: true }],
-                            summary : "User patched DataTable Instance",
-                            plugins : [
-                                { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } }
-                                , { fn: Y.Plugin.DataTableSort }                                
-                                , { fn: Y.Plugin.DataTableScroll, cfg: { height: '200px' } }
-
-                            ]
                         });
-                    },
-                    
-                    tearDown: function() {
-                        //this.testDataTable.destroy();
-                        delete this.testDataTable;
-                    },
-                    
-                    "test scroll+sort+datasource causes column mismatch" : function() {
-                        this.testDataTable.render();
-                        this.testDataTable.datasource.load();
-                        
-                        var dt = this.testDataTable;
-                        
-                        this.testDataTable.sort.after('lastSortedByChange', function(e) {
-                            dt.scroll._syncWidths();
-                        }, this);
-                    }
+
+                    var suite = new Y.Test.Suite({name:"Patch Ticket 2530294 Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
                 });
-
-                var suite = new Y.Test.Suite({name:"Patch Ticket 2530294 Test Suite"});
-                suite.add(testBasic);
-
-                Y.Test.Runner.setName("Test Runner");
-                Y.Test.Runner.add(suite);
-                Y.Test.Runner.run();
-            });
-        })();
+            };
+        };
         </script>
     </body>
 </html>

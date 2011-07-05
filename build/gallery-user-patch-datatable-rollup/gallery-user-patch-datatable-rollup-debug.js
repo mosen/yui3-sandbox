@@ -10,7 +10,6 @@ YUI.add('gallery-user-patch-datatable-rollup', function(Y) {
  * @requires datatable, datatable-scroll
  */
 
-// TODO: Use AOP for these methods? Can't figure out how to correct the context on a prototype method.
 Y.Plugin.DataTableScroll.prototype.injected_initializer = Y.Plugin.DataTableScroll.prototype.initializer;
 
 Y.Plugin.DataTableScroll.prototype.initializer = function(config) {
@@ -36,16 +35,17 @@ Y.Plugin.DataTableScroll.prototype._syncWidths = function() {
  * This patch addresses YUI tickets #2529920, #2529921
  * 
  * #2529920 - Documentation refers to the cell formatter function having access to the TD element, but the TD reference is not passed.
+ * http://yuilibrary.com/projects/yui3/ticket/2529920
+ * 
  * #2529921 - {value} template is shown when the record data is null or undefined
- * TODO #2529894 setting value using innerHTML could potentially expose a XSS exploit.
- * TODO This patch exposes a bug where the lastSortedBy highlighting lags by 1
+ * http://yuilibrary.com/projects/yui3/ticket/2529921
  * 
  * The {value} token remains because Y.substitute does not delete invalid tokens, in case that they
  * are later used for recursive substitutions. One possible fix could be to have substitute delete tokens
  * if the recursive option is not set.
  *
  * @module gallery-user-patch-2529920-2529921
- * @requires DataTable.Base
+ * @requires datatable
  */
 
 // Default: '<td headers="{headers}"><div class="'+CLASS_LINER+'">{value}</div></td>'
@@ -84,8 +84,9 @@ Y.DataTable.Base.prototype.formatDataCell = function(o) {
         column = o.column,
         formatter = column.get("formatter"),
         fnSubstituteNulls = function(key, v, meta) {
-            return v ? v : "";
+            return Y.Lang.isNull(v) || Y.Lang.isUndefined(v) ? "" : v;
         };
+    
     o.data = record.get("data");
     o.value = record.getValue(column.get("field"));
     return Y.Lang.isString(formatter) ?
@@ -96,49 +97,53 @@ Y.DataTable.Base.prototype.formatDataCell = function(o) {
 };
 /**
  * This patch addresses YUI ticket #2529943
- * 
  * http://yuilibrary.com/projects/yui3/ticket/2529943
  * 
  * The DataTableSort plugin creates a link for each column heading to allow the user to sort datatable rows.
- * The title attribute is hard coded to the value 'title', this patch allows the title to be configurable, or by default
+ * The title attribute is hard coded to the value 'title', this patch allows the title to be configurable, and by default
  * uses the column key as the title.
  *
  * @module gallery-user-patch-2529943
- * @requires DataTable.Base, Y.Plugin.DataTableSort
+ * @requires datatable, datatable-sort
  */
-
 Y.Plugin.DataTableSort.prototype._beforeCreateTheadThNode = function(o) {
-        if(o.column.get("sortable")) {
-            o.value = Y.substitute(this.get("template"), {
-                link_class: o.link_class || "",
-                link_title: o.column.get("title") || o.column.get("key"),
-                link_href: "#",
-                value: o.value
-            });
-        }
+    if(o.column.get("sortable")) {
+        o.value = Y.substitute(this.get("template"), {
+            link_class: o.link_class || "",
+            link_title: o.column.get("title") || o.column.get("key"),
+            link_href: "#",
+            value: o.value
+        });
+    }
 };
 /**
  * This patch addresses YUI ticket #2529968
+ * http://yuilibrary.com/projects/yui3/ticket/2529968
  * 
  * Creating a table with no caption still creates the caption node.
- * The main problem is that the caption node is styled with 1em padding.
+ * The main problem is that the caption node is styled with 1em padding, which
+ * causes unwanted whitespace.
  * 
- * In this fix we prevent the node from being created. The CSS should be altered
- * to remove the padding and apply it to an inner element only.
+ * In this fix we prevent the node from being created. Another option would be 
+ * to remove the padding from the caption, and use a liner element with its own
+ * padding to display the caption.
  *
  * @module gallery-user-patch-2529968
- * @requires DataTable.Base
+ * @requires datatable
  */
 
+// tableNode parameter isn't used because we dont use the createCaption() function on the tableNode
 Y.DataTable.Base.prototype._addCaptionNode = function(tableNode) {
     var caption = this.get('caption');
     
     if (caption) {
-        //this._captionNode = tableNode.createCaption();
-        // Changed to Y.Node.create because the DataTableScroll plugin will reference the property, causing an error if it isn't a node.
+        // Changed to Y.Node.create because the DataTableScroll plugin will reference the property, causing an error if it isn't a node instance.
         this._captionNode = Y.Node.create('<caption></caption>');
+        tableNode.append(this._captionNode);
         return this._captionNode;
     } else {
+        // The property still needs to exist regardless
+        //this._captionNode = Y.Node.create('<caption></caption>');
         this._captionNode = Y.Node.create('<caption></caption>');
         return this._captionNode;
     }
@@ -147,35 +152,43 @@ Y.DataTable.Base.prototype._addCaptionNode = function(tableNode) {
 // Caption can still be set or synced after the constructor, so we need to patch the uiSet method also.
 Y.DataTable.Base.prototype._uiSetCaption = function(val) {
     val = Y.Lang.isValue(val) ? val : "";
-    if (val == "") {
+    
+    if (val.length == 0) {
+        Y.log("Removing caption", "info", "gallery-user-patch-2529968");
+        
         if (Y.Lang.isValue(this._captionNode)) {
             this._captionNode.remove();
         }
     } else {
         if (!Y.Lang.isValue(this._captionNode)) {
-            this._captionNode = this._tableNode.createCaption();
+            this._captionNode = Y.Node.create('<caption></caption>');
+            this._tableNode.append(this._captionNode);
         }
         
+        Y.log("Setting caption title", "info", "gallery-user-patch-2529968");
         this._captionNode.setContent(val);
     }
 };
 /**
  * This patch addresses YUI ticket #2529975
+ * http://yuilibrary.com/projects/yui3/ticket/2529975
  * 
  * The DataTableDataSource plugin creates a new RecordSet instance whenever a
  * response is returned from the server, causing all plugins to be lost (Including
- * the RecordSet.Sort plugin).
+ * the RecordSet.Sort plugin, which will cause sort to stop working after the second result).
  * 
  * This patch clones the RecordSet object to preserve the plugin configuration of
  * the original RecordSet instance.
  *
  * @module gallery-user-patch-2529975
- * @requires DataTable.Base, Y.Plugin.DataTableDataSource
+ * @requires datatable, datatable-datasource
  */
 
 Y.Plugin.DataTableDataSource.prototype.onDataReturnInitializeTable = function(e) {
         // Clone retains original plugin functionality. must be a separate instance
         // In order to trigger the host's recordsetChange event.
+        // TODO: fire attr change without cloning recordset
+        
         var prevRecordSet = this.get('host').get('recordset'),
             newRecordSet = Y.Object(prevRecordSet); 
             
@@ -184,15 +197,15 @@ Y.Plugin.DataTableDataSource.prototype.onDataReturnInitializeTable = function(e)
 };
 /**
  * This patch addresses YUI ticket #2530026
+ * http://yuilibrary.com/projects/yui3/ticket/2530026
  * 
  * The tr node inside the thead section of datatable has a bogus id. The id attribute is
  * not supplied to the template upon creation, and so the TR receives an id of
  * "{id}".
  *
  * @module gallery-user-patch-2530026
- * @requires DataTable.Base
+ * @requires datatable
  */
-
 var YgetClassName = Y.ClassNameManager.getClassName,
     
     DATATABLE = "datatable",
@@ -201,7 +214,6 @@ var YgetClassName = Y.ClassNameManager.getClassName,
     CLASS_LAST = YgetClassName(DATATABLE, "last");
 
 Y.DataTable.Base.prototype._createTheadTrNode = function(o, isFirst, isLast) {
-    //TODO: custom classnames
 
     // FIX: generate a guid for the TR element
     o.id = Y.guid();

@@ -5,83 +5,85 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
         charset="utf-8"></script>
+        <style type="text/css" media="screen">
+            body { font: 14px Gotham, "Helvetica Neue", sans-serif; }
+        </style>
     </head>
     <body class="yui3-skin-sam">
-        <h2>Test defect ticket #2529808</h2>
-        <p>Combining DataTableScroll with DataSource causes the DataTable to error. DataTableScroll attempts to call _syncWidths before any data
-        has been supplied. It tries to access the firstchild of the datatable row area and fails.</p>
-        <p><input type="button" value="Run Tests" id="btnRun" disabled="true"></p>
+        <h2>#2529808 defect test</h2>
+        <p>Combining DataTableScroll with DataSource causes the DataTable to error.</p>
+        <p>DataTableScroll attempts to call _syncWidths before any data has been supplied. 
+           It tries to access the first child node of the datatable rows to set the width and fails, because no rows exist yet.</p>
+        <p>
+            <input type="button" value="Run Tests (Patched)" id="btnRun" onClick="testFn('gallery-user-patch-2529808')();">
+            <input type="button" value="Run Tests (Unpatched)" id="btnRun" onClick="testFn(null)();">
+        </p>
+        <div id="testsubject"></div>
         <script type="text/javascript">
-        (function() {
-            YUI({
-                filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
-                combine: false,
-                allowRollup: false,
-                   modules : {
-                    'gallery-user-patch-2529808' : {
-                       'fullpath' : '../../../build/gallery-user-patch-2529808/gallery-user-patch-2529808-debug.js',
-                       'requires' : ['datatable']
+        var testFn = function(patchname) {    
+
+            return function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    combine: false,
+                    allowRollup: false,
+                       modules : {
+                        'gallery-user-patch-2529808' : {
+                           'fullpath' : '../../../build/gallery-user-patch-2529808/gallery-user-patch-2529808-debug.js',
+                           'requires' : ['datatable']
+                        }
                     }
-                }
-            }).use("console", "test", "dump", "datatable", "gallery-user-patch-2529808", function(Y) {
+                }).use("console", "test", "dump", "datatable", patchname, function(Y) {
+                    var myConsole = new Y.Console().render(),
+                        testBasic = new Y.Test.Case({ 
+                            name: "Patch Ticket 2529808 Test",
 
-                var BTNRUN = Y.one("#btnRun");
-                BTNRUN.set("disabled", false);
-                Y.on("click", function(e){
-                    Y.Test.Runner.run();
-                }, BTNRUN);
-                var myConsole = new Y.Console().render();
+                            setUp: function() {
+                                this.mockresponse = {
+                                    response: {
+                                        results: [
+                                            { "id" : "1", "name" : "Joe" },
+                                            { "id" : "2", "name" : "Mark" },
+                                            { "id" : "3", "name" : "Andrew" }
+                                        ]
+                                    }
+                                };
 
+                                this.testDataSource = new Y.DataSource.Local({ source: this.mockresponse.response.results });
 
-                var testBasic = new Y.Test.Case({ 
-                    name: "Patch Ticket 2529808 Test",
-                    
-                    setUp: function() {
-                        this.mockresponse = {
-                            response: {
-                                results: [
-                                    { "id" : "1", "name" : "Joe" },
-                                    { "id" : "2", "name" : "Mark" },
-                                    { "id" : "3", "name" : "Andrew" }
-                                ]
+                                this.testDataTable = new Y.DataTable.Base({
+                                    columnset : ["id", "name"],
+                                    summary : "User patched DataTable Instance",
+                                    plugins : [
+                                        { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } },
+                                        { fn: Y.Plugin.DataTableScroll, cfg: { width: '500px', height: '200px' } }
+                                    ]
+                                });
+                            },
+
+                            tearDown: function() {
+                                this.testDataTable.destroy();
+
+                                delete this.testDataTable;
+                                delete this.testDataSource;
+                                delete this.mockresponse;
+                            },
+
+                            "test scroll+datasource does not cause an error after render" : function() {
+                                this.testDataTable.render('#testsubject');
+                                this.testDataTable.datasource.load();
                             }
-                        };
-                        
-                        this.testDataSource = new Y.DataSource.Local({ source: this.mockresponse.response.results });
+                        }),
+                        suite = new Y.Test.Suite({name:"Patch Ticket 2529808 Test Suite"});
 
-                        this.testDataTable = new Y.DataTable.Base({
-                            columnset : ["id", "name"],
-                            summary : "User patched DataTable Instance",
-                            plugins : [
-                                { fn: Y.Plugin.DataTableDataSource, cfg: { datasource: this.testDataSource } },
-                                { fn: Y.Plugin.DataTableScroll, cfg: { width: '500px', height: '200px' } }
-                            ]
-                        });
+                    suite.add(testBasic);
 
-                        //this.testDataTable.render();
-
-
-                    },
-                    
-                    tearDown: function() {
-                        //this.testDataTable.destroy();
-                        delete this.testDataTable;
-                    },
-                    
-                    "test scroll+datasource does not cause an error after render" : function() {
-                        this.testDataTable.render();
-                        this.testDataTable.datasource.load();
-                    }
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
                 });
-
-                var suite = new Y.Test.Suite({name:"Patch Ticket 2529808 Test Suite"});
-                suite.add(testBasic);
-
-                Y.Test.Runner.setName("Test Runner");
-                Y.Test.Runner.add(suite);
-                Y.Test.Runner.run();
-            });
-        })();
+            };
+        };
         </script>
     </body>
 </html>

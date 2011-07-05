@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Y.DP.DatatableEnhancedEditablePlugin Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    modules : {
+                        'gallery-dp-datatable-enhanced' : {
+                            'fullpath' : '../../../build/gallery-dp-datatable-enhanced/gallery-dp-datatable-enhanced-debug.js',
+                            'requires' : ['datatable']
+                        },
+                        'gallery-dp-datatable-enhanced-editable' : {
+                            'fullpath' : '../../../build/gallery-dp-datatable-enhanced-plugin-editable/gallery-dp-datatable-enhanced-plugin-editable-debug.js',
+                            'requires' : ['gallery-dp-datatable-enhanced']
+                        }
+                    }
+                }).use(
+                    "console"
+                    ,"test"
+                    ,"dump"
+                    ,"gallery-dp-datatable-enhanced"
+                    ,"gallery-dp-datatable-enhanced-editable"
+                    ,function(Y) {
+                    
+                
+                    var myConsole = new Y.Console().render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "editable Test Case",
+                    
+                        setUp: function() {
+                        
+                            this.mockresponse = {
+                                response: {
+                                    results: [
+                                        { "id" : "1", "name" : "Joe" },
+                                        { "id" : "2", "name" : "Bob" },
+                                        { "id" : "3", "name" : "Andrew" }
+                                    ]
+                                }
+                            };
+
+                            this.testDte = new Y.DP.DataTableEnhanced({
+                                /* caption: "test", */
+                                columnset : [ 
+                                    { key:"id", sortable: true },
+                                    { key:"name", sortable: true }
+                                ],
+                                summary : "User patched DataTable Instance",
+                                recordset : this.mockresponse.response.results,
+                                plugins : [
+                                    { fn: Y.DP.DatatableEnhancedEditable, cfg: {} }
+                                ]
+                            });
+
+                            this.testDte.render();
+                        },
+                    
+                        tearDown: function() {
+                            
+                        },
+                    
+                        "test something": function() {
+                        
+                        }
+                    });
+
+                    var suite = new Y.Test.Suite({name:"editable Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>

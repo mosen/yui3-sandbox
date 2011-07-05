@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!-- YUI 3 Component Build File -->
-
 <project name="gallery-user-patch-2530294" default="local">
     <description>gallery-user-patch-2530294</description>
     <property file="build.properties" />
