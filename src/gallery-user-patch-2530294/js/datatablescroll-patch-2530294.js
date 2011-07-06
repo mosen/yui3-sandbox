@@ -41,7 +41,7 @@ Y.Plugin.DataTableScroll.prototype.orig_syncWidths = function() {
         // this with groups - eamonb
         for (i=0, len = th.size(); i<len; i++) { 
 
-            //Get the liners for the TH and the TD cell in question
+            // Get the liners for the TH and the TD cell in question
             thLiner = th.item(i).get('firstChild');
             tdLiner = td.item(i).get('firstChild');
             
@@ -51,22 +51,24 @@ Y.Plugin.DataTableScroll.prototype.orig_syncWidths = function() {
             thLinerPadding = px(thLiner.getComputedStyle('paddingLeft')) + px(thLiner.getComputedStyle('paddingRight'));
             tdLinerPadding = px(tdLiner.getComputedStyle('paddingLeft')) + px(tdLiner.getComputedStyle('paddingRight'));
             
-            Y.log("sync thLiner: "+(thWidth+thLinerPadding)+" to tdWidth:"+tdWidth, "info", "gallery-user-patch-2530294");
+            Y.log("sync thLiner padded: " + (thWidth+thLinerPadding) + "px to tdWidth: " + tdWidth + "px", "debug", "gallery-user-patch-2530294");
 
-            //if TH is bigger than TD, enlarge TD Liner
+            // if TH liner (with padding) is bigger than TD, enlarge TD Liner
             if ((thWidth + thLinerPadding) > tdWidth) {
                 var linerwidth = (thWidth + 'px');
-                Y.log("Setting TD liner width:" + linerwidth, "info", "gallery-user-patch-2530294");
+                Y.log("Setting TD liner width:" + linerwidth, "debug", "gallery-user-patch-2530294");
                 tdLiner.setStyle('width', linerwidth);
             }
 
-            //if TD is bigger than TH, enlarge TH Liner
+            // if TD cell is bigger than TH liner (without padding), enlarge TH Liner
+            // Padding not compared here because if td was larger than th liner with padding it
+            // would set width on th liner that would compromise the padding, causing sort arrows
+            // to show up inside the sort label
             else if (tdWidth > thWidth) {
-                Y.log("thLiner original width:" + thWidth, "info", "gallery-user-patch-2530294");
+                Y.log("thLiner original width:" + thWidth, "debug", "gallery-user-patch-2530294");
                 var linerwidth = (tdWidth - tdLinerPadding + 'px');
-                Y.log("thLiner new width:" + linerwidth, "info", "gallery-user-patch-2530294");
-                
-                
+                Y.log("thLiner new width:" + linerwidth, "debug", "gallery-user-patch-2530294");
+
                 thLiner.setStyle('width', linerwidth);
                 
                 if (Y.UA.ie) {
@@ -82,7 +84,7 @@ Y.Plugin.DataTableScroll.prototype.orig_syncWidths = function() {
         }
 };
 
-// override init again again
+// Override init again to sync TD's after sort happens
 Y.Plugin.DataTableScroll.prototype.initializer_for_gup2530294 = Y.Plugin.DataTableScroll.prototype.initializer;
 Y.Plugin.DataTableScroll.prototype.initializer = function(config) {
     this.initializer_for_gup2530294();
