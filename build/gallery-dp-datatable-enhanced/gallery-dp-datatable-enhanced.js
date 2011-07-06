@@ -1,11 +1,10 @@
 YUI.add('gallery-dp-datatable-enhanced', function(Y) {
 
 /**
- * 
  * TODO: specifying all column widths should result in table-layout: fixed
- * NOTE: DataTable in YUI2 sets column widths by applying the width property to the liner,
- * so that table layout: auto will not resize that column depending on content. seems like a better way.
- * jquery datatable applies width to TH, but not to TD elements (we can't do that because of DataTableScroll's dual layout)
+ * 
+ * NOTE: width is applied to the liner element child of TD. This is because in table-layout: auto mode
+ * the content can still adjust the TD width even with a specific value.
  *
  * @module gallery-dp-datatable-enhanced
  * @requires datatable
@@ -31,8 +30,16 @@ var Lang = Y.Lang,
  * The features implemented here are to override behaviour found in DataTable.Base.
  * That is, an extension was necessary to implement the feature. All other enhancement
  * features will be released as plugins.
- *
- * @class DP.DataTableEnhanced
+ * 
+ * New features found in DTE, some which existed in YUI2:
+ * 
+ * - sortFn attribute on the column allows you to define your own sorting method for the column data.
+ * - align attribute on the column allows you to quickly set text alignment within the cell liner.
+ * - width attribute on the column will correctly set width now.
+ * 
+ * 
+ * @namespace Y.DP
+ * @class DataTableEnhanced
  * @extends DataTable.Base
  */
 Y.namespace('DP').DataTableEnhanced = Y.Base.create( 'gallery-dp-datatable-enhanced', Y.DataTable.Base, [], {
@@ -125,8 +132,9 @@ Y.namespace('DP').DataTableEnhanced = Y.Base.create( 'gallery-dp-datatable-enhan
    /**
     * Creates and attaches COLGROUP element to given TABLE.
     * 
-    * Enhanced to provide column attributes that were defined in the host configuration. namely:
-    * column width and minimum width
+    * Note that col elements can sometimes be used to specify width, but the type of
+    * attributes understood varies greatly between browsers, making this not an
+    * ideal choice.
     *
     * @method _addColgroupNode
     * @param tableNode {Y.Node} Parent node.
@@ -144,12 +152,7 @@ Y.namespace('DP').DataTableEnhanced = Y.Base.create( 'gallery-dp-datatable-enhan
         //for(; i<len; ++i) {
         for (; i < columnSet.keys.length; i++) {
             column = columnSet.keys[i];
-            
-            // TODO: FF supports width and nothing else, making colgroup a really bad mechanism for column manipulation
-            /*
-            var colNode = Y.Node.create(Y.substitute('<col width="{columnWidth}"></col>', {
-                columnWidth : column.get('width') || ''
-            }));*/
+
             // Set column desired width using liner node as per YUI2
             var colNode = Y.Node.create('<col></col>');
             

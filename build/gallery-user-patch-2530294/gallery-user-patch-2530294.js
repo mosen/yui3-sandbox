@@ -34,7 +34,7 @@ Y.Plugin.DataTableScroll.prototype.orig_syncWidths = function() {
         td = tbodyData.get('firstChild').get('children'), //nodelist of all TDs in 1st row
         i,
         len,
-        thWidth, tdWidth, thLiner, tdLiner, thLinerPadding, tdLinerPadding, tdColumnMembers,
+        thWidth, tdWidth, thLiner, tdLiner, thLinerPadding, tdLinerPadding, tdColumnMembers, newLinerWidth,
         px = function(v) {return parseFloat(v.split('px')[0]);}; // Easy string pixel count to float conversion
         
         
@@ -55,8 +55,8 @@ Y.Plugin.DataTableScroll.prototype.orig_syncWidths = function() {
 
             // if TH liner (with padding) is bigger than TD, enlarge TD Liner
             if ((thWidth + thLinerPadding) > tdWidth) {
-                var linerwidth = (thWidth + 'px');
-                tdLiner.setStyle('width', linerwidth);
+                newLinerWidth = (thWidth + 'px');
+                tdLiner.setStyle('width', newLinerWidth);
             }
 
             // if TD cell is bigger than TH liner (without padding), enlarge TH Liner
@@ -64,9 +64,9 @@ Y.Plugin.DataTableScroll.prototype.orig_syncWidths = function() {
             // would set width on th liner that would compromise the padding, causing sort arrows
             // to show up inside the sort label
             else if (tdWidth > thWidth) {
-                var linerwidth = (tdWidth - tdLinerPadding + 'px');
+                newLinerWidth = (tdWidth - tdLinerPadding + 'px');
 
-                thLiner.setStyle('width', linerwidth);
+                thLiner.setStyle('width', newLinerWidth);
                 
                 if (Y.UA.ie) {
                     // IE8 expects explicit widths on every liner.
@@ -87,7 +87,7 @@ Y.Plugin.DataTableScroll.prototype.initializer = function(config) {
     this.initializer_for_gup2530294();
 
     this.get('host').after('recordsetSort:sort', Y.bind(this._syncWidths, this));
-}
+};
 
 
 }, '@VERSION@' ,{requires:['datatable', 'datatable-scroll'], skinnable:true});

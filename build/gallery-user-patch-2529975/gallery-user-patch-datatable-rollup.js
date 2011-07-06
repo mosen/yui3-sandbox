@@ -28,4 +28,4 @@ Y.Plugin.DataTableDataSource.prototype.onDataReturnInitializeTable = function(e)
 };
 
 
-}, '@VERSION@' ,{skinnable:false, requires:['datatable', 'datasource']});
+}, '@VERSION@' ,{requires:['datatable', 'datasource'], skinnable:false});
