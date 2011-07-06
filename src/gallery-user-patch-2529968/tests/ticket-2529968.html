@@ -56,27 +56,41 @@
                                     recordset : this.mockresponse.response.results
                                 });
 
-                                this.testDataTable.render('#testsubject');
+                                //this.testDataTable.render('#testsubject');
                             },
 
                             tearDown: function() {
-                                this.testDataTable.destroy();
+                               // this.testDataTable.destroy();
 
-                                delete this.testDataTable;
+                               // delete this.testDataTable;
+                            },
+                            
+                            "test caption supplied in constructor creates node" : function() {
+                                this.testDataTable.set('caption', 'test caption supplied in constructor');
+                                
+                                this.testDataTable.render('#testsubject');
+                                var captionNode = this.testDataTable.get('contentBox').one('caption');
+                                Y.Assert.isNotNull(captionNode);
                             },
 
                             "test no caption does not create caption node" : function() {
-                                var captionNode = Y.one('caption');
+                                this.testDataTable.render('#testsubject');
+                                
+                                var captionNode = this.testDataTable.get('contentBox').one('caption');
                                 Y.Assert.isNull(captionNode);
                             },
 
                             "test setting caption after construction creates node" : function() {
+                                this.testDataTable.render('#testsubject');
+                                
                                 this.testDataTable.set('caption', 'test setting caption after construction creates node');
-                                var captionNode = Y.one('caption');
+                                var captionNode = this.testDataTable.get('contentBox').one('caption');
                                 Y.Assert.isNotNull(captionNode);
                             },
 
                             "test setting caption then unsetting deletes node" : function() {
+                                this.testDataTable.render('#testsubject');
+                                
                                 this.testDataTable.set('caption', 'test setting caption then unsetting deletes node');
                                 Y.Assert.isNotNull(Y.one('caption'), 'test caption was created');
                                 

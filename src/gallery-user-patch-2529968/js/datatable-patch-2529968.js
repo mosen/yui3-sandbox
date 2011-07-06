@@ -16,38 +16,26 @@
 
 // tableNode parameter isn't used because we dont use the createCaption() function on the tableNode
 Y.DataTable.Base.prototype._addCaptionNode = function(tableNode) {
-    var caption = this.get('caption');
+    // Changed to Y.Node.create because the DataTableScroll plugin will reference the property, causing an error if it isn't a node instance.
+    this._captionNode = Y.Node.create('<caption></caption>');
     
-    if (caption) {
-        // Changed to Y.Node.create because the DataTableScroll plugin will reference the property, causing an error if it isn't a node instance.
-        this._captionNode = Y.Node.create('<caption></caption>');
-        tableNode.append(this._captionNode);
-        return this._captionNode;
-    } else {
-        // The property still needs to exist regardless
-        //this._captionNode = Y.Node.create('<caption></caption>');
-        this._captionNode = Y.Node.create('<caption></caption>');
-        return this._captionNode;
-    }
+    // Node isn't appended to DOM until we syncUI with the caption attribute
+    return this._captionNode;
 };
 
 // Caption can still be set or synced after the constructor, so we need to patch the uiSet method also.
 Y.DataTable.Base.prototype._uiSetCaption = function(val) {
-    val = Y.Lang.isValue(val) ? val : "";
     
-    if (val.length == 0) {
-        Y.log("Removing caption", "info", "gallery-user-patch-2529968");
+    if (!Y.Lang.isValue(val)) {
+        Y.log("Removing caption", "debug", "gallery-user-patch-2529968");
         
-        if (Y.Lang.isValue(this._captionNode)) {
-            this._captionNode.remove();
-        }
+        this._captionNode.remove();
     } else {
-        if (!Y.Lang.isValue(this._captionNode)) {
-            this._captionNode = Y.Node.create('<caption></caption>');
-            this._tableNode.append(this._captionNode);
-        }
         
-        Y.log("Setting caption title", "info", "gallery-user-patch-2529968");
+        Y.log("Setting caption title to: " + val , "debug", "gallery-user-patch-2529968");
         this._captionNode.setContent(val);
+        
+        Y.log("Adding caption node", "debug", "gallery-user-patch-2529968");
+        this._tableNode.append(this._captionNode);
     }
 };
