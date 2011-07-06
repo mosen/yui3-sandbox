@@ -10,21 +10,21 @@
         -->
         <style type="text/css" media="screen">
             body { font: 14px Gotham, "Helvetica Neue", sans-serif; }
-            
-/*            .yui3-skin-sam td .yui3-datatable-liner {
-                padding-right: 20px;
-            }*/
         </style>
+        
+
+<!--        <script type="text/javascript" src="../../../build/gallery-user-patch-2530294/gallery-user-patch-2530294-debug.js"></script>-->
     </head>
     <body class="yui3-skin-sam">
         <h2>#2530294 defect test suite</h2>
         <p>Combining DataTableScroll with DataTableSort causes a column size mismatch. This problem only presents itself when earlier
         errors are patched around, so those patches are also included.</p>
-        <p>Sometimes the problem will only be exposed when the column label is shorter
-        than the data, so columns here are labelled with single characters.</p>
+        <p>DataTableSort applies a padding of (4 20 4 10) on columns, but because DataTableScroll creates 2 tables, this only applies to the first,
+        causing the mismatch in size</p>
         <p>This fix requires the CSS file to make sure that all columns have equal padding upon instantiation</p>
+        <p>Furthermore: DataTableScroll's syncWidths does not incorporate the padding size into the width calculation when syncing the widths</p>
         <p>
-            <input type="button" value="Run Tests (Patched)" id="btnRun" onClick="testFn('gallery-user-patch-2530026')();">
+            <input type="button" value="Run Tests (Patched)" id="btnRun" onClick="testFn('gallery-user-patch-2530294')();">
             <input type="button" value="Run Tests (Unpatched)" id="btnRun" onClick="testFn(null)();">
         </p>
         <div id="testsubject"></div>
@@ -59,8 +59,9 @@
                                     path: '/gallery-user-patch-2530026/gallery-user-patch-2530026-debug.js'
                                 },
                                 'gallery-user-patch-2530294' : {
-                                    path: '/gallery-user-patch-2530294/gallery-user-patch-2530294-debug.js',
-                                    skinnable: true // TODO: builder makes module-skin.css but loader expects module.css ???
+                                    path: '/gallery-user-patch-2530294/gallery-user-patch-2530294-debug.js'
+                                    ,skinnable: true
+                                    ,requires: ['gallery-user-patch-2529808'] // enforce loading order to make sure we override the other patch
                                 }
                             }
                         }
@@ -74,6 +75,7 @@
                     , "gallery-user-patch-2530026"
                     , patchname
                     , function(Y) {
+                    
 
                     var myConsole = new Y.Console().render(),
                         testBasic = new Y.Test.Case({ 
@@ -117,11 +119,25 @@
                                 this.testDataTable.render('#testsubject');
                                 this.testDataTable.datasource.load();
 
+                                /*
                                 var dt = this.testDataTable;
 
                                 this.testDataTable.sort.after('lastSortedByChange', function(e) {
                                     dt.scroll._syncWidths();
-                                }, this);
+                                }, this);*/
+                                var header_row = Y.one('.yui3-datatable-hd').one('.yui3-datatable-columns').one('tr');
+                                var data_row = Y.one('.yui3-datatable-bd').one('.yui3-datatable-data').one('tr');
+        
+                                var first_header = header_row.get('firstChild');
+                                var first_cell = data_row.get('firstChild');
+                                
+                                Y.Assert.areEqual(first_header.get('offsetWidth'), first_cell.get('offsetWidth'), "First header should be same width as first cell");
+                                
+                                // Sometimes the second column will be out, so test that too
+                                var second_header = header_row.get('children').item(1);
+                                var second_cell = data_row.get('children').item(1);
+                                
+                                Y.Assert.areEqual(second_header.get('offsetWidth'), second_cell.get('offsetWidth'), "Second header should be same width as second cell");
                             }
                         });
 

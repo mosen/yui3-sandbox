@@ -35,6 +35,7 @@ if (!DTScroll.prototype.orig_syncWidths) {
             return;
         }
 
+        Y.log('Calling unpatched syncWidths', 'info', 'gallery-user-patch-2529808');
         this.orig_syncWidths();
     };
 }

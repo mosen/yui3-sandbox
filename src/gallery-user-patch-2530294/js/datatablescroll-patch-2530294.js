@@ -1,26 +1,41 @@
+/**
+ * This patch addresses YUI ticket #2530294
+ * http://yuilibrary.com/projects/yui3/ticket/2530294
+ * 
+ * Combining DataTableSort and DataTableScroll can cause a column width mismatch
+ * because sort adds padding to one part of the scroll table only. (the header table)
+ * This is fixed by adding a CSS rule to match the data section with the header section padding rule
+ * of 4 20 4 10px.
+ * 
+ * _syncWidths also needs to be patched because it does not take into account padding when computing
+ * the difference between column widths.
+ * 
+ * Additionally, sorting records causes the DataTable to re-render the body section, causing specific
+ * td adjustments to be lost (and automatic layout takes over), 
+ * so we need to re-run _syncWidths after those items have been rendered.
+ *
+ * @module gallery-user-patch-2530294
+ * @requires datatable, datatable-scroll
+ */
+
 var YNode = Y.Node,
-    YLang = Y.Lang,
     YgetClassName = Y.ClassNameManager.getClassName,
     DATATABLE = "datatable",
     CLASS_HEADER = YgetClassName(DATATABLE, "hd"),
     CLASS_BODY = YgetClassName(DATATABLE, "bd"),
-    CLASS_DATA = YgetClassName(DATATABLE, "data"),
-    CLASS_SCROLLABLE = YgetClassName(DATATABLE, "scrollable"),
-    CONTAINER_HEADER = '<div class="'+CLASS_HEADER+'"></div>',
-    CONTAINER_BODY = '<div class="'+CLASS_BODY+'"></div>',
-    TEMPLATE_TABLE = '<table></table>';
+    CLASS_DATA = YgetClassName(DATATABLE, "data");
 
 // TODO create syncwidths which resolves the issue with extra padding being added after Scroll is plugged in
-Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
+Y.Plugin.DataTableScroll.prototype.orig_syncWidths = function() {
     var th = YNode.all('#'+this._parentContainer.get('id')+ ' .' + CLASS_HEADER + ' table thead th'), //nodelist of all THs
         tbodyData = YNode.one('#'+this._parentContainer.get('id')+ ' .' + CLASS_BODY + ' table .' + CLASS_DATA),
         td = tbodyData.get('firstChild').get('children'), //nodelist of all TDs in 1st row
         i,
         len,
-        thWidth, tdWidth, thLiner, tdLiner, thLinerPadding, tdLinerPadding, tdColumnMembers;
+        thWidth, tdWidth, thLiner, tdLiner, thLinerPadding, tdLinerPadding, tdColumnMembers,
+        px = function(v) {return parseFloat(v.split('px')[0]);}; // Easy string pixel count to float conversion
         
-        // Easy string pixel count to floating point conversion
-        var px = function(v) { return parseFloat(v.split('px')[0]); };
+        Y.log('Running syncWidths with getComputedStyle', 'info', 'gallery-user-patch-2530294');
         
         // TODO this loop assumes that headers and content have a 1:1 relationship. DTv2 allowed column groups to span multiple child columns, check
         // this with groups - eamonb
@@ -35,15 +50,24 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
 
             thLinerPadding = px(thLiner.getComputedStyle('paddingLeft')) + px(thLiner.getComputedStyle('paddingRight'));
             tdLinerPadding = px(tdLiner.getComputedStyle('paddingLeft')) + px(tdLiner.getComputedStyle('paddingRight'));
+            
+            Y.log("sync thLiner: "+(thWidth+thLinerPadding)+" to tdWidth:"+tdWidth, "info", "gallery-user-patch-2530294");
 
             //if TH is bigger than TD, enlarge TD Liner
-            if (thWidth > tdWidth) {
-                tdLiner.setStyle('width', (thWidth - thLinerPadding + 'px'));
+            if ((thWidth + thLinerPadding) > tdWidth) {
+                var linerwidth = (thWidth + 'px');
+                Y.log("Setting TD liner width:" + linerwidth, "info", "gallery-user-patch-2530294");
+                tdLiner.setStyle('width', linerwidth);
             }
 
             //if TD is bigger than TH, enlarge TH Liner
             else if (tdWidth > thWidth) {
-                thLiner.setStyle('width', (tdWidth - tdLinerPadding + 'px'));
+                Y.log("thLiner original width:" + thWidth, "info", "gallery-user-patch-2530294");
+                var linerwidth = (tdWidth - tdLinerPadding + 'px');
+                Y.log("thLiner new width:" + linerwidth, "info", "gallery-user-patch-2530294");
+                
+                
+                thLiner.setStyle('width', linerwidth);
                 
                 if (Y.UA.ie) {
                     // IE8 expects explicit widths on every liner.
@@ -56,4 +80,12 @@ Y.Plugin.DataTableScroll.prototype.injected_syncWidths = function() {
                 }
             }
         }
-    };
+};
+
+// override init again again
+Y.Plugin.DataTableScroll.prototype.initializer_for_gup2530294 = Y.Plugin.DataTableScroll.prototype.initializer;
+Y.Plugin.DataTableScroll.prototype.initializer = function(config) {
+    this.initializer_for_gup2530294();
+
+    this.get('host').after('recordsetSort:sort', Y.bind(this._syncWidths, this));
+}
