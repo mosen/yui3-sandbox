@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Y.Plugin.DataTableEvents Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    //useBrowserConsole: true,
+                    allowRollup: false,
+                    modules : {
+                        'gallery-datatable-tableevents' : {
+                            'fullpath' : '../../../build/gallery-datatable-tableevents/gallery-datatable-tableevents-debug.js',
+                            'requires' : ['datatable']
+                        }
+                    }
+                }).use(
+                    "console"
+                    ,"test"
+                    ,"dump"
+                    ,"gallery-datatable-tableevents"
+                    ,"node-event-simulate"
+                    ,function(Y) {
+                    
+                
+                    var myConsole = new Y.Console().render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "editable Test Case",
+                    
+                        setUp: function() {
+                        
+                            this.mockresponse = {
+                                response: {
+                                    results: [
+                                        { "id" : "1", "name" : "Joe" },
+                                        { "id" : "2", "name" : "Bob" },
+                                        { "id" : "3", "name" : "Andrew" }
+                                    ]
+                                }
+                            };
+
+                            this.testDte = new Y.DataTable.Base({
+                                columnset : [ 
+                                    { key:"id", sortable: true },
+                                    { key:"name", sortable: true }
+                                ],
+                                summary : "User patched DataTable Instance",
+                                recordset : this.mockresponse.response.results
+//                                plugins : [
+//                                    { fn: Y.Plugin.DataTableEvents, cfg: {} }
+//                                ]
+                            });
+
+                            this.testDte.render();
+                        },
+                    
+                        tearDown: function() {
+//                            this.testDte.destroy();
+//                            delete this.testDte;
+                        },
+                        
+                        "test construction" : function() {
+                            
+                        }
+                    
+//                        "test cell click fires on td click": function() {
+//                            var test = this,
+//                                evtFired = false;
+//
+//                            this.testDte.events.on('cellClick', function(e) {
+//                                evtFired = true;
+//                            });
+//                         
+//                            this.testDte.get('contentBox').one('td').simulate('click');
+//                            
+//                            Y.Assert.isTrue(evtFired);
+//                        },
+//                        
+//                        // Make sure that setting events to the exact same values does not cause a change.
+//                        "test setting new events with the same values does not cause eventsChange": function() {
+//                            var defaultEvents = ['keydown', 'keyup', 'mousedown', 'mouseup', 'click'],
+//                                currentEvents = this.testDte.events.get('events');
+//                            
+//                            Y.ArrayAssert.itemsAreEqual(defaultEvents, currentEvents, "Check test data is the same as object data"); 
+//                            
+//                            this.eventsChanged = false;
+//                            
+//                            this.testDte.events.after('eventsChange', function(e) {
+//                                Y.fail('eventsChange did fire when setting the same events');
+//                            }, this);
+//                            
+//                            this.testDte.events.set('events', defaultEvents);
+//                            
+//                            this.wait(function() {  
+//                                Y.Assert.isTrue(true, 'eventsChange event was not fired');
+//                            }, 200);
+//                        },
+//                        
+//                        "test setting new events with different values causes eventsChange" : function() {
+//                            var newEvents = ['click', 'keyup', 'mousedown', 'mouseover'],
+//                                evtFired = false;
+//                            
+//                            this.testDte.events.after('eventsChange', function(e) {
+//                                evtFired = true;
+//                            }, this);
+//                            
+//                            this.testDte.events.set('events', newEvents);
+//                            
+//                            Y.Assert.isTrue(evtFired, "test eventsChange event did fire after events change")
+//                        }
+                    });
+
+                    var suite = new Y.Test.Suite({name:"DataTableEvents Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>

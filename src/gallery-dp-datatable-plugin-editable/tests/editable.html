@@ -61,6 +61,7 @@
                                 summary : "User patched DataTable Instance",
                                 recordset : this.mockresponse.response.results,
                                 plugins : [
+                                    { fn: Y.DP.DatatableUpdates, cfg: {} },
                                     { fn: Y.DP.DatatableEditor, cfg: {} },
                                     { fn: Y.Plugin.DataTableEvents, cfg: {} }
                                 ]
@@ -70,48 +71,87 @@
                         },
                     
                         tearDown: function() {
-                            
+                            this.testDte.destroy();
+                            delete this.testDte;
                         },
                     
                         "test call add with null creates row": function() {
+                            var numOfTrElements;
+                            
+                            this.testDte.set('caption', "test call add with null creates row");
                             this.testDte.editor.add(null);
+                            numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
+                            Y.Assert.areEqual(4, numOfTrElements);
                         },
  
                         "test call add with undefined creates row": function() {
+                            var numOfTrElements;
+                            
+                            this.testDte.set('caption', "test call add with undefined creates row");
                             this.testDte.editor.add();
+                            numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
+                            Y.Assert.areEqual(4, numOfTrElements);
                         },
  
                         "test call add with object data creates row": function() {
+                            var numOfTrElements;
+                            
+                            this.testDte.set('caption', "test call add with object data creates row");
                             this.testDte.editor.add({ "id" : "4", "name" : "Shaun" });
+                            numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
+                            Y.Assert.areEqual(4, numOfTrElements);
                         },
                         
                         "test call add with array data creates row" : function() {
+                            var numOfTrElements;
+                            
+                            this.testDte.set('caption', "test call add with array data creates row");
                             this.testDte.editor.add([{ "id" : "4", "name" : "Shaun" }]);
+                            numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
+                            Y.Assert.areEqual(4, numOfTrElements);
                         },
                         
                         "test call add with record creates row" : function() {
+                            var numOfTrElements;
+                            
+                            this.testDte.set('caption', "test call add with record creates row");                            
                             this.testDte.editor.add(new Y.Record({ data: { "id" : "4", "name" : "Shaun" } }));
+                            numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
+                            Y.Assert.areEqual(4, numOfTrElements);   
                         },
                         
                         "test call remove with index deletes row" : function() {
+                            var recordToRemove = this.testDte.get('recordset').getRecord(0),
+                                recordId = recordToRemove.get('id');
+                            
                             this.testDte.editor.remove(0);
+                            Y.Assert.isNull(this.testDte.get('contentBox').one('.yui3-datatable-data').one('tr#' + recordId), 'test TR element no longer exists');
                         },
                         
                         "test call remove with tr element deletes row" : function() {
-                            var tr = this.testDte.get('contentBox').one('tr');
+                            var tr = this.testDte.get('contentBox').one('.yui3-datatable-data tr'),
+                                trId = tr.get('id');
+                                
                             this.testDte.editor.remove(tr);
+                            
+                            Y.Assert.isNull(this.testDte.get('contentBox').one('.yui3-datatable-data tr#' + trId), 'test TR element no longer exists');
                         },
                         
                         "test call remove with record deletes row" : function() {
-                            var rec = this.testDte.get('recordset').getRecord(0);
+                            var rec = this.testDte.get('recordset').getRecord(0),
+                                recId = rec.get('id');
+                                
                             this.testDte.editor.remove(rec);
+                            
+                            Y.Assert.isNull(this.testDte.get('contentBox').one('tr#' + recId), 'test TR element no longer exists');
                         },
                         
                         "test call remove with record id deletes row" : function() {
-                            var recid = this.testDte.get('contentBox').one('tr').get('id');
-                            this.testDte.editor.remove(recid);
+                            var recId = this.testDte.get('contentBox').one('tr').get('id');
+                            this.testDte.editor.remove(recId);
+                            
+                            Y.Assert.isNull(this.testDte.get('contentBox').one('tr#' + recId), 'test TR element no longer exists');
                         }
-                        
 
                     });
 

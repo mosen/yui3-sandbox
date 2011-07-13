@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="gallery-datatable-plugin-events" default="local">
-    <description>gallery-datatable-plugin-events</description>
+<project name="gallery-datatable-tableevents" default="local">
+    <description>gallery-datatable-tableevents</description>
     <property file="build.properties" />
     <import file="${builddir}/3.x/bootstrap.xml" description="Default Build Properties and Targets" />
     

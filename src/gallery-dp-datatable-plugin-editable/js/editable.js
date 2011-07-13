@@ -116,10 +116,13 @@ Y.extend(DatatableEditor, Y.Plugin.Base, {
     add : function(record, index) {
         Y.log("add", "info", this.NAME);
         
+        // Add Array/Record
         if (Lang.isArray(record) || record instanceof Y.Record || Lang.isObject(record)) {
             this.get('host').get('recordset').add(record, index);
+            
+        // Add Empty Row    
         } else if (Lang.isNull(record) || Lang.isUndefined(record)) {
-            this.get('host').get('recordset').add([], index); // Blank row
+            this.get('host').get('recordset').add({}, index); // Blank row
         }
     },
     
@@ -140,16 +143,20 @@ Y.extend(DatatableEditor, Y.Plugin.Base, {
         
         Y.log("delete", "info", this.NAME);
         
+        // Remove record
         if (item instanceof Y.Record) {
             record = item;
             
+        // Remove record ID
         } else if (Lang.isString(item) && /yui_/.test(item)) {
             record = hashtable[item];
-            
+        
+        // Remove TRElement
         } else if (item instanceof Y.Node) {
             record_id = item.get('id');
             record = rs.getRecord(record_id);
-    
+            
+        // Remove at index
         } else if (Lang.isNumber(item)) {
             rs.remove(item);
         }
@@ -167,15 +174,15 @@ Y.extend(DatatableEditor, Y.Plugin.Base, {
     },
     
     /**
-     * Replace record(s)
+     * Update record(s)
      *
-     * @method replace
+     * @method update
      * @param item {Array|Y.Record} The item to replace at the specified location
      * @param index {Number|String hash key} [optional] Index in the recordset or hash key
      * @returns undefined
      * @public
      */
-    replace : function(item, index) {
+    update : function(item, index) {
         Y.log("replace", "info", this.NAME);
     }
 });

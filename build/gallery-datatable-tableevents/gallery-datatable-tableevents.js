@@ -1,79 +1,77 @@
-YUI.add('gallery-plugin-datatable-events', function(Y) {
+YUI.add('gallery-datatable-tableevents', function(Y) {
 
 /**
  * @module datatable-events
  * @author lsmith, eamonb
- * @requires datatable, plugin
+ * @requires datatable
+ * 
+ * Based upon proof of concepts by lsmith:
+ * 
+ * https://gist.github.com/1070837
+ * https://gist.github.com/755582
  */
 
 var Lang = Y.Lang;
 
 /**
- * DataTableEvents extends the DataTable with cell/row/column click events
+ * DataTableEvents extends the DataTable with cell/row/column events
  *
  * @class DataTableEvents
- * @extends Plugin.Base
+ * @extends DataTable.Base
  */
 function DataTableEvents() {
-    DataTableEvents.superclass.constructor.apply(this, arguments);
+    
 }
 
-Y.mix(DataTableEvents, {
-
-    NS : "events",
-
-    NAME : "events",
-
-    ATTRS : {
+DataTableEvents.ATTRS = {
         
-        // Default events to listen to
-        events: {
-            value: ['keydown', 'keyup', 'mousedown', 'mouseup', 'click'], //'mouseover', 'mouseout', 'mouseenter', 'mouseleave'
-            setter: function (val) {
-                
-                // All this wrangling is to prevent after subscription from
-                // executing when replacing the current value with a new
-                // array containing the same events.
-                var current = this.get('events'),
-                    keys = current ? Y.Array.hash(current) : {},
-                    ok = false,
-                    newKeys, k;
+    // Default events to listen to
+    events: {
+        value: ['keydown', 'keyup', 'mousedown', 'mouseup', 'click', 'mouseover', 'mouseout', 'mouseenter', 'mouseleave', 'hover'],
+        setter: function (val) {
 
-                val = Y.Array(val);
-                newKeys = Y.Array.hash(val);
+            // All this wrangling is to prevent after subscription from
+            // executing when replacing the current value with a new
+            // array containing the same events.
+            var current = this.get('events'),
+                keys = current ? Y.Array.hash(current) : {},
+                is_different = false,
+                newKeys, k;
 
-                for (k in newKeys) {
-                    if (newKeys.hasOwnProperty(k)) {
-                        delete keys[k];
-                    } else {
-                        ok = true;
-                        break;
-                    }
+            val = Y.Array(val);
+            newKeys = Y.Array.hash(val);
+
+            for (k in newKeys) {
+                if (keys.hasOwnProperty(k)) {
+                    delete keys[k];
+                } else {
+                    is_different = true;
+                    break;
                 }
+            }
 
-                ok || (ok = Y.Object.size(keys));
+            is_different || (is_different = Y.Object.size(keys));
 
-                if (!ok) {
-                    val = current;
-                }
-
+            if (!is_different) {
+                return Y.Attribute.INVALID_VALUE; // This is seemingly the only way to prevent attrChange from happening in a setter
+            } else {
                 return val;
             }
-        },
-
-        // Elements that we will broadcast for
-        tags: {
-            value: [
-                'table', 'thead', 'tbody',
-                {tag: 'tr', name: 'row'},
-                {tag: 'th', name: 'cell'},
-                {tag: 'td', name: 'cell'}
-            ]
         }
-    }    
-});
+    },
 
-Y.extend(DataTableEvents, Y.Plugin.Base, {
+    // Elements that we will broadcast for
+    tags: {
+        value: [
+            'table', 'thead', 'tbody',
+            {tag: 'tr', name: 'row'},
+            {tag: 'th', name: 'cell'},
+            {tag: 'td', name: 'cell'}
+        ]
+    }
+};
+
+DataTableEvents.prototype = {
 
     /**
      * Initializer runs when the plugin is constructed or plugged into the host instance.
@@ -82,7 +80,7 @@ Y.extend(DataTableEvents, Y.Plugin.Base, {
      * @protected
      */
     initializer : function () {
-        this.afterHostEvent('render', this._bindEvents, this);
+        this.after('render', this._bindEvents, this);
         this.after('eventsChange', this._afterEventsChange);
     },
 
@@ -96,17 +94,6 @@ Y.extend(DataTableEvents, Y.Plugin.Base, {
     destructor: function() { 
         this._handle && this._handle.detach();
         delete this._handle;    
-    },
-    
-    /**
-     * Publish node events
-     * 
-     * This is required to enable bubbling to the host
-     *
-     * @method _publishEvents
-     * @protected
-     */
-    _publishEvents : function() {
     },
 
     /**
@@ -135,7 +122,7 @@ Y.extend(DataTableEvents, Y.Plugin.Base, {
         }
 
         this._tag_map = tag_map;
-        this._handle = this.get('host').get('contentBox')
+        this._handle = this.get('contentBox')
             .delegate(events, this._handleEvent, filter.join(','), this);
     },
 
@@ -158,6 +145,7 @@ Y.extend(DataTableEvents, Y.Plugin.Base, {
      * @protected
      */
     _handleEvent: function (e) {
+        
         if (/^mouse(?:over|out|enter|leave)$/.test(e.type)) {
             this._handleHoverEvent(e);
         } else {
@@ -168,11 +156,84 @@ Y.extend(DataTableEvents, Y.Plugin.Base, {
     /**
      * Handle a hover event being fired
      * 
+     * rowHover will fire on every delegated cellHover event, so
+     * we need to detect when the row has changed, lsn says use
+     * relatedTarget
+     * 
      * @method _handleHoverEvent
      * @param e {Event} Event facade
      * @protected
      */
     _handleHoverEvent: function (e) {
+        
+        var node        = e.currentTarget,
+            relTarget   = e.relatedTarget,
+            type        = e.type.charAt(0).toUpperCase() + e.type.slice(1),
+            tag         = node.get('tagName').toLowerCase(),
+            relTag      = (relTarget == null) ? '' : relTarget.get('tagName').toLowerCase(),
+            columnId    = '',
+            relColumnId = '',
+            relParent, column, payload, table;
+        
+        // cell|theadCell event
+        if (tag == 'td' || tag == 'th') {
+
+            this._notify(e);
+
+            // columnEvent
+
+            // Resolve Column ID for relatedTarget:
+            // I'm testing all possible related targets here because the div
+            // liner may not exist (maybe using some custom formatter)
+            
+            switch (relTag) {
+                case 'td':
+                    relColumnId = relTarget.getAttribute('headers');
+                    break;
+                case 'th':
+                    relColumnId = relTarget.get('id');
+                    break;
+                case 'div':
+                    relParent = relTarget.get('parentNode');
+
+                    if (relParent.get('tagName').toLowerCase() == 'th') {
+                        relColumnId = relParent.get('id');
+                    } else if (relParent.get('tagName').toLowerCase() == 'td') {
+                        relColumnId = relParent.getAttribute('headers');
+                    }
+
+                    break;       
+            }
+            
+
+            columnId = (tag == 'td') ? node.getAttribute('headers') : node.get('id');
+
+            if (columnId != relColumnId) {
+                column = this.get('columnset').idHash[columnId];
+                
+                
+                table = this;
+                
+                payload = {
+                    event: e,
+                    target: e.target,
+                    currentTarget: node,
+                    column: column,
+                    cells: function() { // Convenience closure to retrieve cells by selector
+                        return table.get('contentBox').all('td[headers=' + columnId + ']');
+                    }
+                };
+
+                // Fire the event, stop DOM propagation if the handler cancels
+                this.fire('column' + type, payload) || e.stopPropagation(); // or fire(.., { event: e })? or new EventFacade?
+            }
+            
+        // rowEvent       
+        } else if (tag == 'tr') {
+            if (relTarget == null || node !== relTarget.ancestor('tr')) {
+                this._notify(e);
+            }            
+        }
     },
     
     /**
@@ -184,7 +245,7 @@ Y.extend(DataTableEvents, Y.Plugin.Base, {
      */
     _notify: function (e) {
         var node    = e.currentTarget,
-            table   = this.get('host'),
+            table   = this,
             thead   = table._theadNode,
             type    = e.type.charAt(0).toUpperCase() + e.type.slice(1),
             tag     = node.get('tagName').toLowerCase(),
@@ -239,22 +300,11 @@ Y.extend(DataTableEvents, Y.Plugin.Base, {
         // Fire the event, stop DOM propagation if the handler cancels
         this.fire(tag + type, payload) || e.stopPropagation(); // or fire(.., { event: e })? or new EventFacade?
     }
-});
+};
 
-Y.namespace("Plugin").DataTableEvents = DataTableEvents;
+Y.namespace('DataTable.Features').TableEvents = DataTableEvents;
 
-if (Y.Plugin.addHostAttr) {
-    
-    // This will be supported in 3.4.0 
-    Y.Plugin.addHostAttr('tableEvents', Y.DataTable.Base,
-        Y.Plugin.DataTableEvents,
-        function (val) {
-            if (Y.Lang.isString(val) || Y.Lang.isArray(val)) {
-                return {events: Y.Array(val)};
-            }
-            return val;
-        });
-}
+Y.Base.mix(Y.DataTable.Base, [Y.DataTable.Features.TableEvents]);
 
 
 }, '@VERSION@' ,{optional:['pluginattr'], requires:['datatable']});
