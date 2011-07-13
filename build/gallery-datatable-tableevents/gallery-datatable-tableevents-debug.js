@@ -300,6 +300,7 @@ DataTableEvents.prototype = {
         // delegated custom events are forced to be processed sequentially, or bubble sequentially.
 
         // cellClick, theadCellClick, tableKeydown etc
+        // TODO: no columnClick|columnKey etc? can't yet see a use case
         Y.log("Emitting " + tag + type, "debug", "Y.DataTable.Features.TableEvents");
         //console.log(payload);
         

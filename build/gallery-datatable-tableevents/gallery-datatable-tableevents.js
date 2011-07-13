@@ -295,6 +295,7 @@ DataTableEvents.prototype = {
         // delegated custom events are forced to be processed sequentially, or bubble sequentially.
 
         // cellClick, theadCellClick, tableKeydown etc
+        // TODO: no columnClick|columnKey etc? can't yet see a use case
         //console.log(payload);
         
         // Fire the event, stop DOM propagation if the handler cancels

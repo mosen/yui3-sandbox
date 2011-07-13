@@ -30,7 +30,7 @@
                         // Make a ton of random data
                         var cols = [],
                             rows = [],
-                            numrows = 100,
+                            numrows = 400,
                             crow,
                             abc = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
                         
@@ -66,8 +66,23 @@
                         //dt.on('cellMouseleave', function(e) { e.event.currentTarget.setStyle('backgroundColor', null); });
                         dt.on('cellClick', function(e) { e.event.currentTarget.setStyle('backgroundColor', '#000000'); });
 
-                        Y.Profiler.registerFunction("dt.render", dt);
+                        Y.Profiler.registerObject(dt);
+                        
+                        Y.Profiler.start("rendertime");
+                        console.profile('DataTable.Base.render');
+        
+                        dt.after('render', function(e) {
+                            Y.Profiler.stop("rendertime");
+                            var report = Y.Profiler.getReport("rendertime");
+                        
+                            Y.log(report);
+                            console.profileEnd();
+                        });
+        
                         dt.render('#testnode');
+                        
+                        
+
                 });
         </script>
     </body>

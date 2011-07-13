@@ -19,24 +19,8 @@ function DatatableEditor(config) {
 
 Y.mix(DatatableEditor, {
 
-    /**
-     * The plugin namespace identifies the property on the host
-     * which will be used to refer to this plugin instance.
-     *
-     * @property NS
-     * @type String
-     * @static
-     */
     NS : "editor",
 
-    /**
-     * The plugin name identifies the event prefix and is a basis for generating
-     * class names.
-     * 
-     * @property NAME
-     * @type String
-     * @static
-     */
     NAME : "editor",
 
     /**
@@ -49,26 +33,7 @@ Y.mix(DatatableEditor, {
      * @static
      */
     ATTRS : {
-        
-/*
-         * Attribute properties:
-         *  
-         * , valueFn: "_defAttrAVal"      // Can be used as a substitute for "value", when you need access to "this" to set the default value.
-         *   
-         * , setter: "_setAttrA"          // Used to normalize attrA's value while during set. Refers to a prototype method, to make customization easier
-         * , getter: "_getAttrA"          // Used to normalize attrA's value while during get. Refers to a prototype method, to make customization easier
-         * , validator: "_validateAttrA"  // Used to validate attrA's value before updating it. Refers to a prototype method, to make customization easier
-         * , readOnly: true               // Cannot be set by the end user. Can be set by the component developer at any time, using _set
-         * , writeOnce: true              // Can only be set once by the end user (usually during construction). Can be set by the component developer at any time, using _set
-         * 
-         * , lazyAdd: false               // Add (configure) the attribute during initialization. 
-         * 
-         *                                // You only need to set lazyAdd to false if your attribute is
-         *                                // setting some other state in your setter which needs to be set during initialization 
-         *                                // (not generally recommended - the setter should be used for normalization. 
-         *                                // You should use listeners to update alternate state). 
-         * , broadcast: 1                 // Whether the attribute change event should be broadcast or not.
-         */
+
     }    
 });
 
@@ -138,28 +103,11 @@ Y.extend(DatatableEditor, Y.Plugin.Base, {
      */
     remove : function(item) {
         var rs = this.get('host').get('recordset'),
-            hashtable = rs.get('table'),
-            record, record_id, records, i = 0;
+            record, records, i = 0;
         
         Y.log("delete", "info", this.NAME);
         
-        // Remove record
-        if (item instanceof Y.Record) {
-            record = item;
-            
-        // Remove record ID
-        } else if (Lang.isString(item) && /yui_/.test(item)) {
-            record = hashtable[item];
-        
-        // Remove TRElement
-        } else if (item instanceof Y.Node) {
-            record_id = item.get('id');
-            record = rs.getRecord(record_id);
-            
-        // Remove at index
-        } else if (Lang.isNumber(item)) {
-            rs.remove(item);
-        }
+        record = this._resolveRecord(item);
         
         if (Lang.isValue(record)) {
             records = rs.get('records');
@@ -177,13 +125,66 @@ Y.extend(DatatableEditor, Y.Plugin.Base, {
      * Update record(s)
      *
      * @method update
-     * @param item {Array|Y.Record} The item to replace at the specified location
-     * @param index {Number|String hash key} [optional] Index in the recordset or hash key
+     * @param item {Array|Y.Record|Node} The record to update
+     * @param values {Object} Object literal of field : value to update
      * @returns undefined
      * @public
      */
-    update : function(item, index) {
-        Y.log("replace", "info", this.NAME);
+    update : function(item, values) {
+        var rs = this.get('host').get('recordset'),
+            records = rs.get('records'),
+            record,
+            vk;
+
+        Y.log("update", "info", this.NAME);
+
+        record = this._resolveRecord(item);
+        
+        // TODO: find record index for update operation
+        if (Lang.isValue(record)) {
+            record.set('data', values);
+            rs.update(record, records.indexOf(record)); // TODO: recordset.update creates a new record id?
+        }
+    },
+    
+    
+    /**
+     * Resolve the intended record from any number of types of parameters.
+     *
+     * @method _resolveRecord
+     * @param v {Node(TR)|Record ID|TR.id|Y.Record|index}
+     * @returns Y.Record The intended record
+     * @protected
+     */
+    _resolveRecord : function(v) {
+        var record, record_id,
+            rs = this.get('host').get('recordset'),
+            hashtable = rs.get('table');
+            
+        Y.log("_resolveRecord", "info", 'gallery-dp-datatable-plugin-editable');
+        
+        // Record
+        if (v instanceof Y.Record) {
+            record = v;
+            
+        // Record/TR ID
+        } else if (Lang.isString(v) && /yui_/.test(v)) {
+            record = hashtable[v];
+        
+        // HTMLTRElement
+        } else if (v instanceof Y.Node) {
+            record_id = v.get('id');
+            record = rs.getRecord(record_id);
+            
+        // Record Index
+        } else if (Lang.isNumber(v)) {
+            record = rs.getRecord(v);
+        
+        } else if (Lang.isArray(v)) {
+            // recursive call to resolve multiple specifiers.
+        }
+        
+        return record;
     }
 });
 

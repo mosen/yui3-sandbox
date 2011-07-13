@@ -17,8 +17,8 @@
                             'fullpath' : '../../../build/gallery-dp-datatable-enhanced/gallery-dp-datatable-enhanced-debug.js',
                             'requires' : ['datatable']
                         },
-                        'gallery-plugin-datatable-events' : {
-                            'fullpath' : '../../../build/gallery-plugin-datatable-events/gallery-plugin-datatable-events-debug.js',
+                        'gallery-datatable-tableevents' : {
+                            'fullpath' : '../../../build/gallery-datatable-tableevents/gallery-datatable-tableevents-debug.js',
                             'requires' : ['datatable']                            
                         },
                         'gallery-dp-datatable-plugin-editable' : {
@@ -31,7 +31,7 @@
                     ,"test"
                     ,"dump"
                     ,"gallery-dp-datatable-enhanced"
-                    ,"gallery-plugin-datatable-events"
+                    ,"gallery-datatable-tableevents"
                     ,"gallery-dp-datatable-plugin-editable"
                     ,function(Y) {
                     
@@ -62,8 +62,7 @@
                                 recordset : this.mockresponse.response.results,
                                 plugins : [
                                     { fn: Y.DP.DatatableUpdates, cfg: {} },
-                                    { fn: Y.DP.DatatableEditor, cfg: {} },
-                                    { fn: Y.Plugin.DataTableEvents, cfg: {} }
+                                    { fn: Y.DP.DatatableEditor, cfg: {} }
                                 ]
                             });
 
@@ -151,6 +150,22 @@
                             this.testDte.editor.remove(recId);
                             
                             Y.Assert.isNull(this.testDte.get('contentBox').one('tr#' + recId), 'test TR element no longer exists');
+                        },
+                        
+                        "test call update with index updates row" : function() {
+                            var rec = this.testDte.get('recordset').getRecord(0);
+                            
+                            this.testDte.editor.update(rec, { id: 1000, name: "Joey" });
+                            Y.Assert.areEqual("Joey", this.testDte.get('contentBox').one('tr#' + rec.get('id')).all('td').item(1).get('textContent'));
+                        },
+                        
+                        "test call update with tr element updates row" : function() {
+                            var tr = this.testDte.get('contentBox').one('.yui3-datatable-data tr'),
+                                trId = tr.get('id');
+                                
+                            this.testDte.editor.update(tr, { id: 1000, name: "Joey" });
+                            
+                            Y.Assert.areEqual("Joey", this.testDte.get('contentBox').one('tr#' + trId).all('td').item(1).get('textContent')); 
                         }
 
                     });
