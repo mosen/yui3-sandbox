@@ -38,28 +38,29 @@ Y.mix(DataTableEvents, {
                 // array containing the same events.
                 var current = this.get('events'),
                     keys = current ? Y.Array.hash(current) : {},
-                    ok = false,
+                    is_different = false,
                     newKeys, k;
 
                 val = Y.Array(val);
                 newKeys = Y.Array.hash(val);
 
                 for (k in newKeys) {
-                    if (newKeys.hasOwnProperty(k)) {
+                    if (keys.hasOwnProperty(k)) {
                         delete keys[k];
                     } else {
-                        ok = true;
+                        is_different = true;
                         break;
                     }
                 }
 
-                ok || (ok = Y.Object.size(keys));
+                is_different || (is_different = Y.Object.size(keys));
 
-                if (!ok) {
-                    val = current;
+                if (!is_different) {
+                    Y.log("new value for events is identical, not setting", "debug", "gallery-plugin-datatable-events");
+                    return Y.Attribute.INVALID_VALUE; // This is seemingly the only way to prevent attrChange from happening in a setter
+                } else {
+                    return val;
                 }
-
-                return val;
             }
         },
 

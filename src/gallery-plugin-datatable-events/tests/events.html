@@ -11,7 +11,7 @@
             (function() {
                 YUI({
                     filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
-                    useBrowserConsole: true,
+                    //useBrowserConsole: true,
                     allowRollup: false,
                     modules : {
                         'gallery-plugin-datatable-events' : {
@@ -20,14 +20,15 @@
                         }
                     }
                 }).use(
-                    "test"
+                    "console"
+                    ,"test"
                     ,"dump"
                     ,"gallery-plugin-datatable-events"
                     ,"node-event-simulate"
                     ,function(Y) {
                     
                 
-                    //var myConsole = new Y.Console().render();
+                    var myConsole = new Y.Console().render();
 
                     var testBasic = new Y.Test.Case({ 
                         name: "editable Test Case",
@@ -65,18 +66,16 @@
                         },
                     
                         "test cell click fires on td click": function() {
-                            var test = this;
+                            var test = this,
+                                evtFired = false;
 
                             this.testDte.events.on('cellClick', function(e) {
-
-                                test.resume(function() { // Guess this doesn't work because test never resumes?
-                                    Y.Assert.isTrue(true);
-                                })
+                                evtFired = true;
                             });
                          
                             this.testDte.get('contentBox').one('td').simulate('click');
                             
-                            this.wait(800);
+                            Y.Assert.isTrue(evtFired);
                         },
                         
                         // Make sure that setting events to the exact same values does not cause a change.
@@ -84,17 +83,18 @@
                             var defaultEvents = ['keydown', 'keyup', 'mousedown', 'mouseup', 'click'],
                                 currentEvents = this.testDte.events.get('events');
                             
+                            Y.ArrayAssert.itemsAreEqual(defaultEvents, currentEvents, "Check test data is the same as object data"); 
+                            
                             this.eventsChanged = false;
                             
                             this.testDte.events.after('eventsChange', function(e) {
-                                Y.log('events attribute change has fired.');
-                                this.eventsChanged = true;
+                                Y.fail('eventsChange did fire when setting the same events');
                             }, this);
                             
                             this.testDte.events.set('events', defaultEvents);
                             
-                            this.wait(function() {
-                                Y.Assert.isFalse(this.eventsChanged);
+                            this.wait(function() {  
+                                Y.Assert.isTrue(true, 'eventsChange event was not fired');
                             }, 400);
                         }
                     });
