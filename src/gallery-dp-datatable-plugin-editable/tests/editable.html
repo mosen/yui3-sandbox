@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Y.DP.DatatableEnhancedEditablePlugin Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    modules : {
+                        'gallery-dp-datatable-enhanced' : {
+                            'fullpath' : '../../../build/gallery-dp-datatable-enhanced/gallery-dp-datatable-enhanced-debug.js',
+                            'requires' : ['datatable']
+                        },
+                        'gallery-plugin-datatable-events' : {
+                            'fullpath' : '../../../build/gallery-plugin-datatable-events/gallery-plugin-datatable-events-debug.js',
+                            'requires' : ['datatable']                            
+                        },
+                        'gallery-dp-datatable-plugin-editable' : {
+                            'fullpath' : '../../../build/gallery-dp-datatable-plugin-editable/gallery-dp-datatable-plugin-editable-debug.js',
+                            'requires' : ['gallery-dp-datatable-enhanced']
+                        }
+                    }
+                }).use(
+                    "console"
+                    ,"test"
+                    ,"dump"
+                    ,"gallery-dp-datatable-enhanced"
+                    ,"gallery-plugin-datatable-events"
+                    ,"gallery-dp-datatable-plugin-editable"
+                    ,function(Y) {
+                    
+                
+                    var myConsole = new Y.Console().render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "editable Test Case",
+                    
+                        setUp: function() {
+                        
+                            this.mockresponse = {
+                                response: {
+                                    results: [
+                                        { "id" : "1", "name" : "Joe" },
+                                        { "id" : "2", "name" : "Bob" },
+                                        { "id" : "3", "name" : "Andrew" }
+                                    ]
+                                }
+                            };
+
+                            this.testDte = new Y.DP.DataTableEnhanced({
+                                columnset : [ 
+                                    { key:"id", sortable: true },
+                                    { key:"name", sortable: true }
+                                ],
+                                summary : "User patched DataTable Instance",
+                                recordset : this.mockresponse.response.results,
+                                plugins : [
+                                    { fn: Y.DP.DatatableEditor, cfg: {} },
+                                    { fn: Y.Plugin.DataTableEvents, cfg: {} }
+                                ]
+                            });
+
+                            this.testDte.render();
+                        },
+                    
+                        tearDown: function() {
+                            
+                        },
+                    
+                        "test call add with null creates row": function() {
+                            this.testDte.editor.add(null);
+                        },
+ 
+                        "test call add with undefined creates row": function() {
+                            this.testDte.editor.add();
+                        },
+ 
+                        "test call add with object data creates row": function() {
+                            this.testDte.editor.add({ "id" : "4", "name" : "Shaun" });
+                        },
+                        
+                        "test call add with array data creates row" : function() {
+                            this.testDte.editor.add([{ "id" : "4", "name" : "Shaun" }]);
+                        },
+                        
+                        "test call add with record creates row" : function() {
+                            this.testDte.editor.add(new Y.Record({ data: { "id" : "4", "name" : "Shaun" } }));
+                        },
+                        
+                        "test call remove with index deletes row" : function() {
+                            this.testDte.editor.remove(0);
+                        },
+                        
+                        "test call remove with tr element deletes row" : function() {
+                            var tr = this.testDte.get('contentBox').one('tr');
+                            this.testDte.editor.remove(tr);
+                        },
+                        
+                        "test call remove with record deletes row" : function() {
+                            var rec = this.testDte.get('recordset').getRecord(0);
+                            this.testDte.editor.remove(rec);
+                        },
+                        
+                        "test call remove with record id deletes row" : function() {
+                            var recid = this.testDte.get('contentBox').one('tr').get('id');
+                            this.testDte.editor.remove(recid);
+                        }
+                        
+
+                    });
+
+                    var suite = new Y.Test.Suite({name:"editable Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>

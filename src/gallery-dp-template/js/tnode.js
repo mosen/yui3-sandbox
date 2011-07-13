@@ -1,52 +1,45 @@
-YUI.add('gallery-dp-datatable-enhanced-plugin-editable', function(Y) {
+/* 
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
 /**
+ * 
  *
- *
- * @module Editable
+ * @module Tnode
  * @author admin
- * @requires plugin
+ * @requires widget
  */
+
+/* Frequently used shortcuts, strings and constants */
 var Lang = Y.Lang;
 
 /**
- * Editable
- * 
- * Make a DataTable Widget Editable.
+ * Tnode
  *
- * @namespace DP
- * @class DatatableEnhancedEditable
- * @extends Plugin.Base
+ * @class Tnode
+ * @extends Widget
+ * @constructor
  */
-function DatatableEnhancedEditable(config) {
-    DatatableEnhancedEditable.superclass.constructor.apply(this, arguments);
+function Tnode(config) {
+    Tnode.superclass.constructor.apply(this, arguments);
 }
 
-Y.mix(DatatableEnhancedEditable, {
+Y.mix(Tnode, {
 
     /**
-     * The plugin namespace identifies the property on the host
-     * which will be used to refer to this plugin instance.
-     *
-     * @property NS
-     * @type String
-     * @static
-     */
-    NS : "editable",
-
-    /**
-     * The plugin name identifies the event prefix and is a basis for generating
+     * The widget name identifies the event prefix and is a basis for generating
      * class names.
      * 
      * @property NAME
      * @type String
      * @static
      */
-    NAME : "editable",
+    NAME : "tnode",
 
     /**
      * The attribute configuration represents the core user facing state of 
-     * the plugin.
+     * the widget.
      *
      * @property ATTRS
      * @type Object
@@ -55,7 +48,23 @@ Y.mix(DatatableEnhancedEditable, {
      */
     ATTRS : {
         
-/*
+        /**
+         * The collection of strings to be used for the widget UI
+         * If using the intl module, strings can be shipped separately.
+         *
+         * @attribute strings
+         * @type Array
+         */
+        strings : {
+            value : {
+        // The string below can be accessed using this widget's 
+        // .get('strings.title')
+        // title : "myWidget"
+        }
+        }
+
+        
+    /*
          * Attribute properties:
          *  
          * , valueFn: "_defAttrAVal"      // Can be used as a substitute for "value", when you need access to "this" to set the default value.
@@ -74,39 +83,27 @@ Y.mix(DatatableEnhancedEditable, {
          *                                // You should use listeners to update alternate state). 
          * , broadcast: 1                 // Whether the attribute change event should be broadcast or not.
          */
-}    
-});
-
-Y.extend(DatatableEnhancedEditable, Y.Plugin.Base, {
-
-    /**
-     * Initializer runs when the plugin is constructed or plugged into the host instance.
-     *
-     * @method initializer
-     * @param config {Object} Configuration object
-     */
-    initializer : function (config) {
-    // See Y.Do.before, Y.Do.after
-    //this.beforeHostMethod("show", this._beforeHostShowMethod);
-    //this.afterHostMethod("show", this._afterHostShowMethod);
-
-    // See Y.EventTarget.on, Y.EventTarget.after
-    //this.onHostEvent("render", this._onHostRenderEvent);             
-    //this.afterHostEvent("render", this._afterHostRenderEvent);
     },
-
-    /**
-     * Destructor runs when the plugin is unplugged
-     * Base will automatically detach afterHostEvent/afterHostMethod methods.
-     *
-     * @method destructor
-     */
-    destructor: function() { 
     
-    }    
+    /**
+     * The HTML_PARSER attribute is used if the Widget supports progressive enhancement.
+     * It is used to populate the widget attribute configuration from existing markup.
+     * 
+     * @property HTML_PARSER
+     * @type Object
+     * @static
+     */
+    HTML_PARSER : {
+    
+// attrA : '#nodeselector' or
+// attrA : function(srcNode) { do something and return attrA value }
+}
 });
 
-Y.namespace("DP").DatatableEnhancedEditable = DatatableEnhancedEditable;
+Tnode.prototype = {
 
+    
+    
+};
 
-}, '@VERSION@' ,{requires:['gallery-dp-datatable-enhanced']});
+Y.namespace("DP").Tnode = Tnode;

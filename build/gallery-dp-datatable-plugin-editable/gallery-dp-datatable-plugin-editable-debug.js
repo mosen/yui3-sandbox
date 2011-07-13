@@ -1,26 +1,25 @@
+YUI.add('gallery-dp-datatable-plugin-editable', function(Y) {
+
 /**
  *
- *
- * @module Editable
- * @author admin
- * @requires plugin
+ * @module gallery-dp-datatable-plugin-editable
+ * @author eamonb
+ * @requires datatable, gallery-plugin-datatable-events, plugin
  */
 var Lang = Y.Lang;
 
 /**
- * Editable
- * 
- * Make a DataTable Widget Editable.
+ * Provides an API and user interface for editing table row data.
  *
  * @namespace DP
- * @class DatatableEnhancedEditable
+ * @class DatatableEditor
  * @extends Plugin.Base
  */
-function DatatableEnhancedEditable(config) {
-    DatatableEnhancedEditable.superclass.constructor.apply(this, arguments);
+function DatatableEditor(config) {
+    DatatableEditor.superclass.constructor.apply(this, arguments);
 }
 
-Y.mix(DatatableEnhancedEditable, {
+Y.mix(DatatableEditor, {
 
     /**
      * The plugin namespace identifies the property on the host
@@ -30,7 +29,7 @@ Y.mix(DatatableEnhancedEditable, {
      * @type String
      * @static
      */
-    NS : "editable",
+    NS : "editor",
 
     /**
      * The plugin name identifies the event prefix and is a basis for generating
@@ -40,7 +39,7 @@ Y.mix(DatatableEnhancedEditable, {
      * @type String
      * @static
      */
-    NAME : "editable",
+    NAME : "editor",
 
     /**
      * The attribute configuration represents the core user facing state of 
@@ -72,10 +71,10 @@ Y.mix(DatatableEnhancedEditable, {
          *                                // You should use listeners to update alternate state). 
          * , broadcast: 1                 // Whether the attribute change event should be broadcast or not.
          */
-}    
+    }    
 });
 
-Y.extend(DatatableEnhancedEditable, Y.Plugin.Base, {
+Y.extend(DatatableEditor, Y.Plugin.Base, {
 
     /**
      * Initializer runs when the plugin is constructed or plugged into the host instance.
@@ -103,7 +102,86 @@ Y.extend(DatatableEnhancedEditable, Y.Plugin.Base, {
      */
     destructor: function() { 
     
-    }    
+    },
+    
+    /**
+     * Add a record to the table.
+     * 
+     * Should support array, Y.Record, null value (empty row)
+     *
+     * @method add
+     * @param record {Array|Y.Record|null}
+     * @param index {Number} [optional] the index where the new record will be added
+     * @returns undefined
+     * @public
+     */
+    add : function(record, index) {
+        Y.log("add", "info", this.NAME);
+        
+        if (Lang.isArray(record) || record instanceof Y.Record || Lang.isObject(record)) {
+            this.get('host').get('recordset').add(record, index);
+        } else if (Lang.isNull(record) || Lang.isUndefined(record)) {
+            this.get('host').get('recordset').add([], index); // Blank row
+        }
+    },
+    
+    /**
+     * Remove a record from the table.
+     * 
+     * Should support TR element, record id, Y.record, index
+     *
+     * @method remove
+     * @param item {TRElement|Record ID|Y.Record|Index}
+     * @returns undefined
+     * @public
+     */
+    remove : function(item) {
+        var rs = this.get('host').get('recordset'),
+            hashtable = rs.get('table'),
+            record, record_id, records, i = 0;
+        
+        Y.log("delete", "info", this.NAME);
+        
+        if (item instanceof Y.Record) {
+            record = item;
+            
+        } else if (Lang.isString(item) && /yui_/.test(item)) {
+            record = hashtable[item];
+            
+        } else if (item instanceof Y.Node) {
+            record_id = item.get('id');
+            record = rs.getRecord(record_id);
+    
+        } else if (Lang.isNumber(item)) {
+            rs.remove(item);
+        }
+        
+        if (Lang.isValue(record)) {
+            records = rs.get('records');
+            
+            for (; i <= records.length; i++) {
+                if (records[i] == record) {
+                    rs.remove(i);
+                    break;
+                }
+            }
+        }
+    },
+    
+    /**
+     * Replace record(s)
+     *
+     * @method replace
+     * @param
+     * @returns
+     * @public
+     */
+    replace : function() {
+        Y.log("replace", "info", this.NAME);
+    }
 });
 
-Y.namespace("DP").DatatableEnhancedEditable = DatatableEnhancedEditable;
+Y.namespace("DP").DatatableEditor = DatatableEditor;
+
+
+}, '@VERSION@' ,{requires:['datatable', 'gallery-plugin-datatable-events']});

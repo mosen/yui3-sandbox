@@ -1,0 +1,23 @@
+The problem: performance degrades whenever nodes are added to the DOM via Node.create,
+multiple iterations of create/append create a performance issue.
+
+Idea: treat strings as parseable hierarchies, a low cost model for manipulation which
+then becomes part of the dom when appended
+
+Design:
+
+Create an object which is effectively a string 1:1
+Maybe even augment String ?
+
+The string should have accessible tokens.
+Methods which are normally dom passthrough methods should actually just perform string
+manipulation
+
+Maybe if the string can be wrapped in Node? we can access it through regular Node API
+Regular Node always calls DOM so, can't really do that.
+
+Need a new type called TNode that accepts Node interface but holds only a conceptual element
+ 
+TNode.one(TEMPLATE STRING) - parse string, only one node
+
+Lets try a POC with DataTable

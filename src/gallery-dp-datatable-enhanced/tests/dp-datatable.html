@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Y.DP.DatatableEnhanced Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <div id="testsubject"></div>
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    modules : {
+                        'gallery-dp-datatable-enhanced' : {
+                            'fullpath' : '../../../build/gallery-dp-datatable-enhanced/gallery-dp-datatable-enhanced-debug.js',
+                            'requires' : ['datatable']
+                        }
+                    }
+                }).use(
+                    "console"
+                    ,"test"
+                    ,"dump"
+                    ,"node-event-simulate"
+                    ,"gallery-dp-datatable-enhanced"
+                    ,function(Y) {
+                    
+                
+                    var myConsole = new Y.Console().render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "DP.DataTableEnhanced Test Case",
+                    
+                        setUp: function() {
+                        
+                            this.mockresponse = {
+                                response: {
+                                    results: [
+                                        { "id" : "1", "name" : "Joe" },
+                                        { "id" : "2", "name" : "Bob" },
+                                        { "id" : "3", "name" : "Andrew" }
+                                    ]
+                                }
+                            };
+
+                            this.dte = new Y.DP.DataTableEnhanced({
+                                /* caption: "test", */
+                                columnset : [ 
+                                    { key:"id", sortable: true },
+                                    { key:"name", sortable: true }
+                                ],
+                                summary : "User patched DataTable Instance",
+                                recordset : this.mockresponse.response.results,
+                                plugins : [
+                                    
+                                ]
+                            });
+
+                            
+                        },
+                    
+                        tearDown: function() {
+                            
+                        },
+                    
+                        "test setting align creates a text-align style": function() {
+                            this.dte.set('columnset', [
+                                { key:"id", sortable: true, align:"left" },
+                                { key:"name", sortable: true }                               
+                            ]);
+                            
+                            this.dte.render('#testsubject');
+                            var align = Y.one('#testsubject .yui3-datatable-data tr').one('td').getStyle('textAlign');
+
+                            Y.Assert.areEqual(align, 'left');
+                        },
+                        
+                        "test sort function is called after a sort request": function() {
+                            var test = this;
+                            
+                            var fnSortDummy = function(a, b) {
+                                Y.log('Dummy sort function called a:' + a + ' b:' + b);
+                                Y.log(test.resume);
+                                test.resume(function() {
+                                    Y.log('resuming test');
+                                    Y.Assert.isTrue(true);
+                                })
+                            }
+                            
+                            this.dte.set('columnset', [
+                                { key:"id", sortable: true, sortFn: Y.bind(fnSortDummy, this) },
+                                { key:"name", sortable: true }                               
+                            ]);
+                            this.dte.plug(Y.Plugin.DataTableSort);
+                            
+                            this.dte.render('#testsubject');
+                            this.dte.get('contentBox').one('th').simulate('click');
+                            
+                            this.wait(1000);
+                        }
+                    });
+
+                    var suite = new Y.Test.Suite({name:"DP.DataTableEnhanced Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>
