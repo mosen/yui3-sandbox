@@ -1,3 +1,5 @@
+YUI.add('gallery-dp-datatable-plugin-selection', function(Y) {
+
 /**
  *
  *
@@ -136,3 +138,6 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
 });
 
 Y.namespace("DP").DatatableSelection = DatatableSelection;
+
+
+}, '@VERSION@' ,{requires:['datatable', 'gallery-datatable-tableevents']});

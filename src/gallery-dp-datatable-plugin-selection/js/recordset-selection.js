@@ -1,32 +1,50 @@
 /**
  *
  *
- * @module DatatableSelection
- * @author eamonb
- * @requires plugin, datatable, gallery-datatable-tableevents
+ * @module RecordsetSelection
+ * @author admin
+ * @requires plugin, recordset
  */
+
+/* Frequently used shortcuts, strings and constants */
 var Lang = Y.Lang;
 
 /**
- * DataTable selection plugin
+ * RecordsetSelection
  * 
- * Provides an API to make selections and get the current selection.
- * Uses recordset-selection to maintain the underlying selection
- * TODO: use recordset-filter to select by attribute
- * TODO: support inverse, select by value (eg. result set contains tag property), none
+ * Provides a selection interface for recordset which maintains an internal
+ * hash of selected items.
+ * 
+ * We could use recordset-index but i felt this was specialised enough to justify
+ * a separately maintained hash
  *
- * @namespace Y.DP
- * @class DatatableSelection
+ * @class RecordsetSelection
  * @extends Plugin.Base
  */
-function DatatableSelection() {
-    DatatableSelection.superclass.constructor.apply(this, arguments);
+function RecordsetSelection(config) {
+    RecordsetSelection.superclass.constructor.apply(this, arguments);
 }
 
-Y.mix(DatatableSelection, {
+Y.mix(RecordsetSelection, {
 
+    /**
+     * The plugin namespace identifies the property on the host
+     * which will be used to refer to this plugin instance.
+     *
+     * @property NS
+     * @type String
+     * @static
+     */
     NS : "selection",
 
+    /**
+     * The plugin name identifies the event prefix and is a basis for generating
+     * class names.
+     * 
+     * @property NAME
+     * @type String
+     * @static
+     */
     NAME : "selection",
 
     /**
@@ -40,6 +58,10 @@ Y.mix(DatatableSelection, {
      */
     ATTRS : {
         
+        selection : {
+            getter: "_getAttrSelection",
+            setter: "_setAttrSelection"
+        }
         /*
          * Attribute properties:
          *  
@@ -62,7 +84,7 @@ Y.mix(DatatableSelection, {
     }    
 });
 
-Y.extend(DatatableSelection, Y.Plugin.Base, {
+Y.extend(RecordsetSelection, Y.Plugin.Base, {
 
     /**
      * Initializer runs when the plugin is constructed or plugged into the host instance.
@@ -71,13 +93,14 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
      * @param config {Object} Configuration object
      */
     initializer : function (config) {
-        
-        this.onHostEvent("rowClick", this._onHostRowClick);
-        
-        this.onHostEvent("rowMouseenter", this._onHostRowMouseenter);
-        this.onHostEvent("rowMouseleave", this._onHostRowMouseleave);
-        
-        
+
+        // See Y.Do.before, Y.Do.after
+        //this.beforeHostMethod("show", this._beforeHostShowMethod);
+        //this.afterHostMethod("show", this._afterHostShowMethod);
+
+        // See Y.EventTarget.on, Y.EventTarget.after
+        //this.onHostEvent("render", this._onHostRenderEvent);             
+        //this.afterHostEvent("render", this._afterHostRenderEvent);
     },
 
     /**
@@ -91,48 +114,17 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
     },
     
     /**
-     * Change item selection on host row click
+     * Select the specified record(s)
      *
-     * @method _onHostRowClick
-     * @param e {Event} attrChange event facade
-     * @returns undefined
-     * @protected
-     */
-    _onHostRowClick : function(e) {
-        
-        // recordset.selection.toggle(trId|tr)
-        // on recordset selectionChange update ui
-        
-        Y.log("_onHostRowClick", "info", this.NAME);
-    },
-    
-    /**
-     * Highlight row on mouse enter
-     *
-     * @method _onHostRowMouseenter
-     * @param e {Event} attrChange event facade
+     * @method select
+     * @param selector {Array(containing any of the following)|Y.Record|Record ID|HTMLTRElement ID|HTMLTRElement|Record Index(Number)|Hash Record Value Key}
+     * @param filter {String} String value to match, if using the record value for selection.
      * @returns
-     * @protected
+     * @public
      */
-    _onHostRowMouseenter : function(e) {
-        Y.log("_onHostRowMouseenter", "info", this.NAME);
-        
-        e.currentTarget.addClass(this.get('host').getClassName('row', 'over'));
-    },
-    
-    /**
-     * Remove highlighting on row mouse leave
-     *
-     * @method _onHostRowMouseleave
-     * @param e {Event} attrChange event facade
-     * @returns
-     * @protected
-     */
-    _onHostRowMouseleave : function(e) {
-        Y.log("_onHostRowMouseleave", "info", this.NAME);
-        
-        e.currentTarget.removeClass(this.get('host').getClassName('row', 'over'));
+    select : function() {
+        Y.log("select", "info", "gallery-dp-recordset-selection");
     }
 });
 
-Y.namespace("DP").DatatableSelection = DatatableSelection;
+Y.namespace("Plugin").RecordsetSelection = RecordsetSelection;

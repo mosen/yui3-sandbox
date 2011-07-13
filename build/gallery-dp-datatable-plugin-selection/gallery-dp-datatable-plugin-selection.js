@@ -1,3 +1,5 @@
+YUI.add('gallery-dp-datatable-plugin-selection', function(Y) {
+
 /**
  *
  *
@@ -103,7 +105,6 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
         // recordset.selection.toggle(trId|tr)
         // on recordset selectionChange update ui
         
-        Y.log("_onHostRowClick", "info", this.NAME);
     },
     
     /**
@@ -115,7 +116,6 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
      * @protected
      */
     _onHostRowMouseenter : function(e) {
-        Y.log("_onHostRowMouseenter", "info", this.NAME);
         
         e.currentTarget.addClass(this.get('host').getClassName('row', 'over'));
     },
@@ -129,10 +129,12 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
      * @protected
      */
     _onHostRowMouseleave : function(e) {
-        Y.log("_onHostRowMouseleave", "info", this.NAME);
         
         e.currentTarget.removeClass(this.get('host').getClassName('row', 'over'));
     }
 });
 
 Y.namespace("DP").DatatableSelection = DatatableSelection;
+
+
+}, '@VERSION@' ,{requires:['datatable', 'gallery-datatable-tableevents']});

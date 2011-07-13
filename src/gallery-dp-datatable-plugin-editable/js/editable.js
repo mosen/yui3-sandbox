@@ -46,15 +46,7 @@ Y.extend(DatatableEditor, Y.Plugin.Base, {
      * @param config {Object} Configuration object
      */
     initializer : function (config) {
-        Y.log("init", "info", this.NAME);
-        
-        // See Y.Do.before, Y.Do.after
-        //this.beforeHostMethod("show", this._beforeHostShowMethod);
-        //this.afterHostMethod("show", this._afterHostShowMethod);
 
-        // See Y.EventTarget.on, Y.EventTarget.after
-        //this.onHostEvent("render", this._onHostRenderEvent);             
-        //this.afterHostEvent("render", this._afterHostRenderEvent);
     },
 
     /**
