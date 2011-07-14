@@ -52,68 +52,113 @@
                                 ],
                                 summary : "User patched DataTable Instance",
                                 recordset : this.mockresponse.response.results
-//                                plugins : [
-//                                    { fn: Y.Plugin.DataTableEvents, cfg: {} }
-//                                ]
                             });
 
                             this.testDte.render();
                         },
                     
                         tearDown: function() {
-//                            this.testDte.destroy();
-//                            delete this.testDte;
+                            this.testDte.destroy();
+                            delete this.testDte;
                         },
                         
                         "test construction" : function() {
                             
-                        }
+                        },
                     
-//                        "test cell click fires on td click": function() {
-//                            var test = this,
-//                                evtFired = false;
-//
-//                            this.testDte.events.on('cellClick', function(e) {
-//                                evtFired = true;
-//                            });
-//                         
-//                            this.testDte.get('contentBox').one('td').simulate('click');
-//                            
-//                            Y.Assert.isTrue(evtFired);
-//                        },
-//                        
-//                        // Make sure that setting events to the exact same values does not cause a change.
-//                        "test setting new events with the same values does not cause eventsChange": function() {
-//                            var defaultEvents = ['keydown', 'keyup', 'mousedown', 'mouseup', 'click'],
-//                                currentEvents = this.testDte.events.get('events');
-//                            
-//                            Y.ArrayAssert.itemsAreEqual(defaultEvents, currentEvents, "Check test data is the same as object data"); 
-//                            
-//                            this.eventsChanged = false;
-//                            
-//                            this.testDte.events.after('eventsChange', function(e) {
-//                                Y.fail('eventsChange did fire when setting the same events');
-//                            }, this);
-//                            
-//                            this.testDte.events.set('events', defaultEvents);
-//                            
-//                            this.wait(function() {  
-//                                Y.Assert.isTrue(true, 'eventsChange event was not fired');
-//                            }, 200);
-//                        },
-//                        
-//                        "test setting new events with different values causes eventsChange" : function() {
-//                            var newEvents = ['click', 'keyup', 'mousedown', 'mouseover'],
-//                                evtFired = false;
-//                            
-//                            this.testDte.events.after('eventsChange', function(e) {
-//                                evtFired = true;
-//                            }, this);
-//                            
-//                            this.testDte.events.set('events', newEvents);
-//                            
-//                            Y.Assert.isTrue(evtFired, "test eventsChange event did fire after events change")
-//                        }
+                        "test cell click fires on td click": function() {
+                            var test = this,
+                                evtFired = false;
+
+                            this.testDte.on('cellClick', function(e) {
+                                evtFired = true;
+                            });
+                         
+                            this.testDte.get('contentBox').one('td').simulate('click');
+                            
+                            Y.Assert.isTrue(evtFired);
+                        },
+                        
+                        // Make sure that setting events to the exact same values does not cause a change.
+                        "test setting new events with the same values does not cause eventsChange": function() {
+                            var defaultEvents = ['keydown', 'keyup', 'mousedown', 'mouseup', 'click', 'mouseover', 'mouseout', 'mouseenter', 'mouseleave', 'hover'],
+                                currentEvents = this.testDte.get('events');
+                            
+                            Y.ArrayAssert.itemsAreEqual(defaultEvents, currentEvents, "Check test data is the same as object data"); 
+                            
+                            this.eventsChanged = false;
+                            
+                            this.testDte.after('eventsChange', function(e) {
+                                Y.fail('eventsChange did fire when setting the same events');
+                            }, this);
+                            
+                            this.testDte.set('events', defaultEvents);
+                            
+                            this.wait(function() {  
+                                Y.Assert.isTrue(true, 'eventsChange event was not fired');
+                            }, 200);
+                        },
+                        
+                        "test setting new events with different values causes eventsChange" : function() {
+                            var newEvents = ['click', 'keyup', 'mousedown', 'mouseover'],
+                                evtFired = false;
+                            
+                            this.testDte.after('eventsChange', function(e) {
+                                evtFired = true;
+                            }, this);
+                            
+                            this.testDte.set('events', newEvents);
+                            
+                            Y.Assert.isTrue(evtFired, "test eventsChange event did fire after events change")
+                        },
+                        
+                        "test preventing propagation after cellClick does not fire rowClick" : function() {
+                            var test = this,
+                                evtFired = false;
+
+                            this.testDte.on('cellClick', function(e) {
+                                evtFired = true;
+                                e.event.preventPropagation();
+                                return false;
+                            });
+                            
+                            this.testDte.on('rowClick', function(e) {
+                                Y.log('rowClick was fired');
+                                Y.fail('rowClick was fired after event propagation stopped');
+                            });
+                         
+                            this.testDte.get('contentBox').one('td').simulate('click');
+                            
+                            Y.Assert.isTrue(evtFired);
+                        },
+                        
+                        "test event handler on cellClick does not cause race with rowClick" : function() {
+                            var test = this,
+                                evtFired = false;
+
+                            this.testDte.on('cellClick', function(e) {
+                                Y.log('cellClick was fired, now ill do something else');
+                                
+                                // Trying to force a big processing time for cellClick
+                                for (i = 0; i < 100; i++) {
+                                    var n = Y.one('#busywork' + i);
+                                }
+                                
+                                Y.log('stopping cellClick propagation');
+                                e.event.stopPropagation();
+                            });
+                            
+                            this.testDte.on('rowClick', function(e) {
+                                Y.log('rowClick was fired');
+                                Y.fail('rowClick was fired after event propagation stopped');
+                            });
+                         
+                            this.testDte.get('contentBox').one('td').simulate('click');
+                            
+                            this.wait(2000);
+                            
+                            Y.Assert.isTrue(evtFired);                            
+                        }
                     });
 
                     var suite = new Y.Test.Suite({name:"DataTableEvents Test Suite"});

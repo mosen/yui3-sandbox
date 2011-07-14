@@ -17,7 +17,7 @@
                     allowRollup: false,
                     modules : {
                         'gallery-datatable-tableevents' : {
-                            'fullpath' : '../../../build/gallery-datatable-tableevents/gallery-datatable-tableevents.js',
+                            'fullpath' : '../../../build/gallery-datatable-tableevents/gallery-datatable-tableevents-debug.js',
                             'requires' : ['datatable']
                         }
                     }
@@ -30,7 +30,7 @@
                         // Make a ton of random data
                         var cols = [],
                             rows = [],
-                            numrows = 400,
+                            numrows = 40,
                             crow,
                             abc = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
                         
@@ -57,7 +57,7 @@
                         dt.on('rowMouseenter', function(e) { e.event.currentTarget.setStyle('backgroundColor', '#bbeeff'); });
                         dt.on('rowMouseleave', function(e) { e.event.currentTarget.setStyle('backgroundColor', null); });
                         
-                        dt.on('columnMouseenter', function(e) { e.cells().setStyle('backgroundColor', '#bbeeff'); });
+                        dt.on('columnMouseenter', function(e) { Y.log(e); e.cells().setStyle('backgroundColor', '#bbeeff'); });
                         dt.on('columnMouseleave', function(e) { e.cells().setStyle('backgroundColor', null); });
                         //dt.on('columnMouseenter', function(e) { Y.all('td[headers=' + e.column.get('id') + ']').setStyle('backgroundColor', '#bbeeff'); });
                         //dt.on('columnMouseleave', function(e) { Y.all('td[headers=' + e.column.get('id') + ']').setStyle('backgroundColor', null); });
@@ -69,14 +69,14 @@
                         Y.Profiler.registerObject(dt);
                         
                         Y.Profiler.start("rendertime");
-                        console.profile('DataTable.Base.render');
+                        //console.profile('DataTable.Base.render');
         
                         dt.after('render', function(e) {
                             Y.Profiler.stop("rendertime");
                             var report = Y.Profiler.getReport("rendertime");
                         
                             Y.log(report);
-                            console.profileEnd();
+                            //console.profileEnd();
                         });
         
                         dt.render('#testnode');
