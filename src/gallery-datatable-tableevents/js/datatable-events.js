@@ -193,13 +193,10 @@ DataTableEvents.prototype = {
      * @protected
      */
     _notifySubscribers : function(e, info) {
-        var table = this,
-            extra = this._getRelatedObjects(e, info),
-            columnId, relatedColumnId,
+        var columnId, relatedColumnId,
             payload = {
                 event: e,
                 currentTarget: e.currentTarget,
-                extra: extra,
                 inThead: info.inThead,
                 header: (info.tag == 'th')
             };
@@ -217,9 +214,9 @@ DataTableEvents.prototype = {
                 relatedColumnId = this.resolveRelatedColumn(e.relatedTarget);
                 
                 if (columnId != relatedColumnId) {
-                    payload.cells = function() { // Convenience closure gives access to column cells
-                        return table.get('contentBox').all('td[headers=' + columnId + ']');
-                    }
+//                    payload.cells = function() { // Convenience closure gives access to column cells
+//                        return table.get('contentBox').all('td[headers=' + columnId + ']');
+//                    }
                     
                     this._fireTableEvent('column' + info.type, payload);
                 }               

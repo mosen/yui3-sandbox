@@ -21,8 +21,8 @@
                             'fullpath' : '../../../build/gallery-datatable-tableevents/gallery-datatable-tableevents-debug.js',
                             'requires' : ['datatable']                            
                         },
-                        'gallery-dp-datatable-plugin-editable' : {
-                            'fullpath' : '../../../build/gallery-dp-datatable-plugin-editable/gallery-dp-datatable-plugin-editable-debug.js',
+                        'gallery-dp-datatable-plugin-edit' : {
+                            'fullpath' : '../../../build/gallery-dp-datatable-plugin-edit/gallery-dp-datatable-plugin-edit-debug.js',
                             'requires' : ['gallery-dp-datatable-enhanced']
                         }
                     }
@@ -32,7 +32,7 @@
                     ,"dump"
                     ,"gallery-dp-datatable-enhanced"
                     ,"gallery-datatable-tableevents"
-                    ,"gallery-dp-datatable-plugin-editable"
+                    ,"gallery-dp-datatable-plugin-edit"
                     ,function(Y) {
                     
                 
@@ -62,7 +62,7 @@
                                 recordset : this.mockresponse.response.results,
                                 plugins : [
                                     { fn: Y.DP.DatatableUpdates, cfg: {} },
-                                    { fn: Y.DP.DatatableEditor, cfg: {} }
+                                    { fn: Y.DP.DatatableEdit, cfg: {} }
                                 ]
                             });
 
@@ -78,7 +78,7 @@
                             var numOfTrElements;
                             
                             this.testDte.set('caption', "test call add with null creates row");
-                            this.testDte.editor.add(null);
+                            this.testDte.edit.add(null);
                             numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
                             Y.Assert.areEqual(4, numOfTrElements);
                         },
@@ -87,7 +87,7 @@
                             var numOfTrElements;
                             
                             this.testDte.set('caption', "test call add with undefined creates row");
-                            this.testDte.editor.add();
+                            this.testDte.edit.add();
                             numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
                             Y.Assert.areEqual(4, numOfTrElements);
                         },
@@ -96,7 +96,7 @@
                             var numOfTrElements;
                             
                             this.testDte.set('caption', "test call add with object data creates row");
-                            this.testDte.editor.add({ "id" : "4", "name" : "Shaun" });
+                            this.testDte.edit.add({ "id" : "4", "name" : "Shaun" });
                             numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
                             Y.Assert.areEqual(4, numOfTrElements);
                         },
@@ -105,7 +105,7 @@
                             var numOfTrElements;
                             
                             this.testDte.set('caption', "test call add with array data creates row");
-                            this.testDte.editor.add([{ "id" : "4", "name" : "Shaun" }]);
+                            this.testDte.edit.add([{ "id" : "4", "name" : "Shaun" }]);
                             numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
                             Y.Assert.areEqual(4, numOfTrElements);
                         },
@@ -114,7 +114,7 @@
                             var numOfTrElements;
                             
                             this.testDte.set('caption', "test call add with record creates row");                            
-                            this.testDte.editor.add(new Y.Record({ data: { "id" : "4", "name" : "Shaun" } }));
+                            this.testDte.edit.add(new Y.Record({ data: { "id" : "4", "name" : "Shaun" } }));
                             numOfTrElements = this.testDte.get('contentBox').one('.yui3-datatable-data').all('tr').size();
                             Y.Assert.areEqual(4, numOfTrElements);   
                         },
@@ -123,7 +123,7 @@
                             var recordToRemove = this.testDte.get('recordset').getRecord(0),
                                 recordId = recordToRemove.get('id');
                             
-                            this.testDte.editor.remove(0);
+                            this.testDte.edit.remove(0);
                             Y.Assert.isNull(this.testDte.get('contentBox').one('.yui3-datatable-data').one('tr#' + recordId), 'test TR element no longer exists');
                         },
                         
@@ -131,7 +131,7 @@
                             var tr = this.testDte.get('contentBox').one('.yui3-datatable-data tr'),
                                 trId = tr.get('id');
                                 
-                            this.testDte.editor.remove(tr);
+                            this.testDte.edit.remove(tr);
                             
                             Y.Assert.isNull(this.testDte.get('contentBox').one('.yui3-datatable-data tr#' + trId), 'test TR element no longer exists');
                         },
@@ -140,14 +140,14 @@
                             var rec = this.testDte.get('recordset').getRecord(0),
                                 recId = rec.get('id');
                                 
-                            this.testDte.editor.remove(rec);
+                            this.testDte.edit.remove(rec);
                             
                             Y.Assert.isNull(this.testDte.get('contentBox').one('tr#' + recId), 'test TR element no longer exists');
                         },
                         
                         "test call remove with record id deletes row" : function() {
                             var recId = this.testDte.get('contentBox').one('tr').get('id');
-                            this.testDte.editor.remove(recId);
+                            this.testDte.edit.remove(recId);
                             
                             Y.Assert.isNull(this.testDte.get('contentBox').one('tr#' + recId), 'test TR element no longer exists');
                         },
@@ -155,7 +155,7 @@
                         "test call update with index updates row" : function() {
                             var rec = this.testDte.get('recordset').getRecord(0);
                             
-                            this.testDte.editor.update(rec, { id: 1000, name: "Joey" });
+                            this.testDte.edit.update(rec, { id: 1000, name: "Joey" });
                             Y.Assert.areEqual("Joey", this.testDte.get('contentBox').one('tr#' + rec.get('id')).all('td').item(1).get('textContent'));
                         },
                         
@@ -163,9 +163,82 @@
                             var tr = this.testDte.get('contentBox').one('.yui3-datatable-data tr'),
                                 trId = tr.get('id');
                                 
-                            this.testDte.editor.update(tr, { id: 1000, name: "Joey" });
+                            this.testDte.edit.update(tr, { id: 1000, name: "Joey" });
                             
                             Y.Assert.areEqual("Joey", this.testDte.get('contentBox').one('tr#' + trId).all('td').item(1).get('textContent')); 
+                        },
+                        
+                        "test adding a single record provides changes.added" : function() {
+                            var changes;
+                            
+                            this.testDte.edit.add({ "id" : "4", "name" : "Shaun" });
+                            changes = this.testDte.edit.get('changes');
+                            
+                            Y.Assert.areEqual(changes.added.length, 1, "Assert changes array contains 1 change");
+                        },
+                        
+                        "test removing a single record provides changes.removed" : function() {
+                            var changes;
+                            
+                            this.testDte.edit.remove(0);
+                            changes = this.testDte.edit.get('changes');
+                            
+                            Y.Assert.areEqual(changes.removed.length, 1, "Assert changes array contains 1 change");
+                        },
+                        
+                        "test updating a single record provides changes.updated" : function() {
+                            var changes;
+                            
+                            this.testDte.edit.update(0, { name: "Joey" });
+                            changes = this.testDte.edit.get('changes');
+                            
+                            Y.Assert.areEqual(changes.updated.length, 1, "Assert changes array contains 1 change");
+                        },
+                        
+                        "test updating a single record twice only provides second update in changes.updated" : function() {
+                            var changes;
+                            
+                            this.testDte.edit.update(0, { name: "Fred" });
+                            this.testDte.edit.update(0, { name: "Joey" });
+                            
+                            changes = this.testDte.edit.get('changes');
+                            
+                            Y.Assert.areEqual(1, changes.updated.length, "Assert changes array contains 1 change");
+                            Y.Assert.areEqual("Joey", changes.updated[0].getValue().name);
+                        },
+                        
+                        "test updating a record then removing it does not keep the update (update -> remove)" : function() {
+                            var changes;
+                            
+                            this.testDte.edit.update(0, { name: "Fred" });
+                            this.testDte.edit.remove(0);
+                            
+                            changes = this.testDte.edit.get('changes');
+                            
+                            Y.Assert.areEqual(0, changes.updated.length, "Assert update removed when record was removed");
+                        },
+                        
+                        "test creating a new record then updating it does not create an update (add -> update)" : function() {
+                            var changes;
+                            
+                            this.testDte.edit.add({ "id" : "4", "name" : "Shaun" }, 0);
+                            this.testDte.edit.update(0, { name: "Fred" });
+                            
+                            changes = this.testDte.edit.get('changes');
+                            
+                            Y.Assert.areEqual(0, changes.updated.length, "Assert updating a new record does not created an update");
+                        },
+                        
+                        "test creating a new record then deleting it has no net effect (add -> remove)" : function() {
+                            var changes;
+                            
+                            this.testDte.edit.add({ "id" : "4", "name" : "Shaun" }, 0);
+                            this.testDte.edit.remove(0);
+                            
+                            changes = this.testDte.edit.get('changes');
+                            
+                            Y.Assert.areEqual(0, changes.added.length, "Assert deleting an added record removes the added change");
+                            Y.Assert.areEqual(0, changes.removed.length, "Assert deleting an added record does not add to the removed change");
                         }
 
                     });
