@@ -338,7 +338,7 @@ EditableBase.prototype = {
         editablenodes.set('title', this.get('strings.tooltip'));
         editablenodes.addClass(CLASS_FIELD);
         
-        Y.log(this.get('targetnode').get('innerHTML'));
+        //Y.log(this.get('targetnode').get('innerHTML'));
         
         // TODO: suggest placeholder for delegated items
         if (this.get('targetnode').get('innerHTML').length == 0) {

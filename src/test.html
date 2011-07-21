@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Page</title>
+    <style>
+        .yui3-datatable .yui3-datatable-editing .yui3-datatable-liner {
+            padding: 0;
+        }
+        .yui3-datatable-edit {
+            border: 0 none;
+            margin: 0;
+            padding: 4px 10px;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+        }
+    </style>
+</head>
+<body class="yui3-skin-sam">
+<div id="x"></div>
+
+<script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+<script>
+YUI({ filter: 'raw' }).use('datatable', 'event-key', function (Y) {
+
+var DTProps = Y.merge(Y.DataTable);
+
+Y.DataTable = Y.Base.create('datatable', Y.DataTable.Base, [], {
+    cell: function (row, column) {
+        return this._tbodyNode
+                .one('tr:nth-of-type(' + (row + 1) + ') ' +
+                     'td:nth-of-type(' + (column + 1) + ')');
+    }
+}, DTProps);
+
+
+function EditableDataTable() {}
+EditableDataTable.NAME = 'editable';
+EditableDataTable.prototype = {
+
+    initializer: function () {
+        this._editor = Y.Node.create('<input class="yui3-datatable-edit">');
+
+        Y.Do.after(function () {
+            this._bindEditorUI();
+        }, this, 'bindUI');
+    },
+
+    _bindEditorUI: function () {
+        this.delegate('click', function (e) {
+            // TODO: filter on editable column def
+            this.edit(e.currentTarget);
+        }, 'td', this);
+
+        this._editor.on('key', this._onEditorKeys, 'down:enter,esc,tab,38,40');
+        //}, 'down:enter,esc,tab,37,38,39,40');
+
+        this.after('recordset:update', this._afterRecordsetUpdate);
+    },
+
+    _onEditorKeys: function (e) {
+        var address = this.getData('address').slice();
+
+        e.preventDefault();
+
+        switch (e.keyCode) {
+            case 13:
+                this.ancestor('td').removeClass('yui3-datatable-editing');
+                table.save(address, this.get('value'));
+                this.clearData();
+                address = null;
+                break;
+            case 27:
+                this.ancestor('td').removeClass('yui3-datatable-editing');
+                this.replace(this.getData('previous'));
+                this.clearData();
+                address = null;
+                break;
+            case 9:
+                if (e.shiftKey) {
+                    address[1]--;
+                } else {
+                    address[1]++;
+                }
+                break;
+            //case 39: index[1]++; break;
+            //case 37: index[1]--; break;
+            case 40: address[0]++; break;
+            case 38: address[0]--; break;
+        }
+
+        if (address) {
+            table.edit(address);
+        }
+    },
+
+    _afterRecordsetUpdate: function (e) {
+        var newVal = e.updated,
+            prevVal = e.overwritten,
+            columnset = this.get('columnset'),
+            i, a, b, key, column, cell;
+
+        for (i = newVal.length - 1; i >= 0; --i) {
+            a = newVal[i].get('data');
+            b = prevVal[i].get('data');
+
+            for (key in a) {
+                if (a[key] !== b[key]) {
+                    column = columnset.keyHash[key];
+                    if (column) {
+                        cell = this.cell(e.index, column.keyIndex);
+                        if (cell) {
+                            cell.one('.yui3-datatable-liner').setContent(
+                                this.formatDataCell({
+                                    record: newVal[i],
+                                    rowIndex: e.index,
+                                    tbody: this._tbodyNode,
+                                    tr: cell.ancestor('tr'),
+                                    column: column,
+                                    headers: column.headers,
+                                    classnames: column.get('classnames')
+                                }));
+                        };
+                    }
+                }
+            }
+        }
+    },
+
+    edit: function (cell) {
+        var editor = this._editor,
+            editing = editor.getData('address'),
+            liner, address, delta;
+
+        if (Y.Lang.isArray(cell)) {
+            address = cell;
+            cell = this.cell(cell[0], cell[1]);
+        } else {
+            delta = this._theadNode.all('tr').size();
+            address = [ cell.ancestor('tr').get('rowIndex') - delta,
+                      cell.get('cellIndex') ];
+        }
+
+        if (editing && (editing[0] !== address[0] || editing[1] !== address[1])) {
+            editor.ancestor('td').removeClass('yui3-datatable-editing');
+            editor.replace(editor.getData('previous'));
+            this.save(editing, editor.get('value'));
+        }
+
+        if (cell) {
+            liner = cell.one('.yui3-datatable-liner');
+
+            editor.setData('address', address);
+            editor.set('value', cell.get('text'));
+            editor.setStyles({
+                height: liner.getComputedStyle('height'),
+                width: liner.getComputedStyle('width')
+            });
+
+            cell.addClass('yui3-datatable-editing');
+            editor.setData('previous', liner.getContent());
+            liner.setContent(editor);
+            editor.select();
+        }
+    },
+
+    save: function (address, value) {
+        var recordset = this.get('recordset'),
+            data = Y.merge(recordset.item(address[0]).get('data')),
+            key = this.get('columnset').keys[address[1]].get('key');
+
+        data[key] = value;
+
+        recordset.update(data, address[0]);
+    }
+
+};
+
+Y.Base.mix(Y.DataTable, [EditableDataTable]);
+
+
+var table = new Y.DataTable({
+    columnset: [ 'name', 'age' ],
+    recordset: [
+        { name: 'Phil Collins', age: 80 },
+        { name: 'Brian Eno', age: 45 },
+        { name: 'Phil Collins', age: 80 },
+        { name: 'Brian Eno', age: 45 }
+    ]
+}).render('#x');
+
+});
+</script>
+</body>
+</html>

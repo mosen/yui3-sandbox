@@ -1,5 +1,5 @@
 /**
- * @module datatable-events
+ * @module gallery-datatable-tableevents
  * @author lsmith, eamonb
  * @requires datatable
  * 
@@ -141,6 +141,7 @@ DataTableEvents.prototype = {
      * 
      * @method _handleEvent
      * @param e {Event} Event facade
+     * @return undefined
      * @protected
      */
     _handleEvent: function (e) {
@@ -155,7 +156,7 @@ DataTableEvents.prototype = {
                 type: e.type.charAt(0).toUpperCase() + e.type.slice(1), // Titlecase event
                 tag: tag,
                 tagHuman: tag_map[tag] ? tag_map[tag].name : tag,
-                relatedTag: (e.relatedTarget == null) ? '' : e.relatedTarget.get('tagName').toLowerCase(),
+                relatedTag: (e.relatedTarget === null) ? '' : e.relatedTarget.get('tagName').toLowerCase(),
                 inThead : e.currentTarget.getData('inThead'),
                 isHover :  /^mouse(?:over|out|enter|leave)$/.test(e.type) ? true : false
             };
@@ -172,24 +173,30 @@ DataTableEvents.prototype = {
      * Fire the Table Event
      *
      * @method _fireTableEvent
-     * @param
-     * @returns
+     * @param type {String} Event type to fire
+     * @param payload {Object} Payload for event facade
+     * @returns {Boolean} false if event propagation was stopped.
      * @protected
      */
     _fireTableEvent : function(type, payload) {
        Y.log("Emitting " + type, "debug", "Y.DataTable.Features.TableEvents");
         
        // Fire the event, stop DOM propagation if the handler cancels
-       this.fire(type, payload) || payload.event.stopPropagation(); // or fire(.., { event: e })? or new EventFacade?        
+       if (this.fire(type, payload) === true) {
+               return true;
+       } else {
+               payload.event.stopPropagation();
+               return false;
+       }
     },
     
     /**
-     * 
+     * Determine table events to fire, and notify subscribers
      *
      * @method _notifySubscribers
      * @param e {Event} Event facade
-     * @param info {Hash} Extra information extracted from the event
-     * @returns
+     * @param info {Object} Extra information extracted from the event
+     * @returns undefined
      * @protected
      */
     _notifySubscribers : function(e, info) {
@@ -199,81 +206,36 @@ DataTableEvents.prototype = {
                 currentTarget: e.currentTarget,
                 inThead: info.inThead,
                 header: (info.tag == 'th')
-            };
+            }, eventWillPropagate;
 
         //Y.log("_notifySubscribers", "info", "gallery-datatable-tableevents");
         
         // For hover events, resolve the relatedTarget parent column
         if (info.isHover) {
             if (info.tag == 'td' || info.tag == 'th') {
-                this._fireTableEvent(info.tagHuman + info.type, payload); // cellEvent
-                // TODO: if cell event stops propagation, do not broadcast column
-                
-                // Fire columnHover if relatedTarget resolves to different column
-                columnId = (info.tag == 'td') ? info.node.getAttribute('headers') : info.node.get('id');
-                relatedColumnId = this.resolveRelatedColumn(e.relatedTarget);
-                
-                if (columnId != relatedColumnId) {
-//                    payload.cells = function() { // Convenience closure gives access to column cells
-//                        return table.get('contentBox').all('td[headers=' + columnId + ']');
-//                    }
-                    
-                    this._fireTableEvent('column' + info.type, payload);
-                }               
+                if (this._fireTableEvent(info.tagHuman + info.type, payload)) {
+                    // continue if cellEvent did not stop propagation
+
+                    // Fire columnHover if relatedTarget resolves to different column
+                    columnId = (info.tag == 'td') ? info.node.getAttribute('headers') : info.node.get('id');
+                    relatedColumnId = this.resolveRelatedColumn(e.relatedTarget);
+
+                    if (columnId != relatedColumnId) {
+                        this._fireTableEvent('column' + info.type, payload);
+                    }               
+                }
                 
             } else if (info.tag == 'tr') {
-                if (e.relatedTarget == null || info.node !== e.relatedTarget.ancestor('tr')) {
+                if (e.relatedTarget === null || info.node !== e.relatedTarget.ancestor('tr')) {
                     this._fireTableEvent(info.tagHuman + info.type, payload);
                 }
             }
         } else {
-            this._fireTableEvent(info.tagHuman + info.type, payload);
-            if (info.tag == 'td' || info.tag == 'th') {
-                // TODO: if previous event stops propagation, do not broadcast column
+            eventWillPropagate = this._fireTableEvent(info.tagHuman + info.type, payload);
+            if (eventWillPropagate && (info.tag == 'td' || info.tag == 'th')) {
                 this._fireTableEvent('column' + info.type, payload);
             }
         }
-    },
-    
-    /**
-     * Grab object references for related items depending on the node firing the event.
-     *
-     * Provides a convenient way of retrieving associated data without invoking
-     * selectors/api
-     *
-     * @method _getRelatedObjects
-     * @param e {Event} Event facade
-     * @param info {Hash} Extra information generated from the event
-     * @returns {Hash} associated objects and values
-     * @protected
-     */
-    _getRelatedObjects : function(e, info) {
-        var tag = info.tagHuman,
-            node = info.node,
-            table = this,
-            payload = {};
-        
-        //Y.log("_getRelatedObjects", "info", "gallery-datatable-tableevents");
-        
-        // Extra convenience payload
-        switch (tag) {
-            case 'cell':
-                payload.record = table.get('recordset').getRecord(node.get('parentNode').get('id'));
-                
-                if (info.inThead) { // thead cells and tbody cells are treated equally
-                    payload.column = table.get('columnset').idHash[node.get('id')];
-                } else {
-                    payload.column = table.get('columnset').idHash[node.getAttribute('headers')];
-                    payload.value = payload.record.getValue(payload.column.get('key'));
-                }
-                break;
-                
-            case 'row':
-                payload.record = table.get('recordset').getRecord(node.get('id'));
-                break;
-        }
-        
-        return payload;
     },
     
     /**
@@ -281,16 +243,14 @@ DataTableEvents.prototype = {
      *
      * @method resolveRelatedColumn
      * @param relatedTarget {Node} related target that was supplied with hover event.
-     * @returns {String} Column ID
+     * @returns {String} Column ID or null if no related column was found
      * @public
      */
     resolveRelatedColumn : function(relatedTarget) {
         var relParent,
-            relTag = (relatedTarget != null) ? relatedTarget.get('tagName').toLowerCase() : null,
+            relTag = (relatedTarget !== null) ? relatedTarget.get('tagName').toLowerCase() : null,
             relColumnId = null;
-        
-        //Y.log("_resolveRelatedColumn", "info", "gallery-datatable-tableevents");
-        
+
         switch (relTag) {
             case 'td':
                 relColumnId = relatedTarget.getAttribute('headers');

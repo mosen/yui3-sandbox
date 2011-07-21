@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>YUI Sandbox</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <!-- You can use this node to test new widgets or components -->
+        <div id="testnode"></div>
+
+        <script type="text/javascript">
+            YUI({
+                //filter: 'debug',
+                groups : {
+                        dp : {
+                            combine : false,
+                            base: '../../../build/',
+                            root: '../../../build',
+                            modules : {
+                                'gallery-dp-tnode' : {
+                                    'path' : '/gallery-dp-tnode/gallery-dp-tnode.js',
+                                    'requires' : ['base']
+                                }
+                            }
+                        }
+                }
+            }).use(
+                "datatable"
+                , "profiler"
+                , "gallery-dp-tnode"
+                , function(Y) {
+                
+                
+                // Make a ton of random data
+                
+                var cols = [],
+                    rows = [],
+                    numrows = 400,
+                    crow,
+                    abc = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+                for (var ci = 0; ci < 40; ci++) {
+                    cols.push(abc[ci]);
+                }
+
+                for (var cd = 0; cd < numrows; cd++) {
+                    crow = {};
+
+                    for (var cr = 0; cr < cols.length; cr++) {
+                        crow[cols[cr]] = abc[Math.floor(Math.random() * abc.length)];
+                    }
+
+                    rows.push(crow);
+                }
+
+                var dt = new Y.DataTable.Base({
+                    columnset : cols,
+                    summary : "DataTable Events Test",
+                    recordset : rows
+                });
+                
+                Y.Profiler.registerFunction("dt._createTbodyTdNode", dt);
+
+                dt.after('render', function(e) {
+                    var report = Y.Profiler.getReport("dt._createTbodyTdNode");
+                    Y.log(report);
+                    Y.log(report.calls * report.avg);
+                });
+
+                dt.render('#testnode');
+                
+            });
+        </script>
+    </body>
+</html>

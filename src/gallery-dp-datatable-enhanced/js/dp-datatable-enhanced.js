@@ -16,6 +16,7 @@ var Lang = Y.Lang,
     Ysubstitute = Y.substitute,
     
     DATATABLE = "datatable",
+    CLASS_MSG = YgetClassName(DATATABLE, "msg"),
     CLASS_LINER = YgetClassName(DATATABLE, "liner"),
     TD_TEMPLATE = '<td headers="{headers}" class="{classnames}"><div class="'+CLASS_LINER+'"></div></td>',
     TEMPLATE_TH = '<th id="{id}" rowspan="{rowspan}" colspan="{colspan}" class="{classnames}" abbr="{abbr}"><div class="'+CLASS_LINER+'">{value}</div></th>',
@@ -41,6 +42,28 @@ var Lang = Y.Lang,
  * @extends DataTable.Base
  */
 Y.namespace('DP').DataTableEnhanced = Y.Base.create( 'gallery-dp-datatable-enhanced', Y.DataTable.Base, [], {
+    
+    initializer : function() {
+        this.after('recordsetChange', this._uiSetMessage);
+    },
+
+    /**
+     * Set the message if the recordset contains no rows
+     *
+     * @method _uiSetMessage
+     * @param e {Object} Event ATTR change
+     * @returns
+     * @protected
+     */
+    _uiSetMessage : function(e) {
+        Y.log("_uiSetMessage", "info", "gallery-dp-datatable-enhanced");
+        
+        if (e.newVal.getLength() == 0) {
+            this._tableNode.one('.'+CLASS_MSG).setContent('There are no rows here');
+        } else {
+            this._tableNode.one('.'+CLASS_MSG).setContent('');
+        }
+    },
 
     /**
      * Create DataTable TD Nodes
@@ -59,6 +82,8 @@ Y.namespace('DP').DataTableEnhanced = Y.Base.create( 'gallery-dp-datatable-enhan
     _createTbodyTdNode : function(o) {
         var column = o.column,
             formatvalue = null;
+            
+        Y.log("_createTbodyTdNode", "info", "gallery-dp-datatable-enhanced");
 
         //TODO: attributes? or methods?
         o.headers = column.headers;

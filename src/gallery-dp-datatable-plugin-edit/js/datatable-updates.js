@@ -48,7 +48,8 @@ Y.extend(DatatableUpdates, Y.Plugin.Base, {
     initializer : function () {
         Y.log("DatatableUpdates:init", "info", "DatatableUpdates");
         
-
+        // DataTable does not usually recognise changes in the underlying state of the recordset, unless the 
+        // recordset was replaced entirely.
         this.afterHostEvent("recordset:add", this._afterRecordsetAdd);
         this.afterHostEvent("recordset:remove", this._afterRecordsetRemove);
         this.afterHostEvent("recordset:empty", this._afterRecordsetEmpty);

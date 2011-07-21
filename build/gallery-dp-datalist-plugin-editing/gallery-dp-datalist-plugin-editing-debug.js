@@ -285,8 +285,8 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         //args.record.setValue(updatedItem);
         //args.node.replace(newNode);
         var hashTable = records.get('table'); // Force table update?
-        Y.log(hashTable);
-        Y.log(records.getLength());
+        //Y.log(hashTable);
+        //Y.log(records.getLength());
         
         this.get('host').set('recordset', records);
     },
