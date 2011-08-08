@@ -392,7 +392,7 @@ EditableBase.prototype = {
         e.halt();
 
         // Ignore events inside the current editor
-        if (editNode !== null && editNode.contains(e.target)) {
+        if (this.get('editing') === true && editNode !== null && editNode.contains(e.target)) {
             return false;
         }
         

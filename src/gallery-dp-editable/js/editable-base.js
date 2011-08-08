@@ -395,7 +395,7 @@ EditableBase.prototype = {
         e.halt();
 
         // Ignore events inside the current editor
-        if (editNode !== null && editNode.contains(e.target)) {
+        if (this.get('editing') === true && editNode !== null && editNode.contains(e.target)) {
             Y.log("Ignoring events inside current editor node", "debug", "gallery-dp-editable");
             return false;
         }

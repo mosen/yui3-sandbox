@@ -25,16 +25,8 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     initializer : function (config) {
 
         // IO
-        this.publish('success', {defaultFn: this._defResponseSuccessFn});
+        //this.publish('success', {defaultFn: this._defResponseSuccessFn});
         this.publish('select');
-
-        // Configure single handler for IO reponses
-        this._ioCallback = {
-            complete: Y.bind(this._handleResponse, this, 'complete'),
-            success: Y.bind(this._handleResponse, this, 'success'),
-            failure: Y.bind(this._handleResponse, this, 'failure'),
-            end: Y.bind(this._handleResponse, this, 'end')
-        };
     },
     
     // No renderUI method because CONTENT_TEMPLATE fulfills requirements.
@@ -43,17 +35,17 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * Iterate through list items and call render on each.
      *
      * @method _renderItems
-     * @param rs {Y.Recordset} Recordset
+     * @param models {Y.ModelList} a list of models
      * @protected
      */
-    _renderItems : function(rs) {
+    _renderItems : function(models) {
         var fnRender = Y.bind(this.get('fnRender'), this),
             listContainer = this.get('contentBox');
         
         Y.log("_renderItems", "info", "gallery-dp-datalist");
 
-        rs.each(function(record) {
-            listContainer.append(this._renderItem(fnRender, {value: record.get('data'), id: record.get('id')}));
+        models.each(function(model) {
+            listContainer.append(this._renderItem(fnRender, {value: model, id: model.get('id')}));
         }, this);
     },
     
@@ -62,7 +54,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      *
      * @method _renderItem
      * @param fnRender {Function} The custom function given to us to render the item content
-     * @param record {Y.Record} The item record
+     * @param o {Object} The item to be rendered with .id and .value properties, the value property pointing to a Y.Model
      * @returns {Node} the created node, to append
      * @protected
      */
@@ -83,8 +75,17 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     bindUI : function () {
         // ATTR
-        this.after('recordsetChange', this._uiSetItems, this);
+        //this.after('recordsetChange', this._uiSetItems, this);
+        // TODO: after modellist read, set items
         this.after('selectionChange', this._uiSetSelected, this);
+        
+        this.get('models').after('add', this._uiSetItems, this);
+        this.get('models').after('remove', this._uiSetItems, this);
+        this.get('models').after('reset', this._uiSetItems, this);
+        // model.delete() does not remove from parent list.. probably makes sense,
+        // but should be configurable for auto goodness
+        this.get('models').on('*:delete', this._uiRemoveItems, this);
+        this.get('models').on('*:change', this._uiUpdateItems, this);
         
         // DOM
         this.get('contentBox').delegate('click', Y.bind(this._handleItemClicked, this), '.' + this.getClassName('item')); // TODO make this classname configurable
@@ -95,7 +96,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @public
      */
     syncUI : function () {
-        this.get('source').sendRequest({ request: this.get('initialRequest'), callback: this._ioCallback });
+        
     },
 
     /**
@@ -121,18 +122,6 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     },
     
     /**
-     * Default handler for table:success (DataSource.IO Response Success)
-     * 
-     * @method _defResponseSuccessFn
-     * @param o {Object} Response object
-     */
-    _defResponseSuccessFn : function(o) {
-        Y.log('_defResponseSuccessFn', 'info', "gallery-dp-datalist");
-
-        this.set('recordset', new Y.Recordset({records: o.response.results}));
-    },
-    
-    /**
      * Handle a list item being clicked.
      *
      * @method _handleItemClicked
@@ -141,23 +130,24 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @protected
      */
     _handleItemClicked : function(e) {
+        // TODO: everything here, related to Recordset
         Y.log("_handleItemClicked", "info", "gallery-dp-datalist");
         
         var li = e.currentTarget,
             rId = li.get('id'),
-            record = this.get('recordset').getRecord(rId),
+            model = this.get('models').getById(rId),
             value;
             
-        if (undefined == record) {
+        if (undefined === model) {
             Y.log('Couldnt get record for id:' + rId);
             this.get('recordset')._setHashTable();
             Y.log(this.get('recordset').get('table'));
             Y.log(this.get('recordset'));
         }    
-        value = record.getValue();
+        value = model;
         
         this.set('selection', [ '#'+rId ]); // CSSify the item so that the entire array can be selected by Y.all
-        this.fire('select', { itemid: rId, item: value });
+        this.fire('select', {itemid: rId, item: value});
     },
     
     /**
@@ -168,13 +158,51 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @protected
      */
     _uiSetItems : function(e) {
+        // TODO: update here
         Y.log("_uiSetItems", "info", "gallery-dp-datalist");
-        var rs = e.newVal;
+
+        var models = this.get('models');
         
         // Note: clearing the content also blows away plugin content/or user content, so we use all/remove
         this.get('contentBox').all('.'+this.getClassName('item')).remove();
-        this._renderItems(rs);
+        
+        this._renderItems(models);
         this._uiSetSelected(); // If selection state was set, but not through the UI
+    },
+    
+    /**
+     * Update the UI with the changed items
+     *
+     * @method _uiUpdateItems
+     * @param change {Object} Changed attributes of the child model
+     * @returns undefined
+     * @protected
+     */
+    _uiUpdateItems : function(change) {
+        //Y.log("_uiUpdateItems", "info", "gallery-dp-datalist");
+        var fnRender, updatedItem, oldItem, model = change.target;
+        
+        if (change.changed.hasOwnProperty('title')) {
+            Y.log("Title has changed", "info", "gallery-dp-datalist");
+            
+            fnRender = Y.bind(this.get('fnRender'), this),
+            updatedItem = this._renderItem(fnRender, {value: model, id: model.get('id')});
+            
+            oldItem = this.get('contentBox').one('li#'+model.get('id'));
+            oldItem.replace(updatedItem);
+        }
+    },
+    
+    /**
+     * Update the UI with removed items
+     *
+     * @method _uiRemoveItems
+     * @param e {Event} Event facade
+     * @returns
+     * @protected
+     */
+    _uiRemoveItems : function(e) {
+        Y.log("_uiRemoveItems", "info", "gallery-dp-datalist");
     },
     
     /**
@@ -270,24 +298,13 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     ATTRS : {
         
         /**
-         * The datasource that will be used to create the list items
+         * The Y.ModelList instance that will be used to retrieve the source items
          *
-         * @attribute source
-         * @type DataSource
+         * @attribute models
+         * @type Y.ModelList
          * @default null
          */
-        source : {
-            value : null
-        },
-        
-        /**
-         * The last set of data that was retrieved from the datasource
-         *
-         * @attribute recordset
-         * @type Object
-         * @default null
-         */
-        recordset : {
+        models : {
             value : null
         },
         
