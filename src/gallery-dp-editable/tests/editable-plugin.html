@@ -8,11 +8,14 @@
     </head>
     <body class="yui3-skin-sam">
         <div class="yui3-editable-container">
-            <span class="yui3-editable-test1 editable-delegate">This is some editable text</span>
-            <span class="yui3-editable-test2 editable-delegate">This should also be editable</span>
+            <ul>
+                <li><span class="yui3-editable-test1 editable-delegate">This is some editable text</span></li>
+                <li><span class="yui3-editable-test2 editable-delegate">This should also be editable</span></li>
+            </ul>
         </div>
         <span class="yui3-editable-test3">This should be a textarea editor</span>
         <input type="text" id="test" />
+        <div id="keytest"></div>
         <script type="text/javascript">
             (function() {
                 YUI({
@@ -32,7 +35,7 @@
                                 }
                             }
                     }
-                }).use("console", "test", "dump", "gallery-dp-editable", function(Y) {
+                }).use("console", "test", "dump", "gallery-dp-editable", "node", "event-key", function(Y) {
                 
                     var myConsole = new Y.Console().render();
 

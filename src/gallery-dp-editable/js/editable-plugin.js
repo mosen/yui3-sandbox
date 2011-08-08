@@ -16,7 +16,7 @@
  * @namespace Y.DP
  * @extends Plugin.Base
  */
-EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.EditableBase], {
+var EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.EditableBase], {
     
     initializer : function(config) {
         Y.log("init", "info", this.NAME);

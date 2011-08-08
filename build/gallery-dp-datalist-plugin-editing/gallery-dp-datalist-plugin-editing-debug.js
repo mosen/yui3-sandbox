@@ -24,24 +24,8 @@ function DatalistEditing(config) {
 
 Y.mix(DatalistEditing, {
 
-    /**
-     * The plugin namespace identifies the property on the host
-     * which will be used to refer to this plugin instance.
-     *
-     * @property NS
-     * @type String
-     * @static
-     */
     NS : "editing",
 
-    /**
-     * The plugin name identifies the event prefix and is a basis for generating
-     * class names.
-     * 
-     * @property NAME
-     * @type String
-     * @static
-     */
     NAME : "datalistEditing",
 
     /**
@@ -140,7 +124,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @public
      */
     _renderEditingTools : function() {
-        Y.log("_renderEditingTools", "info", this.NAME);
+        Y.log("_renderEditingTools", "info", "gallery-dp-datalist-plugin-editing");
         
         var list = this.get('host').get('contentBox'),
             phlistitem = Y.Node.create(Y.substitute(this.ITEM_ADD_TEMPLATE, {
@@ -175,23 +159,26 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
             event: 'dblclick',
             loadfrom: function(n) {return n.one('a').get('textContent');},
             submitto: Y.bind(function(li) {
-                //Y.log(li);
+
                 var record = this.get('host').get('recordset').getRecord(li.get('id')),
                     recordValue = record.getValue(),
                     fnGetValue = this.get('fnGetValue');
-                
-                //Y.log(recordValue);
                 
                 Y.io(Y.substitute(uriEdit, {value: li.one('input').get('value'), id: fnGetValue(recordValue, 'id')}), {
                     on : {
                         start: function(id, o, args) {
                             Y.log('started updating');
                         },
-                        success: function(id, o, args) { 
+                        success: function(id, o, args) {
+                            this._placeholder.editable.set('editing', false);
+                            this._placeholder.editable.set('saving', false);
+                            
                             this._itemSaved(o, args);
+                            
                         },
                         failure: function(id, o, args) { 
                             Y.log('failed to update');
+                            
                             // TODO: display a warning
                         }
                     },
@@ -216,7 +203,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @protected
      */
     _repositionEditingTools : function() {
-        Y.log("_repositionEditingTools", "info", this.NAME);
+        Y.log("_repositionEditingTools", "info", "gallery-dp-datalist-plugin-editing");
         
         var listNodes = this.get('host').get('contentBox').all('li.'+this.get('host').getClassName('item')),
             lastNode = listNodes.pop();
@@ -233,7 +220,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @protected
      */
     _renderAddControl : function(config) {
-        Y.log("_renderAddControl", "info", this.NAME);
+        Y.log("_renderAddControl", "info", "gallery-dp-datalist-plugin-editing");
         
         return Y.substitute(config.template, config);
     },
@@ -247,7 +234,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @protected
      */
     _handleRemoveItemClicked : function(e) {
-        Y.log("_handleRemoveItemClicked", "info", this.NAME);
+        Y.log("_handleRemoveItemClicked", "info", "gallery-dp-datalist-plugin-editing");
         
         this.remove(e.target);
     },
@@ -262,33 +249,26 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @public
      */
     _itemSaved : function(o, args) {
-        Y.log("_itemSaved", "info", this.NAME);
-        
+        Y.log("_itemSaved", "info", "gallery-dp-datalist-plugin-editing");
         
         var updatedItem = Y.JSON.parse(o.responseText),
-            records = this.get('host').get('recordset'),
+            rs = this.get('host').get('recordset'),
             recordId = args.node.get('id'),
-            rec;
-        
-        // = ,
+            records = rs.get('records'), i = 0, editRecord;
+
         Y.log('Saving item with ID:' + recordId);
         Y.log(updatedItem.record);
         
-        records.after('tableChange', function(e) {
-            Y.log("Hash table got updated", "info", "this.NAME");
-        });
+        for (; i < records.length; i++) {
+            if (records[i].get('id') == recordId) break;
+        }
         
-        records.update(updatedItem.record);
-        //records.add(updatedItem.record, recordId);
-        //newNode = this.get('host')._renderItem(Y.bind(this.get('host').get('fnRender'), this.get('host')), { value: updatedItem.record })
+        editRecord = rs.getRecord(i);
+        editRecord.set('data', updatedItem.record);
         
-        //args.record.setValue(updatedItem);
-        //args.node.replace(newNode);
-        var hashTable = records.get('table'); // Force table update?
-        //Y.log(hashTable);
-        //Y.log(records.getLength());
+        rs.update(editRecord, i);
         
-        this.get('host').set('recordset', records);
+        this.get('host').set('recordset', rs);
     },
     
     /**
@@ -300,13 +280,13 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @protected
      */
     _newItemAdded : function(o) {
-        Y.log("_newItemAdded", "info", this.NAME);
+        Y.log("_newItemAdded", "info", "gallery-dp-datalist-plugin-editing");
         
         var newItem = Y.JSON.parse(o.details[0].responseText),
             records = this.get('host').get('recordset');
 
         records.add(newItem);
-        Y.log("setting new records", "info", "this.NAME");
+        Y.log("setting new records", "info", "gallery-dp-datalist-plugin-editing");
         this.get('host').set('recordset', records);
         
         this._placeholder.editable.clear();
@@ -321,7 +301,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @public
      */
     remove : function(n) {
-        Y.log("remove " + n.get('id'), "info", this.NAME);
+        Y.log("remove " + n.get('id'), "info", "gallery-dp-datalist-plugin-editing");
     },
     
     /**
@@ -333,7 +313,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @public
      */
     add : function(item) {
-        Y.log("add", "info", this.NAME);
+        Y.log("add", "info", "gallery-dp-datalist-plugin-editing");
     },
     
     /**
@@ -345,7 +325,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      * @public
      */
     update : function(n, item) {
-        Y.log("update", "info", this.NAME);
+        Y.log("update", "info", "gallery-dp-datalist-plugin-editing");
     },
     
     /**

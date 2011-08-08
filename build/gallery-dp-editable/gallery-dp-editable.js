@@ -21,7 +21,7 @@ var Lang = Y.Lang,
 
 /**
  * Editable creates an in-place editor for html element text content.
- * It is loosely based on jEditable/jquery
+ * It is loosely based on jEditable of jQuery fame.
  *
  * @class EditableBase
  * @extends Widget
@@ -38,25 +38,8 @@ function EditableBase() {
 
 Y.mix(EditableBase, {
 
-    /**
-     * The widget name identifies the event prefix and is a basis for generating
-     * class names.
-     * 
-     * @property NAME
-     * @type String
-     * @static
-     */
     NAME : "editableBase",
 
-    /**
-     * The attribute configuration represents the core user facing state of 
-     * the widget.
-     *
-     * @property ATTRS
-     * @type Object
-     * @protected
-     * @static
-     */
     ATTRS : {
         // TODO: implement the select editor
         
@@ -71,12 +54,16 @@ Y.mix(EditableBase, {
             value : {
                 // added as a title attribute
                 tooltip : 'Click to edit...',
+                
                 // caption for the cancel button
                 cancel : 'Cancel',
+                
                 // caption for the save button
                 submit : 'OK',
+                
                 // span is added with this text during XHR transactions
                 indicator : 'Saving...',
+                
                 // this will be used when there is an empty field to edit, to provide somewhere to click
                 placeholder : 'Click to edit...'
             }
@@ -88,14 +75,16 @@ Y.mix(EditableBase, {
          * When delegating, this will be the node where the delegate is attached.
          *
          * @attribute targetnode
-         * @type type
+         * @type Node
+         * @default null
          */
         targetnode : {
             value : null
         },
   
         /**
-         * Reference to the node being edited / where the editor will appear
+         * Reference to the node being edited / where the editor will appear.
+         * When there is no node being edited, the value will be null.
          *
          * @attribute editingnode
          * @type Node
@@ -106,10 +95,11 @@ Y.mix(EditableBase, {
         },
         
         /**
-         * The event which will start editing of the node.
+         * The DOM event which will start editing of the node.
          *
          * @attribute event
          * @type String
+         * @default 'click'
          */
         event : {
             value : 'click'
@@ -122,6 +112,7 @@ Y.mix(EditableBase, {
          *
          * @attribute prevContent
          * @type String
+         * @default null
          */
         prevContent : {
             value : null
@@ -143,9 +134,11 @@ Y.mix(EditableBase, {
         
         /**
          * The rows attribute applied to a textarea field (if that is the selected type)
+         * Not selecting a value will not add the attribute to the textarea element.
          *
          * @attribute rows
          * @type Number
+         * @default null
          */
         rows : {
             value : null
@@ -153,9 +146,11 @@ Y.mix(EditableBase, {
         
         /**
          * The cols attribute applied to a textarea field (if that is the selected type)
+         * Not selecting a value will not add the attribute to the textarea element.
          *
          * @attribute cols
          * @type Number
+         * @default null
          */
         cols : {
             value : null
@@ -164,14 +159,19 @@ Y.mix(EditableBase, {
         /**
          * Where the editor data will be posted during save.
          * 
-         * If this is a string then we will invoke IO.get
+         * This can be a string or a function, or null.
          * 
-         * If this is a function, the function will receive the submitted data.
+         * If it is a string then the string is used as an XHR uri.
          * 
-         * TODO: If this is a datasource, the datasource will be sent a request.
+         * If it is a function then the function is executed with arguments (editing_node, callback).
+         * The callback must be executed to let editable know that the save is complete
+         * 
+         * If it is null, then the text content will be appended to the html element
+         * being edited.
          *
          * @attribute submitto
          * @type String|Function
+         * @default null
          */
         submitto : {
             value : null
@@ -182,6 +182,7 @@ Y.mix(EditableBase, {
          *
          * @attribute method
          * @type String
+         * @default 'POST'
          */
         method : {
             value : 'POST'
@@ -199,6 +200,7 @@ Y.mix(EditableBase, {
          *
          * @attribute loadfrom
          * @type String|Function
+         * @default null
          */
         loadfrom : {
             value : null
@@ -220,9 +222,10 @@ Y.mix(EditableBase, {
          *
          * @attribute saving
          * @type Boolean
+         * @default false
          */
         saving : {
-            value : true
+            value : false
         },
         
         /**
@@ -230,6 +233,7 @@ Y.mix(EditableBase, {
          *
          * @attribute select
          * @type Boolean
+         * @default false
          */
         select : {
             value : false
@@ -241,6 +245,7 @@ Y.mix(EditableBase, {
          *
          * @attribute inputWidth
          * @type String
+         * @default 'auto'
          */
         inputWidth : {
             value : 'auto'
@@ -252,6 +257,7 @@ Y.mix(EditableBase, {
          *
          * @attribute inputHeight
          * @type String
+         * @default 'auto'
          */
         inputHeight : {
             value : 'auto'
@@ -262,6 +268,7 @@ Y.mix(EditableBase, {
          *
          * @attribute onblur
          * @type String
+         * @default 'cancel'
          */
         onblur : {
             // TODO validator: in array ['cancel', 'submit', function, null?]
@@ -269,20 +276,22 @@ Y.mix(EditableBase, {
         },
         
         /**
-         * Selector to use when delegating to multiple editable elements.
-         * Non-null value means we do want to delegate.
+         * Use this value if you are delegating editors to a group of sub-elements
+         * 
+         * The value is a selector to the elements to delegate to.
          *
          * @attribute delegate
          * @type String
+         * @default null
          */
         delegate : {
             value : null
         }
-
     }
 });
 
 EditableBase.prototype = {
+    
     /**
      * Destructor runs when destroy() is called.
      * 
@@ -297,17 +306,15 @@ EditableBase.prototype = {
     },
     
     /**
-     * Bind lifecycle
+     * Bind editor events
      *
      * @method _bindEditableBase
-     * @param
-     * @returns
-     * @public
+     * @protected
      */
     _bindEditableBase : function() {
         
         // Only delegate editor if delegate contains a selector
-        if (null == this.get('delegate')) {
+        if (null === this.get('delegate')) {
             this.get('targetnode').on(this.get('event'), Y.bind(this._onClick, this));
         } else {
             this.get('targetnode').delegate(this.get('event'), this._onClick, this.get('delegate'), this);
@@ -316,28 +323,29 @@ EditableBase.prototype = {
     
     /**
      * Sync lifecycle
+     * 
+     * At the moment will only show the placeholder when there are no child nodes
+     * on the editable node.
      *
      * @method _syncEditableBase
-     * @param
-     * @returns
-     * @public
+     * @protected
      */
     _syncEditableBase : function() {
         var editablenodes;
         
         
-        if (null == this.get('delegate')) {
+        if (null === this.get('delegate')) {
             editablenodes = this.get('editingnode');
         } else {
             editablenodes = this.get('targetnode').all(this.get('delegate'));
         }
         
+        // Style the nodes eligable for editing
         editablenodes.set('title', this.get('strings.tooltip'));
         editablenodes.addClass(CLASS_FIELD);
-        
-        
+
         // TODO: suggest placeholder for delegated items
-        if (this.get('targetnode').get('innerHTML').length == 0) {
+        if (this.get('targetnode').get('innerHTML').length === 0) {
             this.get('targetnode').append(this._renderPlaceHolder());
         }
     },
@@ -346,8 +354,7 @@ EditableBase.prototype = {
      * Render the placeholder
      *
      * @method _renderPlaceHolder
-     * @param
-     * @returns
+     * @returns {Node} Node instance of the placeholder
      * @protected
      */
     _renderPlaceHolder : function() {
@@ -359,11 +366,11 @@ EditableBase.prototype = {
     },
     
     /**
-     * Validate the 'type' attribute as being one of textarea|text
+     * Validate the 'type' attribute as being a valid editor type.
      *
      * @method _validateAttrType
      * @param v {String} Value to validate
-     * @returns
+     * @returns {Boolean}
      * @protected
      */
     _validateAttrType : function(v) {
@@ -379,21 +386,22 @@ EditableBase.prototype = {
      * @protected
      */
     _onClick : function(e) {
+        var editNode = this.get('editingnode');
+        
         
         e.halt();
-        
-        // TODO: Editing modes for multiple editors visible or single editor.
-        if (this._input == e.target) {
+
+        // Ignore events inside the current editor
+        if (editNode !== null && editNode.contains(e.target)) {
             return false;
         }
         
-        // We're already editing something, so save it first
-        if (this.get('editingnode') !== null && this.get('editingnode') !== e.currentTarget) {
+        // If a delegate node other than the current has been clicked, save then switch to that editor
+        if (this.get('editing') === true && e.currentTarget.get('id') != editNode.get('id')) {
             this.save();
         }
-        
-        this.set('editingnode', e.currentTarget);
-        this.set('editing', true);
+ 
+        this.edit(e.currentTarget);
     },
     
     /**
@@ -438,7 +446,7 @@ EditableBase.prototype = {
         
         if (e.keyCode == 27) {
             this.discard();
-        } else if (e.keyCode = 13) {
+        } else if (e.keyCode == 13) {
             this.save();
         }
     },
@@ -454,7 +462,7 @@ EditableBase.prototype = {
     _uiSetSaving : function(e) {
         
         if (null != this.get('editingnode')) {     
-            if (true == this.get('saving')) {
+            if (true === this.get('saving')) {
                 this.get('editingnode').addClass(CLASS_FIELD_SAVING);
             } else {
                 this.get('editingnode').removeClass(CLASS_FIELD_SAVING);
@@ -472,10 +480,10 @@ EditableBase.prototype = {
      */
     _uiSetEditing : function(e) {
         
-        if (true == this.get('editing')) {
+        if (true === this.get('editing')) {
             
 
-            if (true == e.prevVal) return false; // Don't edit twice
+            if (true === e.prevVal) {return false;} // Don't edit twice
 
             var form = this._renderForm(),
                 editingnode = this.get('editingnode'),
@@ -505,7 +513,7 @@ EditableBase.prototype = {
             this._input.set('value', value);
             this._input.focus();
 
-            if (true == this.get('select')) {
+            if (true === this.get('select')) {
                 this._input.select();
             }
             
@@ -554,7 +562,7 @@ EditableBase.prototype = {
             input,
             buttons,
             inputWidth = this.get('inputWidth'),
-            inputHeight = this.get('inputHeight');;
+            inputHeight = this.get('inputHeight');
 
         switch(type) {
             case 'textarea':
@@ -581,8 +589,8 @@ EditableBase.prototype = {
         
         // TODO: Do we really need to keep a node reference to the input? some editors might not use inputs
         this._input = input;
-        this._input.on('key', this._onKey, 'down:13', this); // Enter = save
-        this._input.on('key', this._onKey, 'down:27', this); // ESC = discard
+        this._input.on('key', this.save, "enter", this); // Enter = save
+        this._input.on('key', this.discard, "esc", this); // ESC = discard
         frm.append(this._input);
         
         buttons = Y.Node.create(Y.substitute(this.TEMPLATE_BUTTONS, { 
@@ -597,6 +605,19 @@ EditableBase.prototype = {
         
         frm.append(buttons);
         return frm;
+    },
+    
+    /**
+     * Start editing
+     *
+     * @method edit
+     * @param node {Node} The node to edit
+     * @public
+     */
+    edit : function(node) {
+        
+        this.set('editingnode', node);
+        this.set('editing', true);
     },
     
     /**
@@ -615,7 +636,8 @@ EditableBase.prototype = {
         this.set('saving', true);
 
         if (Y.Lang.isFunction(submitto)) {
-            submitto(editingnode);
+            submitto(editingnode, Y.bind(this.saveComplete, this));
+            this.set('editing', false);
             
         } else if (Y.Lang.isString(submitto)) {
             // XHR
@@ -628,10 +650,12 @@ EditableBase.prototype = {
                     start: function(id, o, args) {this.set('saving', true);},
                     success: function(id, o, args) { 
                         this.set('saving', false);
+                        this.set('editing', false);
                         this.fire('save', o);
                     },
                     failure: function(id, o, args) { 
                         this.set('saving', false);
+                        this.set('editing', false);
                         this.get('editingnode').set('innerHTML', this.get('prevContent'));
                         // TODO: display a warning
                     }
@@ -641,19 +665,38 @@ EditableBase.prototype = {
                     node : editingnode
                 }
             });           
-        } else if (null == submitto) {
+        } else if (null === submitto) {
             
             var value = this._input.get('value');
             this.get('editingnode').set('innerHTML', '');
             this.get('editingnode').append(value);
-            
-            this.set('prevContent', null);
-            this.set('editingnode', null);
+
             this.set('editing', false);
             this.set('saving', false);
+            this.set('prevContent', null);
+            this.set('editingnode', null);
+
         }
         
         //this.fire('save', {value: editorvalue, node: editingnode});
+    },
+    
+    /**
+     * Indicate that saving is complete.
+     * This is called by external functions which handle the saving of data
+     * from the editor when they have completed, so that the editor
+     * can clean up the UI and state.
+     *
+     * @method saveComplete
+     * @param
+     * @returns
+     * @public
+     */
+    saveComplete : function() {
+        
+        this.set('saving', false);
+        this.set('prevContent', null);
+        this.set('editingnode', null);
     },
     
     /**
@@ -812,7 +855,7 @@ Y.namespace("DP").EditableBase = EditableBase;
  * @namespace Y.DP
  * @extends Plugin.Base
  */
-EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.EditableBase], {
+var EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.EditableBase], {
     
     initializer : function(config) {
 
@@ -850,4 +893,4 @@ EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.EditableBa
 Y.namespace("DP").EditablePlugin = EditablePlugin;
 
 
-}, '@VERSION@' ,{requires:['base', 'event', 'plugin', 'io']});
+}, '@VERSION@' ,{requires:['node', 'base', 'event', 'plugin', 'io']});

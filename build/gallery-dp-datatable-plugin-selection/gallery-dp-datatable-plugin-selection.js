@@ -7,15 +7,15 @@ YUI.add('gallery-dp-datatable-plugin-selection', function(Y) {
  * @author eamonb
  * @requires plugin, datatable, gallery-datatable-tableevents
  */
-var Lang = Y.Lang;
+var YgetClassName = Y.ClassNameManager.getClassName;
 
 /**
  * DataTable selection plugin
  * 
  * Provides an API to make selections and get the current selection.
- * Uses recordset-selection to maintain the underlying selection
- * TODO: use recordset-filter to select by attribute
- * TODO: support inverse, select by value (eg. result set contains tag property), none
+ * 
+ * Originally designed to use recordset-indexer which was found to be unsuitable
+ * for carrying the selection.
  *
  * @namespace Y.DP
  * @class DatatableSelection
@@ -42,25 +42,10 @@ Y.mix(DatatableSelection, {
      */
     ATTRS : {
         
-        /*
-         * Attribute properties:
-         *  
-         * , valueFn: "_defAttrAVal"      // Can be used as a substitute for "value", when you need access to "this" to set the default value.
-         *   
-         * , setter: "_setAttrA"          // Used to normalize attrA's value while during set. Refers to a prototype method, to make customization easier
-         * , getter: "_getAttrA"          // Used to normalize attrA's value while during get. Refers to a prototype method, to make customization easier
-         * , validator: "_validateAttrA"  // Used to validate attrA's value before updating it. Refers to a prototype method, to make customization easier
-         * , readOnly: true               // Cannot be set by the end user. Can be set by the component developer at any time, using _set
-         * , writeOnce: true              // Can only be set once by the end user (usually during construction). Can be set by the component developer at any time, using _set
-         * 
-         * , lazyAdd: false               // Add (configure) the attribute during initialization. 
-         * 
-         *                                // You only need to set lazyAdd to false if your attribute is
-         *                                // setting some other state in your setter which needs to be set during initialization 
-         *                                // (not generally recommended - the setter should be used for normalization. 
-         *                                // You should use listeners to update alternate state). 
-         * , broadcast: 1                 // Whether the attribute change event should be broadcast or not.
-         */
+        selection : {
+            value : [],
+            validator : Y.Lang.isArray
+        }
     }    
 });
 
@@ -73,13 +58,15 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
      * @param config {Object} Configuration object
      */
     initializer : function (config) {
+        var hostRecords = this.get('host').get('recordset');
+        
         
         this.onHostEvent("rowClick", this._onHostRowClick);
         
-        this.onHostEvent("rowMouseenter", this._onHostRowMouseenter);
-        this.onHostEvent("rowMouseleave", this._onHostRowMouseleave);
+        this.onHostEvent("rowMouseover", this._onHostRowMouseenter);
+        this.onHostEvent("rowMouseout", this._onHostRowMouseleave);
         
-        
+        this.after('selectionChange', this._uiSetSelection);
     },
 
     /**
@@ -100,11 +87,11 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
      * @returns undefined
      * @protected
      */
-    _onHostRowClick : function(e) {
+    _onHostRowClick : function(e) {        
+        var rowClicked = e.node;
+
         
-        // recordset.selection.toggle(trId|tr)
-        // on recordset selectionChange update ui
-        
+        this.select(rowClicked);
     },
     
     /**
@@ -117,7 +104,7 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
      */
     _onHostRowMouseenter : function(e) {
         
-        e.currentTarget.addClass(this.get('host').getClassName('row', 'over'));
+        e.event.currentTarget.addClass(YgetClassName('datatable', 'row', 'over'));
     },
     
     /**
@@ -130,11 +117,61 @@ Y.extend(DatatableSelection, Y.Plugin.Base, {
      */
     _onHostRowMouseleave : function(e) {
         
-        e.currentTarget.removeClass(this.get('host').getClassName('row', 'over'));
+        e.event.currentTarget.removeClass(YgetClassName('datatable', 'row', 'over'));
+    },
+    
+    /**
+     * Update the UI to reflect the selection
+     *
+     * @method _uiSetSelection
+     * @param e {Event} ATTRChange Event Facade
+     * @returns
+     * @protected
+     */
+    _uiSetSelection : function(e) {
+        
+        this.get('host')._tableNode.all('.'+YgetClassName('datatable', 'row', 'selected')).removeClass(YgetClassName('datatable', 'row', 'selected'));
+        
+        Y.Array.each(e.newVal, function(trId) {
+            Y.Node.one('TR#' + trId).addClass(YgetClassName('datatable', 'row', 'selected'));
+        }, this);
+    },
+    
+    /**
+     * Select row(s)/record(s)
+     * 
+     * By default does not invert your selection when selected twice
+     *
+     * @method select
+     * @param selector {String|Array} What to select
+     * @param isInverted {Boolean} Whether to invert the selection of things that are already selected
+     * @returns undefined
+     * @public
+     */
+    select : function(selector, isInverted) {
+        
+        var currentSelection = this.get('selection'),
+            selectedIds;
+        
+        if (selector instanceof Y.Node) {
+            selectedIds = [ selector.get('id') ];
+        }
+        
+        Y.Array.each(selectedIds, function(v) {
+            var idx = currentSelection.indexOf(v);
+            if (idx > -1) {
+                currentSelection.splice(idx, 1);
+            } else {
+                currentSelection.push(v);
+            }
+        }, this);
+
+        
+        this.set('selection', currentSelection);
     }
 });
 
 Y.namespace("DP").DatatableSelection = DatatableSelection;
 
 
-}, '@VERSION@' ,{requires:['datatable', 'gallery-datatable-tableevents']});
+}, '@VERSION@' ,{requires:['datatable', 'gallery-datatable-tableevents', 'recordset']});

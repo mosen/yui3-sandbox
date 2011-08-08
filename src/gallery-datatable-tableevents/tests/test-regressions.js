@@ -19,7 +19,7 @@ YUI.add('tableevents-test-regressions', function (Y) {
                 recordset : this.data
             });
 
-            this.testDte.render();
+            
         },
 
         tearDown: function() {
@@ -29,6 +29,8 @@ YUI.add('tableevents-test-regressions', function (Y) {
 
         // This is just to make sure that the events fire sequentially.
         "test event handler on cellClick does not cause race with rowClick" : function() {
+            this.testDte.render();
+            
             var evtFired = false;
             
             this.testDte.on('cellClick', function(e) {
@@ -52,8 +54,28 @@ YUI.add('tableevents-test-regressions', function (Y) {
             this.wait(function() { 
                 Y.Assert.isFalse(evtFired);
             },100);                           
+        },
+        
+        // Bug in 3.3.0 only due to Y.Base.mix() overwriting initializer
+        "test datasource+tableevents causes data not to render" : function() {
+            this.testDataSource = new Y.DataSource.Local({source:this.data});
+            this.testDte.plug({ fn: Y.Plugin.DataTableDataSource, cfg: { dataSource: this.testDataSource } });
+            this.testDte.render();
+            this.testDataSource.sendRequest('');
+        },
+        
+        "test event handler on rowClick receives TR node via event.node" : function() {
+            var clickedNode = "";
+            
+            this.testDte.render();
+           
+            this.testDte.on('rowClick', function(e) {
+                clickedNode = e.node.get('tagName');
+            }, this);
+            
+            this.testDte._tbodyNode.one('td').simulate('click'); 
+            Y.Assert.areEqual('TR', clickedNode);
         }
-
     });
 
 }, '@VERSION@', { requires: ['gallery-datatable-tableevents'] });

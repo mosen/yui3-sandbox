@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>DP.DatatableSelection Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <script type="text/javascript">
+            (function() {
+                YUI({
+                    filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                    allowRollup: false,
+                    groups : {
+                        test : {
+                            base: '../../../build/',
+                            root: '../../../build',
+                            modules : {                         
+                                'gallery-datatable-tableevents' : {
+                                    'path' : 'gallery-datatable-tableevents/gallery-datatable-tableevents-debug.js',
+                                    'requires' : ['datatable']
+                                },
+                                'gallery-dp-datatable-plugin-selection' : {
+                                    'path' : 'gallery-dp-datatable-plugin-selection/gallery-dp-datatable-plugin-selection-debug.js',
+                                    'requires' : ['gallery-datatable-tableevents'],
+                                    'skinnable' : true
+                                }
+                            }
+                        }
+                    }
+                }).use(
+                    "console", 
+                    "test", 
+                    "dump", 
+                    "gallery-dp-datatable-plugin-selection", 
+                    function(Y) {
+                
+                    var myConsole = new Y.Console().render();
+
+                    var testBasic = new Y.Test.Case({ 
+                        name: "DP.DatatableSelection Test Case",
+                    
+                        setUp: function() {
+
+                            this.data = [
+                                { "id" : "1", "name" : "Joe" },
+                                { "id" : "2", "name" : "Bob" },
+                                { "id" : "3", "name" : "Andrew" }
+                            ];
+
+                            this.testDte = new Y.DataTable.Base({
+                                columnset : [ 
+                                    { key:"id", sortable: true },
+                                    { key:"name", sortable: true }
+                                ],
+                                recordset : this.data,
+                                plugins : [
+                                    { fn: Y.DP.DatatableSelection, cfg: {} }
+                                ]
+                            });
+
+                            this.testDte.render();
+                            
+                            this.testDte.on('rowClick', function(e) {
+                                console.dir(e.node);
+                            });
+                        },
+
+                        tearDown: function() {
+//                            this.testDte.destroy();
+//                            delete this.testDte;
+                        },
+                    
+                        "test something": function() {
+                            
+                        }
+                    });
+
+                    var suite = new Y.Test.Suite({name:"DP.DatatableSelection Test Suite"});
+                    suite.add(testBasic);
+
+                    Y.Test.Runner.setName("Test Runner");
+                    Y.Test.Runner.add(suite);
+                    Y.Test.Runner.run();
+                });
+            })();
+        </script>
+    </body>
+</html>

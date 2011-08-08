@@ -73,22 +73,19 @@ DataTableEvents.ATTRS = {
 DataTableEvents.prototype = {
 
     /**
-     * Initializer runs when the plugin is constructed or plugged into the host instance.
-     *
      * @method initializer
      * @protected
      */
     initializer : function () {
-        this.after('render', this._bindEvents, this);
+        Y.log("init", "debug", "gallery-datatable-tableevents");
+        
+        this.after('render', this._bindTableEvents, this);
         this.after('eventsChange', this._afterEventsChange);
     },
 
     /**
-     * Destructor runs when the plugin is unplugged
-     * Base will automatically detach afterHostEvent/afterHostMethod methods.
-     *
      * @method destructor
-     * @public
+     * @protected
      */
     destructor: function() { 
         this._handle && this._handle.detach();
@@ -101,10 +98,10 @@ DataTableEvents.prototype = {
      * We delegate the contentBox because there may be multiple table nodes
      * eg. DataTableScroll
      * 
-     * @method _bindEvents
+     * @method _bindTableEvents
      * @protected
      */
-    _bindEvents: function () {
+    _bindTableEvents: function () {
         var events  = this.get('events'),
             tags    = this.get('tags'), // filters?
             tag_map = {},
@@ -119,10 +116,12 @@ DataTableEvents.prototype = {
             tag_map[tag.tag] = tag;
             filter.push(tag.tag);
         }
+        
+        Y.log("Delegating table events", "info", "gallery-datatable-tableevents");
 
         this._tag_map = tag_map;
         this._handle = this.get('contentBox')
-            .delegate(events, this._handleEvent, filter.join(','), this);
+            .delegate(events, this._handleTableEvent, filter.join(','), this);
     },
 
     /**
@@ -133,19 +132,19 @@ DataTableEvents.prototype = {
      * @protected
      */
     _afterEventsChange: function (e) {
-        this._bindEvents(e.newVal);
+        this._bindTableEvents(e.newVal);
     },
     
     /**
      * Handle an event being fired
      * 
-     * @method _handleEvent
+     * @method _handleTableEvent
      * @param e {Event} Event facade
      * @return undefined
      * @protected
      */
-    _handleEvent: function (e) {
-        //Y.log(e.type, "debug", "gallery-datatable-tableevents");
+    _handleTableEvent: function (e) {
+        Y.log(e.type, "debug", "gallery-datatable-tableevents");
         
         // We need to generate more information about the node in order to use the
         // correct event name and set up the payload, this is done here.
@@ -204,11 +203,12 @@ DataTableEvents.prototype = {
             payload = {
                 event: e,
                 currentTarget: e.currentTarget,
+                node: info.node,
                 inThead: info.inThead,
                 header: (info.tag == 'th')
             }, eventWillPropagate;
 
-        //Y.log("_notifySubscribers", "info", "gallery-datatable-tableevents");
+        Y.log("_notifySubscribers", "info", "gallery-datatable-tableevents");
         
         // For hover events, resolve the relatedTarget parent column
         if (info.isHover) {
@@ -255,9 +255,11 @@ DataTableEvents.prototype = {
             case 'td':
                 relColumnId = relatedTarget.getAttribute('headers');
                 break;
+                
             case 'th':
                 relColumnId = relatedTarget.get('id');
                 break;
+                
             case 'div':
                 relParent = relatedTarget.get('parentNode');
 

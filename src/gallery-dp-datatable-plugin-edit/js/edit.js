@@ -17,6 +17,8 @@ function DatatableEdit() {
     DatatableEdit.superclass.constructor.apply(this, arguments);
 }
 
+
+
 Y.mix(DatatableEdit, {
 
     NS : "edit",
@@ -67,6 +69,8 @@ Y.extend(DatatableEdit, Y.Plugin.Base, {
      * @param config {Object} Configuration object
      */
     initializer : function (config) {
+        Y.log("init", "debug", "gallery-dp-datatable-plugin-edit");
+        
         var hostRecords = this.get('host').get('recordset');
         
         this._changes.added = new Y.Recordset();

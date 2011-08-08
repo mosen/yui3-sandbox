@@ -50,7 +50,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         var fnRender = Y.bind(this.get('fnRender'), this),
             listContainer = this.get('contentBox');
         
-        Y.log("_renderItems", "info", this.NAME);
+        Y.log("_renderItems", "info", "gallery-dp-datalist");
 
         rs.each(function(record) {
             listContainer.append(this._renderItem(fnRender, {value: record.get('data'), id: record.get('id')}));
@@ -67,7 +67,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @protected
      */
     _renderItem : function(fnRender, o) {
-        //Y.log("_renderItem", "info", this.NAME);
+        //Y.log("_renderItem", "info", "gallery-dp-datalist");
         
         return Y.Node.create(Y.substitute(this.LISTITEM_TEMPLATE, {
             content: fnRender(o.value),
@@ -127,7 +127,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @param o {Object} Response object
      */
     _defResponseSuccessFn : function(o) {
-        Y.log('_defResponseSuccessFn', 'info', this.NAME);
+        Y.log('_defResponseSuccessFn', 'info', "gallery-dp-datalist");
 
         this.set('recordset', new Y.Recordset({records: o.response.results}));
     },
@@ -141,7 +141,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @protected
      */
     _handleItemClicked : function(e) {
-        Y.log("_handleItemClicked", "info", this.NAME);
+        Y.log("_handleItemClicked", "info", "gallery-dp-datalist");
         
         var li = e.currentTarget,
             rId = li.get('id'),
@@ -168,7 +168,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @protected
      */
     _uiSetItems : function(e) {
-        Y.log("_uiSetItems", "info", this.NAME);
+        Y.log("_uiSetItems", "info", "gallery-dp-datalist");
         var rs = e.newVal;
         
         // Note: clearing the content also blows away plugin content/or user content, so we use all/remove
@@ -189,7 +189,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         var selection = this.get('selection'),
             list = this.get('contentBox');
         
-        Y.log("_uiSetSelected", "info", this.NAME);
+        Y.log("_uiSetSelected", "info", "gallery-dp-datalist");
         
         list.all('.' + this.getClassName('item', 'selected')).removeClass(this.getClassName('item', 'selected'));
         list.all(selection.join(',')).addClass(this.getClassName('item', 'selected'));
@@ -302,7 +302,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         fnRender : {
             value : function(item) { // Default renderer
 
-                //Y.log("rendering item", "info", this.NAME);
+                //Y.log("rendering item", "info", "gallery-dp-datalist");
 
                 return Y.substitute(this.ITEM_TEMPLATE, {
                     className: this.getClassName('item'),

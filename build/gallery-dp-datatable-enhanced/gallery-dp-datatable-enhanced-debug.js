@@ -22,7 +22,8 @@ var Lang = Y.Lang,
     CLASS_LINER = YgetClassName(DATATABLE, "liner"),
     TD_TEMPLATE = '<td headers="{headers}" class="{classnames}"><div class="'+CLASS_LINER+'"></div></td>',
     TEMPLATE_TH = '<th id="{id}" rowspan="{rowspan}" colspan="{colspan}" class="{classnames}" abbr="{abbr}"><div class="'+CLASS_LINER+'">{value}</div></th>',
-    COLUMN_TEMPLATE_EXT = '<col></col>';
+    COLUMN_TEMPLATE_EXT = '<col></col>',
+    MSG_TEMPLATE = '<tr><td colspan="{colspan}"><div class="'+CLASS_LINER+'">{message}</div></td></tr>';
 
 
 /**
@@ -46,6 +47,7 @@ var Lang = Y.Lang,
 Y.namespace('DP').DataTableEnhanced = Y.Base.create( 'gallery-dp-datatable-enhanced', Y.DataTable.Base, [], {
     
     initializer : function() {
+        Y.log("init", "debug", "gallery-dp-datatable-enhanced");
         this.after('recordsetChange', this._uiSetMessage);
     },
 
@@ -61,7 +63,11 @@ Y.namespace('DP').DataTableEnhanced = Y.Base.create( 'gallery-dp-datatable-enhan
         Y.log("_uiSetMessage", "info", "gallery-dp-datatable-enhanced");
         
         if (e.newVal.getLength() == 0) {
-            this._tableNode.one('.'+CLASS_MSG).setContent('There are no rows here');
+            //<tr><td colspan="{colspan}"><div class="'+CLASS_LINER+'"></div></td>
+            this._tableNode.one('.'+CLASS_MSG).setContent(Ycreate(Ysubstitute(MSG_TEMPLATE, {
+                colspan: this.get('columnset').keys.length,
+                message: 'There are no rows in the result set.' // TODO: configurable
+            })));
         } else {
             this._tableNode.one('.'+CLASS_MSG).setContent('');
         }

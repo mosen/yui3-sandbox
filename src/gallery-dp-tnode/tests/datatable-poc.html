@@ -3,7 +3,7 @@
     <head>
         <title>YUI Sandbox</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui.js"
         charset="utf-8"></script>
     </head>
     <body class="yui3-skin-sam">
@@ -61,12 +61,14 @@
                     recordset : rows
                 });
                 
+                console.profile();
                 Y.Profiler.registerFunction("dt._createTbodyTdNode", dt);
 
                 dt.after('render', function(e) {
                     var report = Y.Profiler.getReport("dt._createTbodyTdNode");
                     Y.log(report);
                     Y.log(report.calls * report.avg);
+                    console.profileEnd();
                 });
 
                 dt.render('#testnode');

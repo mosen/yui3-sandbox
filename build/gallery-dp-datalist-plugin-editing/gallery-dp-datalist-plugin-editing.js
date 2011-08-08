@@ -24,24 +24,8 @@ function DatalistEditing(config) {
 
 Y.mix(DatalistEditing, {
 
-    /**
-     * The plugin namespace identifies the property on the host
-     * which will be used to refer to this plugin instance.
-     *
-     * @property NS
-     * @type String
-     * @static
-     */
     NS : "editing",
 
-    /**
-     * The plugin name identifies the event prefix and is a basis for generating
-     * class names.
-     * 
-     * @property NAME
-     * @type String
-     * @static
-     */
     NAME : "datalistEditing",
 
     /**
@@ -174,19 +158,24 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
             event: 'dblclick',
             loadfrom: function(n) {return n.one('a').get('textContent');},
             submitto: Y.bind(function(li) {
+
                 var record = this.get('host').get('recordset').getRecord(li.get('id')),
                     recordValue = record.getValue(),
                     fnGetValue = this.get('fnGetValue');
-                
                 
                 Y.io(Y.substitute(uriEdit, {value: li.one('input').get('value'), id: fnGetValue(recordValue, 'id')}), {
                     on : {
                         start: function(id, o, args) {
                         },
-                        success: function(id, o, args) { 
+                        success: function(id, o, args) {
+                            this._placeholder.editable.set('editing', false);
+                            this._placeholder.editable.set('saving', false);
+                            
                             this._itemSaved(o, args);
+                            
                         },
                         failure: function(id, o, args) { 
+                            
                             // TODO: display a warning
                         }
                     },
@@ -255,26 +244,22 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      */
     _itemSaved : function(o, args) {
         
-        
         var updatedItem = Y.JSON.parse(o.responseText),
-            records = this.get('host').get('recordset'),
+            rs = this.get('host').get('recordset'),
             recordId = args.node.get('id'),
-            rec;
+            records = rs.get('records'), i = 0, editRecord;
+
         
-        // = ,
+        for (; i < records.length; i++) {
+            if (records[i].get('id') == recordId) break;
+        }
         
-        records.after('tableChange', function(e) {
-        });
+        editRecord = rs.getRecord(i);
+        editRecord.set('data', updatedItem.record);
         
-        records.update(updatedItem.record);
-        //records.add(updatedItem.record, recordId);
-        //newNode = this.get('host')._renderItem(Y.bind(this.get('host').get('fnRender'), this.get('host')), { value: updatedItem.record })
+        rs.update(editRecord, i);
         
-        //args.record.setValue(updatedItem);
-        //args.node.replace(newNode);
-        var hashTable = records.get('table'); // Force table update?
-        
-        this.get('host').set('recordset', records);
+        this.get('host').set('recordset', rs);
     },
     
     /**

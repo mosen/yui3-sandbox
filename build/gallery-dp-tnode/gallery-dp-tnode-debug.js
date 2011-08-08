@@ -127,14 +127,11 @@ var Lang = Y.Lang,
     DATATABLE = "datatable",
     CLASS_MSG = YgetClassName(DATATABLE, "msg"),
     CLASS_LINER = YgetClassName(DATATABLE, "liner"),
-    TD_TEMPLATE = '<td headers="{headers}" class="{classnames}"><div class="'+CLASS_LINER+'">{value}</div></td>',
+    TD_TEMPLATE = '<td headers="{headers}"><div class="'+CLASS_LINER+'">{value}</div></td>',
     TEMPLATE_TH = '<th id="{id}" rowspan="{rowspan}" colspan="{colspan}" class="{classnames}" abbr="{abbr}"><div class="'+CLASS_LINER+'">{value}</div></th>',
     COLUMN_TEMPLATE_EXT = '<col></col>';
 
 
-function DTTest() {}
-DTTest.NAME = "dttest";
-DTTest.prototype = {
     /**
      * Create DataTable TD Nodes
      * 
@@ -149,7 +146,7 @@ DTTest.prototype = {
      * @param o {Object} Object
      * @return {Node} TD Node
      */
-    _createTbodyTdNode : function(o) {
+    Y.DataTable.Base.prototype._createTbodyTdNode = function(o) {
         var column = o.column,
             formatvalue = null;
             
@@ -157,9 +154,10 @@ DTTest.prototype = {
 
         //TODO: attributes? or methods?
         o.headers = column.headers;
-        o.classnames = column.get("classnames");
-        o.align = column.get("align");
-        formatvalue = this.formatDataCell(o);
+        //o.classnames = column.get("classnames");
+        //o.align = column.get("align");
+        //formatvalue = this.formatDataCell(o);
+        formatvalue = "rec";
         o.value = formatvalue;
         o.td_template = Y.substitute(TD_TEMPLATE, o);
         /*
@@ -184,10 +182,7 @@ DTTest.prototype = {
 //
 //        return o.td_template;
         return o.td_template;
-    }
-};
-
-Y.Base.mix(Y.DataTable.Base, [DTTest]);
+    };
 
 
 }, '@VERSION@' ,{requires:['datatable']});
