@@ -604,8 +604,8 @@ EditableBase.prototype = {
         
         // TODO: Do we really need to keep a node reference to the input? some editors might not use inputs
         this._input = input;
-        this._input.on('key', this.save, "enter", this); // Enter = save
-        this._input.on('key', this.discard, "esc", this); // ESC = discard
+        this._input.on('key', this._onKey, "enter", this); // Enter = save
+        this._input.on('key', this._onKey, "esc", this); // ESC = discard
         frm.append(this._input);
         
         buttons = Y.Node.create(Y.substitute(this.TEMPLATE_BUTTONS, { 
@@ -713,6 +713,7 @@ EditableBase.prototype = {
     saveComplete : function() {
         Y.log("saveComplete", "info", "gallery-dp-editable");
         
+        this.fire('save');
         this.set('saving', false);
         this.set('prevContent', null);
         this.set('editingnode', null);

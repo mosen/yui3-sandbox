@@ -6,7 +6,7 @@ var Node = Y.Node,
     YGetClassName = Y.ClassNameManager.getClassName;
 
 /**
- * A (unordered) list element that uses datasource to create its items.
+ * An (unordered) list element that uses Y.ModelList.
  *
  * @class Datalist
  * @namespace Y.DP
@@ -22,8 +22,6 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     initializer : function (config) {
 
-        // IO
-        //this.publish('success', {defaultFn: this._defResponseSuccessFn});
         this.publish('select');
     },
     
@@ -33,7 +31,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * Iterate through list items and call render on each.
      *
      * @method _renderItems
-     * @param models {Y.ModelList} a list of models
+ * @param models {Y.ModelList} a list of models
      * @protected
      */
     _renderItems : function(models) {
@@ -43,7 +41,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         Y.log("_renderItems", "info", "gallery-dp-datalist");
 
         models.each(function(model) {
-            listContainer.append(this._renderItem(fnRender, {value: model, id: model.get('id')}));
+            listContainer.append(this._renderItem(fnRender, {value: model, id: model.get('clientId')}));
         }, this);
     },
     
@@ -72,20 +70,14 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * @public
      */
     bindUI : function () {
-        // ATTR
-        //this.after('recordsetChange', this._uiSetItems, this);
-        // TODO: after modellist read, set items
         this.after('selectionChange', this._uiSetSelected, this);
         
-        this.get('models').after('add', this._uiSetItems, this);
-        this.get('models').after('remove', this._uiSetItems, this);
+        this.get('models').after('add', this._uiAddItem, this);
+        this.get('models').after('remove', this._uiRemoveItem, this);
         this.get('models').after('reset', this._uiSetItems, this);
-        // model.delete() does not remove from parent list.. probably makes sense,
-        // but should be configurable for auto goodness
-        this.get('models').on('*:delete', this._uiRemoveItems, this);
         this.get('models').on('*:change', this._uiUpdateItems, this);
         
-        // DOM
+        // Item selection
         this.get('contentBox').delegate('click', Y.bind(this._handleItemClicked, this), '.' + this.getClassName('item')); // TODO make this classname configurable
     },
     
@@ -108,18 +100,6 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     },
     
     /**
-     * Single interface for io responses, fires custom event at each stage of datasource request.
-     * @method _handleResponse
-     * @param type {String} Event type
-     * @param e {Object} Response Object
-     * @protected
-     */
-    _handleResponse : function (type, e) {      
-        this.fire(type, {id: this._io, response: e.response});
-        this._io = null;
-    },
-    
-    /**
      * Handle a list item being clicked.
      *
      * @method _handleItemClicked
@@ -132,20 +112,11 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         Y.log("_handleItemClicked", "info", "gallery-dp-datalist");
         
         var li = e.currentTarget,
-            rId = li.get('id'),
-            model = this.get('models').getById(rId),
-            value;
-            
-        if (undefined === model) {
-            Y.log('Couldnt get record for id:' + rId);
-            this.get('recordset')._setHashTable();
-            Y.log(this.get('recordset').get('table'));
-            Y.log(this.get('recordset'));
-        }    
-        value = model;
+            clientId = li.get('id'),
+            model = this.get('models').getByClientId(clientId);
         
-        this.set('selection', [ '#'+rId ]); // CSSify the item so that the entire array can be selected by Y.all
-        this.fire('select', {itemid: rId, item: value});
+        this.set('selection', [ model ]); // CSSify the item so that the entire array can be selected by Y.all
+        //this.fire('select', {itemid: clientId, item: model});
     },
     
     /**
@@ -169,6 +140,51 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     },
     
     /**
+     * Update the UI with new models
+     *
+     * @method _uiAddItem
+     * @param e {Object} ModelList:add event facade
+     * @returns
+     * @protected
+     */
+    _uiAddItem : function(e) {
+        var added = e.model,
+            newItem,
+            fnRender = this.get('fnRender');
+        
+        Y.log("_uiAddItem", "info", "gallery-dp-datalist");
+        
+        newItem = this._renderItem(Y.bind(fnRender, this), {value: added, id: added.get('clientId')});
+        this.get('contentBox').append(newItem);
+        
+        //console.dir(e);
+    },
+    
+    /**
+     * Update the UI with removed models
+     *
+     * @method _uiRemoveItem
+     * @param e {Object} ModelList:remove event facade
+     * @returns
+     * @protected
+     */
+    _uiRemoveItem : function(e) {
+        var selection = this.get('selection'),
+            selectionIdx = selection.indexOf(e.model),
+            newSelection;
+        
+        Y.log("_uiRemoveItem", "info", "gallery-dp-datalist");
+        
+        if (selectionIdx > -1) {
+            newSelection = [ this.get('models').item(this.get('models').size() -1) ];
+            this.set('selection', newSelection);
+        }
+        
+        this.get('contentBox').one('#'+e.model.get('clientId')).remove();
+        
+    },
+    
+    /**
      * Update the UI with the changed items
      *
      * @method _uiUpdateItems
@@ -184,9 +200,9 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
             Y.log("Title has changed", "info", "gallery-dp-datalist");
             
             fnRender = Y.bind(this.get('fnRender'), this),
-            updatedItem = this._renderItem(fnRender, {value: model, id: model.get('id')});
+            updatedItem = this._renderItem(fnRender, {value: model, id: model.get('clientId')});
             
-            oldItem = this.get('contentBox').one('li#'+model.get('id'));
+            oldItem = this.get('contentBox').one('li#'+model.get('clientId'));
             oldItem.replace(updatedItem);
         }
     },
@@ -213,22 +229,20 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      */
     _uiSetSelected : function(e) {
         var selection = this.get('selection'),
-            list = this.get('contentBox');
+            list = this.get('contentBox'),
+            clientId;
         
         Y.log("_uiSetSelected", "info", "gallery-dp-datalist");
         
         list.all('.' + this.getClassName('item', 'selected')).removeClass(this.getClassName('item', 'selected'));
-        list.all(selection.join(',')).addClass(this.getClassName('item', 'selected'));
+        
+        Y.Array.each(selection, function(model) {
+            clientId = model.get('clientId');
+            Y.log("Adding selection: "+clientId, "info", "gallery-dp-datalist");
+            this.fire('select', {itemid: clientId, item: model});
+            list.one('#'+clientId).addClass(this.getClassName('item', 'selected'));
+        }, this);
     },
-    
-    /**
-     * Callback object for IO requests
-     *
-     * @property _ioCallback
-     * @type Object
-     * @value 
-     */
-    _ioCallback: {},
     
     /**
      * A tokenized template that will be used to create each list item
@@ -316,9 +330,6 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
          */
         fnRender : {
             value : function(item) { // Default renderer
-
-                //Y.log("rendering item", "info", "gallery-dp-datalist");
-
                 return Y.substitute(this.ITEM_TEMPLATE, {
                     className: this.getClassName('item'),
                     anchor: item['id'],
@@ -329,7 +340,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         },
         
         /**
-         * The currently selected item(s)
+         * The currently selected item(s), as model instances
          *
          * @attribute selection
          * @type Array
@@ -337,7 +348,19 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         selection : {
             value : [],
             validator : Y.Lang.isArray
+        },
+        
+        /**
+         * Whether to select new items when they are added.
+         *
+         * @attribute selectNewItems
+         * @type Boolean
+         */
+        selectNewItems : {
+            value : true,
+            validator : Y.Lang.isBoolean
         }
+
 
     }
 });

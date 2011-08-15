@@ -10,7 +10,6 @@ YUI.add('gallery-dp-datalist-plugin-editing', function(Y) {
 var Node = Y.Node,
     YGetClassName = Y.ClassNameManager.getClassName;
 
-
 /**
  * Editing plugin for the Datalist (Data driven list element)
  *
@@ -38,48 +37,13 @@ Y.mix(DatalistEditing, {
      * @static
      */
     ATTRS : {
-        
-        /**
-         * The URI to use for the create/add operation
-         *
-         * @attribute uriCreate
-         * @type type
-         */
-        uriCreate : {
-            value : null
-        },
-        
-        /**
-         * The URI to use for the edit/update operation
-         *
-         * @attribute uriEdit
-         * @type String
-         */
-        uriEdit : {
-            value : null
-        },
-        
-        /**
-         * Temporary function to get the desired value for a token in the edit or create URI's
-         * This is bad design really, but stretched for time
-         * 
-         * The function takes the object of values as the first parameter,
-         * and the desired token as the second
-         *
-         * @attribute fnGetValue
-         * @type String
-         */
-        fnGetValue : {
-            value : null,
-            validator : Y.Lang.isFunction
-        },
 
         /**
          * Strings for i18n
          */
         strings : {
             value : {
-                add : 'Add an item'
+                add : 'Add an item' // Placeholder string
             }
         }
     }    
@@ -133,12 +97,13 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         
         this._phlistitem = phlistitem;
         
+        
         list.append(phlistitem);
         placeholder.plug(Y.DP.EditablePlugin, { 
             submitto: Y.bind(this._createItemFromPlaceholder, this),
             loadfrom: function(n) {return '';}
         });
-        placeholder.editable.on('save', Y.bind(this._newItemAdded, this));
+        placeholder.editable.on('save', Y.bind(this._newItemSaved, this));
         this._placeholder = placeholder;
         
         list.plug(Y.DP.EditablePlugin, {
@@ -146,8 +111,8 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
             event: 'dblclick',
             loadfrom: function(n) {return n.one('a').get('textContent');},
             submitto: Y.bind(function(li, fnSavedCallback) {
-
-                var model = this.get('host').get('models').getById(li.get('id'));
+                console.log(li.get('id'));
+                var model = this.get('host').get('models').getByClientId(li.get('id'));
                 
                 model.set('title', li.one('input').get('value'));
                 model.save(function(err, response) {
@@ -156,8 +121,8 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
                 
             }, this)
         });
-        list.editable.on('save', Y.bind(this._itemSaved, this));
-
+        
+        //list.editable.on('save', Y.bind(this._itemSaved, this));
     },
     
     /**
@@ -171,9 +136,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
     _repositionEditingTools : function() {
         Y.log("_repositionEditingTools", "info", "gallery-dp-datalist-plugin-editing");
         
-        var listNodes = this.get('host').get('contentBox').all('li.'+this.get('host').getClassName('item'));
-        
-        this.get('host').get('contentBox').append(this._phlistitem);
+        this.get('host').get('contentBox').append(this._phlistitem); // automatically shifts parentNode
     },
     
     /**
@@ -205,6 +168,21 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
     },
     
     /**
+     * 
+     *
+     * @method _newItemSaved
+     * @param e {Object} Event facade
+     * @returns
+     * @public
+     */
+    _newItemSaved : function(e) {
+        Y.log("_newItemSaved", "info", "gallery-dp-datalist-plugin-editing");
+        
+        this._placeholder.editable.clear(); // TODO: subscribe to editable save event
+        //this.fire('add'); // TODO: just for now this forces editor repositioning.
+    },
+    
+    /**
      * Create an item when placeholder is saved
      *
      * @method _createItemFromPlaceholder
@@ -216,67 +194,25 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         Y.log("_createItemFromPlaceholder", "info", "gallery-dp-datalist-plugin-editing");
         
         var added = this.get('host').get('models').add({title: li.one('input').get('value')});
-        added.save(function(err, data) {
+        added.save(Y.bind(function(err, data) {
             fnCallback();
-        });
- 
+            this.fire('add', { model: added });
+        }, this)); 
     },
     
     /**
-     * Fired when a new item is saved by the underlying placeholder editor.
+     * Default handler for 'add' event
      *
-     * @method _newItemAdded
-     * @param o {Object} Response from Y.IO
+     * @method _defFnAdd
+     * @param e
      * @returns
      * @protected
      */
-    _newItemAdded : function(o) {
-        Y.log("_newItemAdded", "info", "gallery-dp-datalist-plugin-editing");
+    _defFnAdd : function(e) {
+        Y.log("_defFnAdd", "info", "gallery-dp-datalist-plugin-editing");
         
-        var newItem = Y.JSON.parse(o.details[0].responseText),
-            records = this.get('host').get('recordset');
-
-        records.add(newItem);
-        Y.log("setting new records", "info", "gallery-dp-datalist-plugin-editing");
-        this.get('host').set('recordset', records);
-        
-        this._placeholder.editable.clear();
-    },
-    
-    /**
-     * Remove an item from the list.
-     *
-     * @method remove
-     * @param n {Node} Remove link that was clicked
-     * @returns
-     * @public
-     */
-    remove : function(n) {
-        Y.log("remove " + n.get('id'), "info", "gallery-dp-datalist-plugin-editing");
-    },
-    
-    /**
-     * Add an item to the list.
-     *
-     * @method add
-     * @param item {Object} Item to add to the datalist
-     * @returns
-     * @public
-     */
-    add : function(item) {
-        Y.log("add", "info", "gallery-dp-datalist-plugin-editing");
-    },
-    
-    /**
-     * Update the details of an item
-     *
-     * @method update
-     * @param
-     * @returns
-     * @public
-     */
-    update : function(n, item) {
-        Y.log("update", "info", "gallery-dp-datalist-plugin-editing");
+        this._repositionEditingTools();
+        this.get('host').set('selection', [e.model]);
     },
     
     /**

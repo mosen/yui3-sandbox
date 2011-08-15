@@ -33,18 +33,18 @@
                             numrows = 400,
                             crow,
                             abc = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                        
+
                         for (var ci = 0; ci < 40; ci++) {
                             cols.push(abc[ci]);
                         }
-                        
+
                         for (var cd = 0; cd < numrows; cd++) {
                             crow = {};
-                            
+
                             for (var cr = 0; cr < cols.length; cr++) {
                                 crow[cols[cr]] = abc[Math.floor(Math.random() * abc.length)];
                             }
-                            
+
                             rows.push(crow);
                         }
 
