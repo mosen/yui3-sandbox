@@ -1,1 +1,0 @@
-YUI.add("gallery-user-patch-2529975",function(a){a.Plugin.DataTableDataSource.prototype.onDataReturnInitializeTable=function(c){var d=this.get("host").get("recordset"),b=a.Object(d);b.set("records",c.response.results);this.get("host").set("recordset",b);};},"@VERSION@",{skinnable:false,requires:["datatable","datasource"]});

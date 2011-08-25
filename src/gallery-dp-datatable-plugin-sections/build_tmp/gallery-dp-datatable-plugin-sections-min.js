@@ -1,1 +1,0 @@
-YUI.add("gallery-dp-datatable-plugin-sections",function(c){var a=c.Lang;function b(d){b.superclass.constructor.apply(this,arguments);}c.mix(b,{NS:"sections",NAME:"datatableSections",ATTRS:{}});c.extend(b,c.Plugin.Base,{initializer:function(d){},destructor:function(){}});c.namespace("DP").DatatableSections=b;},"@VERSION@",{requires:["plugin","datatable"]});
