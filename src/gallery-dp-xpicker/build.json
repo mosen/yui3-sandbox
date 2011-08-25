@@ -1,0 +1,15 @@
+{
+    "name"    : "gallery-dp-xpicker",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "xpicker.js"
+    ],
+    "buildDir"  : "../../build/gallery-dp-xpicker",
+    "assetsDir" : "assets",
+    "details" : {
+        "requires"   : ["node", "node-screen", "base", "widget", "transition"],
+        "skinnable"  : true
+    }
+}

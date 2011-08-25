@@ -1,5 +1,4 @@
 YUI.add('gallery-datatable-ml', function(Y) {
-
 // Datatable.Base ModelList Mixin
 
 // Dirty vars copypasta
@@ -70,9 +69,9 @@ DatatableMl.prototype = {
             modelListChange: this._afterModelListChange,
             summaryChange  : this._afterSummaryChange,
             captionChange  : this._afterCaptionChange
-            // TODO: Subscribe to modelList events add:remove:reset
         });
-        
+
+        // Atomic changes
         this.get('models').after('add', this._afterModelListAdd, this);
         this.get('models').after('remove', this._afterModelListRemove, this);
         this.get('models').after('reset', this._afterModelListChange, this); // Just rerender
@@ -132,7 +131,7 @@ DatatableMl.prototype = {
                 column : column,
                 fields : column.get('field'),
                 classes: column.get('classnames')
-            }
+            };
 
             formatter = column.get('formatter');
             if (!YLang.isFunction(formatter)) {
@@ -161,7 +160,36 @@ DatatableMl.prototype = {
     }, 
     
     // addTbodyTrNode still works with the same signature.
-    
+
+   /**
+    * Creates header cell element.
+    *
+    * @method _createTheadThNode
+    * @param o {Object} {value, column, tr}.
+    * @protected
+    * @return Y.Node
+    */
+    _createTheadThNode: function(o) {
+        var column = o.column;
+
+        // Populate template object
+        o.id = column.get("id");//TODO: validate 1 column ID per document
+        o.colspan = column.colSpan;
+        o.rowspan = column.rowSpan;
+        o.abbr = column.get("abbr");
+        o.classnames = column.get("classnames");
+        o.value = fromTemplate(this.get("thValueTemplate"), o);
+
+        var thNode = Ycreate(fromTemplate(this.thTemplate, o));
+
+        if (column.get('width') !== undefined) {
+            thNode.one('.'+CLASS_LINER).setStyle('width', column.get('width'));
+        }
+
+        return thNode;
+    },
+
+
    /**
     * Creates data row element.
     *
@@ -174,7 +202,7 @@ DatatableMl.prototype = {
         var columns = o.columns,
             i, len, columnInfo;
 
-        o.tr = Ycreate(fromTemplate(o.rowTemplate, {id: o.data['id'] || Y.guid()}));
+        o.tr = Ycreate(fromTemplate(o.rowTemplate, {id: o.data.id || Y.guid()}));
         //o.tr = Ycreate(fromTemplate(o.rowTemplate, {id: o.model.get('clientId')}));
         for (i = 0, len = columns.length; i < len; ++i) {
             columnInfo = columns[i];
@@ -217,7 +245,17 @@ DatatableMl.prototype = {
         o.headers = o.column.headers;
         o.value   = this.formatDataCell(o);
 
-        return Ycreate(fromTemplate(this.tdTemplate, o));
+        var tdNode = Ycreate(fromTemplate(this.tdTemplate, o));
+       
+        if (o.column.get('width') !== undefined) {
+            tdNode.one('.'+CLASS_LINER).setStyle('width', o.column.get('width'));
+        }
+
+        if (o.column.get('align') === 'left' || o.column.get('align') === 'right' || o.column.get('align') === 'center') {
+            tdNode.one('.'+CLASS_LINER).setStyle('textAlign', o.column.get('align'));
+        }
+       
+        return tdNode;
     },
     
     /**
@@ -265,7 +303,7 @@ DatatableMl.prototype = {
                 column : column,
                 fields : column.get('field'),
                 classes: column.get('classnames')
-            }
+            };
 
             formatter = column.get('formatter');
             if (!YLang.isFunction(formatter)) {
@@ -284,6 +322,7 @@ DatatableMl.prototype = {
 
 
        o.model = model;
+       o.data = model.getAttrs();
        o.rowindex = this.get('models').indexOf(model);
        this._addTbodyTrNode(o);
  
@@ -321,6 +360,7 @@ DatatableMl.prototype = {
      * @protected
      */
     _afterModelListChange : function() {
+        
         this._uiSetModelList(this.get('models'));
     }
 };
@@ -337,14 +377,36 @@ DatatableMl.ATTRS = {
             value : null
         },
         
-        // Supersedes this
+        // @deprecated This supersedes the recordset based table
         recordset : {
             value : null
         }
-        
 };
 
 Y.Base.mix(Y.DataTable.Base, [DatatableMl]);
-
-
-}, '@VERSION@' ,{requires:['base', 'datatable', 'model-list']});
+Y.mix(Y.Column, {
+   ATTRS : {
+       /**
+        * Alignment of cell contents, applied to the liner div element.
+        *
+        * @attribute align
+        * @default undefined
+        */
+       align : {
+           value : undefined
+       },
+       
+       /**
+        * Function used for sorting column values, applied to recordset.
+        * 
+        * This is mentioned but not implemented in DataTable.Base
+        * 
+        * @attribute sortFn
+        * @default null
+        */
+       sortFn : {
+           value : null
+       }
+   } 
+}, false, null, 0, true); // Mix with merge
+}, '1.0.0' , {requires: ['datatable']});

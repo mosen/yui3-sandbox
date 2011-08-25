@@ -1,5 +1,4 @@
 YUI.add('gallery-datatable-tableevents', function(Y) {
-
 /**
  * @module gallery-datatable-tableevents
  * @author lsmith, eamonb
@@ -118,8 +117,6 @@ DataTableEvents.prototype = {
             tag_map[tag.tag] = tag;
             filter.push(tag.tag);
         }
-        
-        Y.log("Delegating table events", "info", "gallery-datatable-tableevents");
 
         this._tag_map = tag_map;
         this._handle = this.get('contentBox')
@@ -157,7 +154,7 @@ DataTableEvents.prototype = {
                 type: e.type.charAt(0).toUpperCase() + e.type.slice(1), // Titlecase event
                 tag: tag,
                 tagHuman: tag_map[tag] ? tag_map[tag].name : tag,
-                relatedTag: (e.relatedTarget === null) ? '' : e.relatedTarget.get('tagName').toLowerCase(),
+                relatedTag: (e.relatedTarget === null || e.relatedTarget === undefined) ? '' : e.relatedTarget.get('tagName').toLowerCase(),
                 inThead : e.currentTarget.getData('inThead'),
                 isHover :  /^mouse(?:over|out|enter|leave)$/.test(e.type) ? true : false
             };
@@ -207,34 +204,32 @@ DataTableEvents.prototype = {
                 currentTarget: e.currentTarget,
                 node: info.node,
                 inThead: info.inThead,
-                header: (info.tag == 'th')
+                header: (info.tag === 'th')
             }, eventWillPropagate;
-
-        Y.log("_notifySubscribers", "info", "gallery-datatable-tableevents");
         
         // For hover events, resolve the relatedTarget parent column
         if (info.isHover) {
-            if (info.tag == 'td' || info.tag == 'th') {
+            if (info.tag === 'td' || info.tag === 'th') {
                 if (this._fireTableEvent(info.tagHuman + info.type, payload)) {
                     // continue if cellEvent did not stop propagation
 
                     // Fire columnHover if relatedTarget resolves to different column
-                    columnId = (info.tag == 'td') ? info.node.getAttribute('headers') : info.node.get('id');
+                    columnId = (info.tag === 'td') ? info.node.getAttribute('headers') : info.node.get('id');
                     relatedColumnId = this.resolveRelatedColumn(e.relatedTarget);
 
-                    if (columnId != relatedColumnId) {
+                    if (columnId !== relatedColumnId) {
                         this._fireTableEvent('column' + info.type, payload);
                     }               
                 }
                 
-            } else if (info.tag == 'tr') {
+            } else if (info.tag === 'tr') {
                 if (e.relatedTarget === null || info.node !== e.relatedTarget.ancestor('tr')) {
                     this._fireTableEvent(info.tagHuman + info.type, payload);
                 }
             }
         } else {
             eventWillPropagate = this._fireTableEvent(info.tagHuman + info.type, payload);
-            if (eventWillPropagate && (info.tag == 'td' || info.tag == 'th')) {
+            if (eventWillPropagate && (info.tag === 'td' || info.tag === 'th')) {
                 this._fireTableEvent('column' + info.type, payload);
             }
         }
@@ -265,9 +260,9 @@ DataTableEvents.prototype = {
             case 'div':
                 relParent = relatedTarget.get('parentNode');
 
-                if (relParent.get('tagName').toLowerCase() == 'th') {
+                if (relParent.get('tagName').toLowerCase() === 'th') {
                     relColumnId = relParent.get('id');
-                } else if (relParent.get('tagName').toLowerCase() == 'td') {
+                } else if (relParent.get('tagName').toLowerCase() === 'td') {
                     relColumnId = relParent.getAttribute('headers');
                 }
 
@@ -281,6 +276,4 @@ DataTableEvents.prototype = {
 Y.namespace('DataTable.Features').TableEvents = DataTableEvents;
 
 Y.Base.mix(Y.DataTable.Base, [Y.DataTable.Features.TableEvents]);
-
-
-}, '@VERSION@' ,{optional:['pluginattr'], requires:['datatable']});
+}, '1.0.0' , {requires: ['datatable']});

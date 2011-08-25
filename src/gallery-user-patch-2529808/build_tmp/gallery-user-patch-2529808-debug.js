@@ -1,32 +1,49 @@
 YUI.add('gallery-user-patch-2529808', function(Y) {
 
-// patch for YUI 3.3.0 DataTable bug
-// forum post: http://yuilibrary.com/forum/viewtopic.php?f=92&t=6355
-// bug ticket: http://yuilibrary.com/projects/yui3/ticket/2529808
-// also see: https://github.com/mosen/yui3-gallery/tree/master/sandbox/mosen/src/gallery-dp-datatable
-//
+/**
+* Patch for YUI 3.3.0 DataTableScroll plugin bug #2529808
+* Enables support for using DataTableScroll plugin when data is lazy loaded (e.g. when using a datasource).
+* Ticket URL - http://yuilibrary.com/projects/yui3/ticket/2529808
+*
+* Thanks to eamonb a.k.a mosen for his peer review and help testing
+* @requires datatable-scroll
+*/
 
-Y.Plugin.DataTableScroll.prototype.injected_initializer = Y.Plugin.DataTableScroll.prototype.initializer;
 
-Y.Plugin.DataTableScroll.prototype.initializer = function(config) {
-    this.get('host').after('recordsetChange', Y.bind(this.syncUI, this));
-    this.injected_initializer(config);
-};
+// added automatically by build system
+//YUI.add('gallery-user-patch-2529808', function(Y) {
 
-Y.Plugin.DataTableScroll.prototype.injected_syncWidths = Y.Plugin.DataTableScroll.prototype._syncWidths;
-Y.Plugin.DataTableScroll.prototype._syncWidths = function() {
+var DTScroll = Y.Plugin.DataTableScroll;
+
+if (!DTScroll.prototype.orig_syncWidths) {
+
+    // wrap initializer and _syncWidths with custom functions
+    // can't use bindUI because it is never called for this plugin
     
-    var dt = this.get('host'),
-        rs = dt.get('recordset'),
-        rsLength = rs.getLength();
+    DTScroll.prototype.orig_initializer = DTScroll.prototype.initializer;
+    DTScroll.prototype.initializer = function () {
+        this.orig_initializer();
+        // trigger UI refresh when data changes so _syncWidths will be called
+        this.afterHostEvent('recordsetChange', this.syncUI);
+    };
 
-    if (rsLength === 0) {
-        return false;
-    } else {
-        Y.log('Calling unpatched _syncWidths', 'info', 'gallery-user-patch-2529808');
-        this.injected_syncWidths();
-    }
-};
+    DTScroll.prototype.orig_syncWidths = DTScroll.prototype._syncWidths;
+    DTScroll.prototype._syncWidths = function () {
+        var dt = this.get('host'),
+            set = dt.get('recordset');
+
+        // original _syncWidths assumes non-empty recordset and will throw error if empty
+        if (set.getLength() === 0) {
+            return;
+        }
+
+        Y.log('Calling unpatched syncWidths', 'info', 'gallery-user-patch-2529808');
+        this.orig_syncWidths();
+    };
+}
+
+// added automatically by build system
+//}, '1.0.0', {requires:['datatable-scroll']});
 
 
 }, '@VERSION@' ,{skinnable:false, requires:['datatable']});

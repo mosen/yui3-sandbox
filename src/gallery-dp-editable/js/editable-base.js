@@ -376,7 +376,9 @@ EditableBase.prototype = {
      * @protected
      */
     _validateAttrType : function(v) {
-        return ('textarea' == v || 'text' == v || 'select' == v) ? true : false;
+        return ('textarea' === v || 
+                'text' === v || 
+                'select' === v) ? true : false;
     },
 
     /**
@@ -401,7 +403,7 @@ EditableBase.prototype = {
         }
         
         // If a delegate node other than the current has been clicked, save then switch to that editor
-        if (this.get('editing') === true && e.currentTarget.get('id') != editNode.get('id')) {
+        if (this.get('editing') === true && e.currentTarget.get('id') !== editNode.get('id')) {
             Y.log("Saving before switching to new editor", "debug", "gallery-dp-editable");
             this.save();
         }
@@ -480,7 +482,8 @@ EditableBase.prototype = {
     },
     
     /**
-     * The state of this variable determines if the editor is shown or not.
+     * Handle a change in state of the 'editing' attribute.
+     * This attribute determines whether the editor is shown or not.
      *
      * @method _uiSetEditing
      * @param e {Event} Event facade

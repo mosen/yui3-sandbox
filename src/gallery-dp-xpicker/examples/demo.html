@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>YUI Sandbox</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://yui.yahooapis.com/3.4.0/build/yui/yui.js"
+        charset="utf-8"></script>
+    </head>
+    <body class="yui3-skin-sam">
+        <!-- You can use this node to test new widgets or components -->
+        <div class="container">
+        <input type="text" id="pickerinput" value="Selection goes here" />
+        <div id="testnode"></div>
+        </div>
+
+        <script type="text/javascript">
+            YUI({
+                //filter: 'debug',
+                groups : {
+                    dp : {
+                        combine : false,
+                        base: '../../../build/',
+                        root: '../../../build',
+                        modules : {
+                            'gallery-dp-xpicker' : {
+                                'path' : '/gallery-dp-xpicker/gallery-dp-xpicker-debug.js',
+                                'requires' : [
+                                    'node', 'node-screen', 'base', 'widget', 'transition'],
+                                'skinnable' : true
+                            }
+                        }
+                    }
+                }
+            }).use(
+                "test"
+                , "gallery-dp-xpicker"
+                , function(Y) {
+                
+                var xp = new Y.DP.Xpicker({
+                    lists : {
+                        "year" : [
+                            { title : "2010", value: 2010 },
+                            { title : "2011", value: 2011 },
+                            { title : "2012", value: 2012 }
+                        ],
+                        "month" : [
+                            { title: 'Jan', value: 1 },
+                            { title: 'Feb', value: 2 },
+                            { title: 'Mar', value: 3 },
+                            { title: 'Apr', value: 4 },
+                            { title: 'May', value: 5 },
+                            { title: 'Jun', value: 6 },
+                            { title: 'Jul', value: 7 },
+                            { title: 'Aug', value: 8 },
+                            { title: 'Sep', value: 9 },
+                            { title: 'Oct', value: 10 },
+                            { title: 'Nov', value: 11 },
+                            { title: 'Dec', value: 12 }
+                        ]
+                    }
+                });
+
+                xp.render('#testnode');
+
+                Y.one('#pickerinput').on('focus', function(e) { xp.show(); });
+
+                xp.on('select', function(e) {
+                   Y.one('#pickerinput').set('value', e.selection["year"] + ' ' + e.selection["month"]);
+                });
+            });
+        </script>
+    </body>
+</html>

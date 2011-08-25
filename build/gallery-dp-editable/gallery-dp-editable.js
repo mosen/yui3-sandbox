@@ -1,5 +1,4 @@
 YUI.add('gallery-dp-editable', function(Y) {
-
 /**
  * @module gallery-dp-editable
  * @author eamonb
@@ -374,7 +373,9 @@ EditableBase.prototype = {
      * @protected
      */
     _validateAttrType : function(v) {
-        return ('textarea' == v || 'text' == v || 'select' == v) ? true : false;
+        return ('textarea' === v || 
+                'text' === v || 
+                'select' === v) ? true : false;
     },
 
     /**
@@ -397,7 +398,7 @@ EditableBase.prototype = {
         }
         
         // If a delegate node other than the current has been clicked, save then switch to that editor
-        if (this.get('editing') === true && e.currentTarget.get('id') != editNode.get('id')) {
+        if (this.get('editing') === true && e.currentTarget.get('id') !== editNode.get('id')) {
             this.save();
         }
  
@@ -471,7 +472,8 @@ EditableBase.prototype = {
     },
     
     /**
-     * The state of this variable determines if the editor is shown or not.
+     * Handle a change in state of the 'editing' attribute.
+     * This attribute determines whether the editor is shown or not.
      *
      * @method _uiSetEditing
      * @param e {Event} Event facade
@@ -837,8 +839,7 @@ EditableBase.prototype = {
     _input: null
 };
 
-Y.namespace("DP").EditableBase = EditableBase;
-/**
+Y.namespace("DP").EditableBase = EditableBase;/**
  *
  *
  * @module gallery-dp-editable
@@ -892,6 +893,4 @@ var EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.Editab
 });
 
 Y.namespace("DP").EditablePlugin = EditablePlugin;
-
-
-}, '@VERSION@' ,{requires:['node', 'base', 'event', 'plugin', 'io']});
+}, '1.0.0' , {requires: ['node', 'base', 'event', 'plugin', 'io']});

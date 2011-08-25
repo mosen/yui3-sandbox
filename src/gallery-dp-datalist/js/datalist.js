@@ -31,7 +31,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
      * Iterate through list items and call render on each.
      *
      * @method _renderItems
- * @param models {Y.ModelList} a list of models
+     * @param models {Y.ModelList} a list of models
      * @protected
      */
     _renderItems : function(models) {
@@ -115,7 +115,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
             clientId = li.get('id'),
             model = this.get('models').getByClientId(clientId);
         
-        this.set('selection', [ model ]); // CSSify the item so that the entire array can be selected by Y.all
+        this.set('selection', [ model ]);
         //this.fire('select', {itemid: clientId, item: model});
     },
     
@@ -239,7 +239,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         Y.Array.each(selection, function(model) {
             clientId = model.get('clientId');
             Y.log("Adding selection: "+clientId, "info", "gallery-dp-datalist");
-            this.fire('select', {itemid: clientId, item: model});
+            this.fire('select', { itemid: clientId, item: model });
             list.one('#'+clientId).addClass(this.getClassName('item', 'selected'));
         }, this);
     },

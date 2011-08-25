@@ -19,6 +19,8 @@ function DatatableEdit() {
     DatatableEdit.superclass.constructor.apply(this, arguments);
 }
 
+
+
 Y.mix(DatatableEdit, {
 
     NS : "edit",
@@ -37,7 +39,7 @@ Y.mix(DatatableEdit, {
     ATTRS : {
 
         /**
-         * Access to all of the changes made through the editor api
+         * Access to all of the changes/delta made through the editor api
          *
          * @attribute changes
          * @type Object
@@ -69,6 +71,8 @@ Y.extend(DatatableEdit, Y.Plugin.Base, {
      * @param config {Object} Configuration object
      */
     initializer : function (config) {
+        Y.log("init", "debug", "gallery-dp-datatable-plugin-edit");
+        
         var hostRecords = this.get('host').get('recordset');
         
         this._changes.added = new Y.Recordset();
@@ -441,7 +445,8 @@ Y.extend(DatatableUpdates, Y.Plugin.Base, {
     initializer : function () {
         Y.log("DatatableUpdates:init", "info", "DatatableUpdates");
         
-
+        // DataTable does not usually recognise changes in the underlying state of the recordset, unless the 
+        // recordset was replaced entirely.
         this.afterHostEvent("recordset:add", this._afterRecordsetAdd);
         this.afterHostEvent("recordset:remove", this._afterRecordsetRemove);
         this.afterHostEvent("recordset:empty", this._afterRecordsetEmpty);

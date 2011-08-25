@@ -1,0 +1,34 @@
+{
+    "name"    : "gallery-datatable-ml-selection",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "skip"    : {
+        "clean"    : false,
+        "register" : false,
+        "lint"     : false,
+        "logger"   : false
+    },
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "dtml-selection.js"
+    ],
+    "buildDir"  : "../../build/gallery-datatable-ml-selection",
+    "assetsDir" : "assets",
+    "tools"     : {
+        "jslint"  : {
+            "jslint option" : null
+        },
+        "csslint" : {
+            "csslint option" : null
+        }
+    },
+    "details" : {
+        "use"        : null,      
+        "supersedes" : null,
+        "requires"   : ["gallery-datatable-ml"],
+        "optional"   : null,
+        "after"      : null,
+        "after_map"  : {},
+        "skinnable"  : true
+    }
+}

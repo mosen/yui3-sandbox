@@ -1,7 +1,7 @@
 YUI.add('gallery-datatable-tableevents', function(Y) {
 
 /**
- * @module datatable-events
+ * @module gallery-datatable-tableevents
  * @author lsmith, eamonb
  * @requires datatable
  * 
@@ -74,22 +74,18 @@ DataTableEvents.ATTRS = {
 DataTableEvents.prototype = {
 
     /**
-     * Initializer runs when the plugin is constructed or plugged into the host instance.
-     *
      * @method initializer
      * @protected
      */
     initializer : function () {
-        this.after('render', this._bindEvents, this);
+        
+        this.after('render', this._bindTableEvents, this);
         this.after('eventsChange', this._afterEventsChange);
     },
 
     /**
-     * Destructor runs when the plugin is unplugged
-     * Base will automatically detach afterHostEvent/afterHostMethod methods.
-     *
      * @method destructor
-     * @public
+     * @protected
      */
     destructor: function() { 
         this._handle && this._handle.detach();
@@ -102,10 +98,10 @@ DataTableEvents.prototype = {
      * We delegate the contentBox because there may be multiple table nodes
      * eg. DataTableScroll
      * 
-     * @method _bindEvents
+     * @method _bindTableEvents
      * @protected
      */
-    _bindEvents: function () {
+    _bindTableEvents: function () {
         var events  = this.get('events'),
             tags    = this.get('tags'), // filters?
             tag_map = {},
@@ -120,10 +116,11 @@ DataTableEvents.prototype = {
             tag_map[tag.tag] = tag;
             filter.push(tag.tag);
         }
+        
 
         this._tag_map = tag_map;
         this._handle = this.get('contentBox')
-            .delegate(events, this._handleEvent, filter.join(','), this);
+            .delegate(events, this._handleTableEvent, filter.join(','), this);
     },
 
     /**
@@ -134,171 +131,144 @@ DataTableEvents.prototype = {
      * @protected
      */
     _afterEventsChange: function (e) {
-        this._bindEvents(e.newVal);
+        this._bindTableEvents(e.newVal);
     },
     
     /**
      * Handle an event being fired
      * 
-     * @method _handleEvent
+     * @method _handleTableEvent
      * @param e {Event} Event facade
+     * @return undefined
      * @protected
      */
-    _handleEvent: function (e) {
+    _handleTableEvent: function (e) {
         
-        if (/^mouse(?:over|out|enter|leave)$/.test(e.type)) {
-            this._handleHoverEvent(e);
-        } else {
-            this._notify(e);
+        // We need to generate more information about the node in order to use the
+        // correct event name and set up the payload, this is done here.
+        var tag_map = this._tag_map,
+            tag = e.currentTarget.get('tagName').toLowerCase(),
+            info = {
+                node: e.currentTarget, // duplicate, not really needed
+                type: e.type.charAt(0).toUpperCase() + e.type.slice(1), // Titlecase event
+                tag: tag,
+                tagHuman: tag_map[tag] ? tag_map[tag].name : tag,
+                relatedTag: (e.relatedTarget === null) ? '' : e.relatedTarget.get('tagName').toLowerCase(),
+                inThead : e.currentTarget.getData('inThead'),
+                isHover :  /^mouse(?:over|out|enter|leave)$/.test(e.type) ? true : false
+            };
+            
+        if (!info.inThead && info.inThead !== false) {
+            info.inThead = (info.node !== this._theadNode && this._theadNode.contains(info.node));
+            info.node.setData('inThead', info.inThead);
         }
+        
+        this._notifySubscribers(e, info);
     },
-
+    
     /**
-     * Handle a hover event being fired
-     * 
-     * rowHover will fire on every delegated cellHover event, so
-     * we need to detect when the row has changed, lsn says use
-     * relatedTarget
-     * 
-     * @method _handleHoverEvent
-     * @param e {Event} Event facade
+     * Fire the Table Event
+     *
+     * @method _fireTableEvent
+     * @param type {String} Event type to fire
+     * @param payload {Object} Payload for event facade
+     * @returns {Boolean} false if event propagation was stopped.
      * @protected
      */
-    _handleHoverEvent: function (e) {
+    _fireTableEvent : function(type, payload) {
         
-        var node        = e.currentTarget,
-            relTarget   = e.relatedTarget,
-            type        = e.type.charAt(0).toUpperCase() + e.type.slice(1),
-            tag         = node.get('tagName').toLowerCase(),
-            relTag      = (relTarget == null) ? '' : relTarget.get('tagName').toLowerCase(),
-            columnId    = '',
-            relColumnId = '',
-            relParent, column, payload, table;
+       // Fire the event, stop DOM propagation if the handler cancels
+       if (this.fire(type, payload) === true) {
+               return true;
+       } else {
+               payload.event.stopPropagation();
+               return false;
+       }
+    },
+    
+    /**
+     * Determine table events to fire, and notify subscribers
+     *
+     * @method _notifySubscribers
+     * @param e {Event} Event facade
+     * @param info {Object} Extra information extracted from the event
+     * @returns undefined
+     * @protected
+     */
+    _notifySubscribers : function(e, info) {
+        var columnId, relatedColumnId,
+            payload = {
+                event: e,
+                currentTarget: e.currentTarget,
+                node: info.node,
+                inThead: info.inThead,
+                header: (info.tag == 'th')
+            }, eventWillPropagate;
+
         
-        // cell|theadCell event
-        if (tag == 'td' || tag == 'th') {
+        // For hover events, resolve the relatedTarget parent column
+        if (info.isHover) {
+            if (info.tag == 'td' || info.tag == 'th') {
+                if (this._fireTableEvent(info.tagHuman + info.type, payload)) {
+                    // continue if cellEvent did not stop propagation
 
-            this._notify(e);
+                    // Fire columnHover if relatedTarget resolves to different column
+                    columnId = (info.tag == 'td') ? info.node.getAttribute('headers') : info.node.get('id');
+                    relatedColumnId = this.resolveRelatedColumn(e.relatedTarget);
 
-            // columnEvent
-
-            // Resolve Column ID for relatedTarget:
-            // I'm testing all possible related targets here because the div
-            // liner may not exist (maybe using some custom formatter)
-            
-            switch (relTag) {
-                case 'td':
-                    relColumnId = relTarget.getAttribute('headers');
-                    break;
-                case 'th':
-                    relColumnId = relTarget.get('id');
-                    break;
-                case 'div':
-                    relParent = relTarget.get('parentNode');
-
-                    if (relParent.get('tagName').toLowerCase() == 'th') {
-                        relColumnId = relParent.get('id');
-                    } else if (relParent.get('tagName').toLowerCase() == 'td') {
-                        relColumnId = relParent.getAttribute('headers');
-                    }
-
-                    break;       
+                    if (columnId != relatedColumnId) {
+                        this._fireTableEvent('column' + info.type, payload);
+                    }               
+                }
+                
+            } else if (info.tag == 'tr') {
+                if (e.relatedTarget === null || info.node !== e.relatedTarget.ancestor('tr')) {
+                    this._fireTableEvent(info.tagHuman + info.type, payload);
+                }
             }
-            
-
-            columnId = (tag == 'td') ? node.getAttribute('headers') : node.get('id');
-
-            if (columnId != relColumnId) {
-                column = this.get('columnset').idHash[columnId];
-                
-                
-                table = this;
-                
-                payload = {
-                    event: e,
-                    target: e.target,
-                    currentTarget: node,
-                    column: column,
-                    cells: function() { // Convenience closure to retrieve cells by selector
-                        return table.get('contentBox').all('td[headers=' + columnId + ']');
-                    }
-                };
-
-                // Fire the event, stop DOM propagation if the handler cancels
-                this.fire('column' + type, payload) || e.stopPropagation(); // or fire(.., { event: e })? or new EventFacade?
+        } else {
+            eventWillPropagate = this._fireTableEvent(info.tagHuman + info.type, payload);
+            if (eventWillPropagate && (info.tag == 'td' || info.tag == 'th')) {
+                this._fireTableEvent('column' + info.type, payload);
             }
-            
-        // rowEvent       
-        } else if (tag == 'tr') {
-            if (relTarget == null || node !== relTarget.ancestor('tr')) {
-                this._notify(e);
-            }            
         }
     },
     
     /**
-     * Fire custom DataTable events
-     * 
-     * @method _notify
-     * @param e {Event} Event facade
-     * @protected
+     * Given a relatedTarget, resolve the column id that it belongs to.
+     *
+     * @method resolveRelatedColumn
+     * @param relatedTarget {Node} related target that was supplied with hover event.
+     * @returns {String} Column ID or null if no related column was found
+     * @public
      */
-    _notify: function (e) {
-        var node    = e.currentTarget,
-            table   = this,
-            thead   = table._theadNode,
-            type    = e.type.charAt(0).toUpperCase() + e.type.slice(1),
-            tag     = node.get('tagName').toLowerCase(),
-            inThead = node.getData('inThead'),
-            //inThead = thead.contains(node),
-            tag_map = this._tag_map,
-            payload = {
-                event: e,
-                target: e.target,
-                currentTarget: node
-            };
-        
-        // consider re-adding thead data to prevent node.contains taking too long
-        if (!inThead && inThead !== false) {
-            inThead = (node !== thead && thead.contains(node));
+    resolveRelatedColumn : function(relatedTarget) {
+        var relParent,
+            relTag = (relatedTarget !== null) ? relatedTarget.get('tagName').toLowerCase() : null,
+            relColumnId = null;
 
-            node.setData('inThead', inThead);
-        }
-
-        if (tag_map[tag]) {
-            tag = tag_map[tag].name;
-        }
-
-        if (inThead) {
-            tag = 'thead' + tag.charAt(0).toUpperCase() + tag.slice(1);
-        }
-
-        // Extra convenience payload
-        switch (tag) {
-            case 'cell':
-                payload.record = table.get('recordset').getRecord(node.get('parentNode').get('id'));
-                payload.column = table.get('columnset').idHash[node.getAttribute('headers')];
-                payload.value = payload.record.getValue(payload.column.get('key'));                    
+        switch (relTag) {
+            case 'td':
+                relColumnId = relatedTarget.getAttribute('headers');
                 break;
                 
-            case 'row':
-                payload.record = table.get('recordset').getRecord(node.get('id'));
+            case 'th':
+                relColumnId = relatedTarget.get('id');
                 break;
                 
-            case 'theadCell':
-                payload.column = table.get('columnset').idHash[node.get('id')];
-                break;
-        }
-        
-        // In gist #1, preventing cellClick also prevents rowClick etc, maybe we can have this kind of cascading relationship here?
-        // Somehow cancelling a custom event here will also stop the DOM propagation, which indicates that
-        // delegated custom events are forced to be processed sequentially, or bubble sequentially.
+            case 'div':
+                relParent = relatedTarget.get('parentNode');
 
-        // cellClick, theadCellClick, tableKeydown etc
-        //console.log(payload);
-        
-        // Fire the event, stop DOM propagation if the handler cancels
-        this.fire(tag + type, payload) || e.stopPropagation(); // or fire(.., { event: e })? or new EventFacade?
+                if (relParent.get('tagName').toLowerCase() == 'th') {
+                    relColumnId = relParent.get('id');
+                } else if (relParent.get('tagName').toLowerCase() == 'td') {
+                    relColumnId = relParent.getAttribute('headers');
+                }
+
+                break;       
+        }
+
+        return relColumnId;
     }
 };
 
