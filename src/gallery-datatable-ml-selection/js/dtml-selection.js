@@ -93,8 +93,10 @@ Y.extend(DatatableMlSelection, Y.Plugin.Base, {
         var rowClicked = e.node;
 
         Y.log("_onHostRowClick", "info", "gallery-datatable-ml-selection");
-        
-        this.select(rowClicked);
+
+        if (!e.inThead) {
+            this.select(rowClicked);
+        }
     },
     
     /**
@@ -107,7 +109,7 @@ Y.extend(DatatableMlSelection, Y.Plugin.Base, {
      */
     _onHostRowMouseenter : function(e) {
         Y.log("_onHostRowMouseenter", "info", "gallery-datatable-ml-selection");
-        
+
         e.event.currentTarget.addClass(YgetClassName('datatable', 'row', 'over'));
     },
     

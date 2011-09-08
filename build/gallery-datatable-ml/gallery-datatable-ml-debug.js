@@ -76,6 +76,7 @@ DatatableMl.prototype = {
         this.get('models').after('add', this._afterModelListAdd, this);
         this.get('models').after('remove', this._afterModelListRemove, this);
         this.get('models').after('reset', this._afterModelListChange, this); // Just rerender
+        this.get('models').on('*:change', this._afterModelChange, this);
     },
     
    /**
@@ -121,7 +122,8 @@ DatatableMl.prototype = {
         this._tbodyNode = newTbody;
         o.tbody = newTbody;
 
-        o.rowTemplate = this.get('trTemplate');
+        //o.rowTemplate = this.get('trTemplate');
+        o.rowTemplate = TEMPLATE_TR;
         o.columns = [];
 
         // Build up column data to avoid passing through Attribute APIs inside
@@ -150,8 +152,8 @@ DatatableMl.prototype = {
         }
 
         list.each(Y.bind(function(model) {
-           //o.model = model;
            o.data = model.getAttrs();
+           o.model = model;
            o.rowindex = list.indexOf(model);
            this._addTbodyTrNode(o);
         }, this));
@@ -203,8 +205,8 @@ DatatableMl.prototype = {
         var columns = o.columns,
             i, len, columnInfo;
 
-        o.tr = Ycreate(fromTemplate(o.rowTemplate, {id: o.data.id || Y.guid()}));
-        //o.tr = Ycreate(fromTemplate(o.rowTemplate, {id: o.model.get('clientId')}));
+        //o.tr = Ycreate(fromTemplate(o.rowTemplate, {id: o.data.id || Y.guid()}));
+        o.tr = Ycreate(fromTemplate(o.rowTemplate, {id: o.model.get('clientId') || Y.guid() }));
         for (i = 0, len = columns.length; i < len; ++i) {
             columnInfo = columns[i];
             o.column = columnInfo.column;
@@ -228,7 +230,6 @@ DatatableMl.prototype = {
     */
     _addTbodyTrNode: function(o) {
         var row = o.tbody.one("#" + Y.guid());
-//o.model.get("clientId")
         o.tr = row || this._createTbodyTrNode(o);
 
         this._attachTbodyTrNode(o);
@@ -351,8 +352,10 @@ DatatableMl.prototype = {
      * @returns
      * @protected
      */
-    _afterModelListRemove : function() {
+    _afterModelListRemove : function(e) {
         Y.log("_afterModelListRemove", "info", "DatatableMl");
+        //this.get('contentBox');
+        this.get('contentBox').one('tr#' + e.model.get('clientId')).remove();
     },
     
     /**
@@ -367,6 +370,44 @@ DatatableMl.prototype = {
         Y.log("_afterModelListChange", "info", "DatatableMl");
         
         this._uiSetModelList(this.get('models'));
+    },
+
+    /**
+     * After an individual model's properties change
+     *
+     * @method _afterModelChange
+     * @protected
+     */
+    _afterModelChange : function(e) {
+        Y.log('Model has changed');
+
+        var displayKeys = Y.Object.keys(this.get('columnset').keyHash),
+            changedKeys = Y.Object.keys(e.changed),
+            keysToUpdate = Y.Array.filter(changedKeys, function(v) {
+                if (displayKeys.indexOf(v) !== -1) return true;
+            }),
+            columnHash = this.get('columnset').keyHash;
+
+        Y.Array.each(keysToUpdate, function(k) {
+            var column = columnHash[k],
+                fnFormatter = column.get('formatter'),
+                o = {
+                    value : e.changed[k].newVal,
+                    formatter : Y.Lang.isFunction(fnFormatter) ? fnFormatter : Y.bind(fromTemplate, this, this.get('tdValueTemplate'))
+                },
+                clientRowId = 'tr#' + e.target.get('clientId'),
+                modelRow = Y.one(clientRowId),
+                modelColumnId = 'td[headers="' + column.get('id') + '"]',
+                modelCell = modelRow.one(modelColumnId),
+                modelLiner = modelCell.one('div');
+
+            modelLiner.setContent(o.formatter.call(this, o));
+        }, this);
+
+
+        // Match change ATTR to column key
+        // Get row by model id
+        // Set cell inner to formatter(newval)
     }
 };
 
