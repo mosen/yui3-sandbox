@@ -1,0 +1,7 @@
+
+/* highlight drop targets in drag mode */
+.yui3-skin-sam .yui3-datatable-data .yui3-datatable-droptarget-over div {
+    border-top-width: 4px;
+    border-color: #999;
+    border-style: solid;
+}

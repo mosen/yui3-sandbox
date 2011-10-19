@@ -1,0 +1,14 @@
+{
+    "name"    : "gallery-dp-datalist-plugin-editing",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "datalist-editing.js"
+    ],
+    "buildDir"  : "../../build/gallery-dp-datalist-plugin-editing",
+    "assetsDir" : "assets",
+    "details" : {
+        "skinnable"  : false
+    }
+}

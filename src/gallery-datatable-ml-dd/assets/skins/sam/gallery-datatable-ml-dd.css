@@ -1,0 +1,4 @@
+/* highlight drop targets in drag mode */
+.yui3-datatable-tbody-drop .yui3-datatable-droptarget {
+    background-color: #0000ff;
+}

@@ -1,0 +1,18 @@
+{
+    "name"    : "gallery-dp-appextras",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "xhrsynclayer.js",
+        "cakephplayer.js",
+        "xhrsynclistlayer.js",
+        "cakephplistlayer.js",
+        "viewform.js"
+    ],
+    "buildDir"  : "../../build/gallery-dp-appextras",
+    "assetsDir" : "assets",
+    "details" : {
+        "skinnable"  : false
+    }
+}
