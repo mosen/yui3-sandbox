@@ -1,3 +1,7 @@
+.yui3-skin-sam .yui3-datatable tr.yui3-datatable-odd {
+    background-color: #FFFFFF;
+}
+
 .yui3-skin-sam .yui3-datatable tr.yui3-datatable-row-over {
     background-color: #BFCCF1;
 }

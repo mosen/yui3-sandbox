@@ -1,4 +1,5 @@
 YUI.add('gallery-datatable-tableevents', function(Y) {
+
 /**
  * @module gallery-datatable-tableevents
  * @author lsmith, eamonb
@@ -63,7 +64,7 @@ DataTableEvents.ATTRS = {
     // Elements that we will broadcast for
     tags: {
         value: [
-            'table', 'thead', 'tbody',
+            'table', 'thead', 'tbody', 'tfoot',
             {tag: 'tr', name: 'row'},
             {tag: 'th', name: 'cell'},
             {tag: 'td', name: 'cell'}
@@ -156,12 +157,20 @@ DataTableEvents.prototype = {
                 tagHuman: tag_map[tag] ? tag_map[tag].name : tag,
                 relatedTag: (e.relatedTarget === null || e.relatedTarget === undefined) ? '' : e.relatedTarget.get('tagName').toLowerCase(),
                 inThead : e.currentTarget.getData('inThead'),
+                inTfoot : e.currentTarget.getData('inTfoot'),
                 isHover :  /^mouse(?:over|out|enter|leave)$/.test(e.type) ? true : false
             };
             
         if (!info.inThead && info.inThead !== false) {
             info.inThead = (info.node !== this._theadNode && this._theadNode.contains(info.node));
             info.node.setData('inThead', info.inThead);
+        }
+
+
+        // Only broadcast tfoot events if we have the property.
+        if (this._tfootNode && !info.inTfoot && info.inTfoot !== false) {
+            info.inTfoot = (info.node !== this._tfootNode && this._tfootNode.contains(info.node));
+            info.node.setData('inTfoot', info.inTfoot);
         }
         
         this._notifySubscribers(e, info);
@@ -204,6 +213,7 @@ DataTableEvents.prototype = {
                 currentTarget: e.currentTarget,
                 node: info.node,
                 inThead: info.inThead,
+                inTfoot: info.inTfoot,
                 header: (info.tag === 'th')
             }, eventWillPropagate;
         
@@ -276,4 +286,5 @@ DataTableEvents.prototype = {
 Y.namespace('DataTable.Features').TableEvents = DataTableEvents;
 
 Y.Base.mix(Y.DataTable.Base, [Y.DataTable.Features.TableEvents]);
-}, '1.0.0' , {requires: ['datatable']});
+
+}, '1.0.0' , { requires: ['datatable'] });

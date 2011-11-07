@@ -1,4 +1,5 @@
 YUI.add('gallery-datatable-ml', function(Y) {
+
 // Datatable.Base ModelList Mixin
 
 // Dirty vars copypasta
@@ -160,6 +161,8 @@ DatatableMl.prototype = {
  
         // TBODY to DOM
         parent.insert(this._tbodyNode, nextSibling);
+
+        this.fire('modelsRendered');
     }, 
     
     // addTbodyTrNode still works with the same signature.
@@ -384,7 +387,9 @@ DatatableMl.prototype = {
         var displayKeys = Y.Object.keys(this.get('columnset').keyHash),
             changedKeys = Y.Object.keys(e.changed),
             keysToUpdate = Y.Array.filter(changedKeys, function(v) {
-                if (displayKeys.indexOf(v) !== -1) return true;
+                if (displayKeys.indexOf(v) !== -1) {
+                    return true;
+                }
             }),
             columnHash = this.get('columnset').keyHash;
 
@@ -455,4 +460,5 @@ Y.mix(Y.Column, {
        }
    } 
 }, false, null, 0, true); // Mix with merge
+
 }, '1.0.0' , {requires: ['datatable']});

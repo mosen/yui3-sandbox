@@ -203,7 +203,11 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
             updatedItem = this._renderItem(fnRender, {value: model, id: model.get('clientId')});
             
             oldItem = this.get('contentBox').one('li#'+model.get('clientId'));
+            //var isSelected = oldItem.hasClass(this.getClassName('item', 'selected'));
+
             oldItem.replace(updatedItem);
+
+            this.set('selection', [model]);
         }
     },
     

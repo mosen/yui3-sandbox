@@ -22,10 +22,10 @@ XHRSyncLayer.ATTRS = {
      * @attribute loading
      * @type Boolean
      */
-        loading : {
-            value : false,
-            validator : Y.Lang.isBoolean
-        },
+    loading : {
+        value : false,
+        validator : Y.Lang.isBoolean
+    },
 
     /**
      * Name of the model to form the server side URI
@@ -33,43 +33,56 @@ XHRSyncLayer.ATTRS = {
      * @attribute uriController
      * @type String
      */
-        uriController : {
-            value : 'model'
-        },
+    uriController : {
+        value : 'model'
+    },
 
-      /**
-       * URI Templates for Model sync layer
-       *
-       * @attribute TEMPLATE_URI_CREATE
-       * @type String
-       */
-        TEMPLATE_URI_CREATE : {
-            value : '/{model}/create.json'
-        },
-
-      /**
-       * @attribute TEMPLATE_URI_READ
-       * @type String
-       */
-        TEMPLATE_URI_READ : {
-            value : '/{model}/view.json?id={id}'
-        },
-
-      /**
-       * @attribute TEMPLATE_URI_UPDATE
-       * @type String
-       */
-        TEMPLATE_URI_UPDATE : {
-            value : '/{model}/update.json?id={id}'
-        },
-
-      /**
-       * @attribute TEMPLATE_URI_DELETE
-       * @type String
-       */
-        TEMPLATE_URI_DELETE : {
-            value : '/{model}/delete.json?id={id}'
+    /**
+     * Function to determine whether the response
+     * contains an error.
+     *
+     * @attribute fnResponseIsError
+     * @type Function
+     */
+    fnResponseIsError : {
+        value : function() {
+            return false;
         }
+    },
+
+    /**
+     * URI Templates for Model sync layer
+     *
+     * @attribute TEMPLATE_URI_CREATE
+     * @type String
+     */
+    TEMPLATE_URI_CREATE : {
+        value : '/{model}/create.json'
+    },
+
+    /**
+     * @attribute TEMPLATE_URI_READ
+     * @type String
+     */
+    TEMPLATE_URI_READ : {
+        value : '/{model}/view.json?id={id}'
+    },
+
+    /**
+     * @attribute TEMPLATE_URI_UPDATE
+     * @type String
+     */
+    TEMPLATE_URI_UPDATE : {
+        value : '/{model}/update.json?id={id}'
+    },
+
+    /**
+     * @attribute TEMPLATE_URI_DELETE
+     * @type String
+     */
+    TEMPLATE_URI_DELETE : {
+        value : '/{model}/delete.json?id={id}'
+    }
 };
 
 XHRSyncLayer.prototype = {
@@ -114,10 +127,14 @@ XHRSyncLayer.prototype = {
                     data : this.toPostData(),
                     on : {
                         success : function(transactionId, responseObject, args) {
-                            callback(null, responseObject);
+                            if (this.get('fnResponseIsError')(responseObject)) {
+                                callback('Server sent an error response');
+                            } else {
+                                callback(null, responseObject);
+                            }
                         },
                         failure : function(transactionId, responseObject, args) {
-                            callback('Error creating the object');
+                            callback('Error creating the object (transport error)');
                         },
                         start : this._fnSetLoading,
                         complete : this._fnSetNotLoading
@@ -134,10 +151,14 @@ XHRSyncLayer.prototype = {
                     method : 'GET',
                     on : {
                         success : function(transactionId, responseObject, args) {
-                            callback(null, responseObject);
+                            if (this.get('fnResponseIsError')(responseObject)) {
+                                callback('Server sent an error response');
+                            } else {
+                                callback(null, responseObject);
+                            }
                         },
                         failure : function(transactionId, responseObject, args) {
-                            callback('Error retrieving the object');
+                            callback('Error retrieving the object (transport error)');
                         },
                         start : this._fnSetLoading,
                         complete : this._fnSetNotLoading
@@ -155,10 +176,14 @@ XHRSyncLayer.prototype = {
                     data : this.toPostData(),
                     on : {
                         success : function(transactionId, responseObject, args) {
-                            callback(null, responseObject);
+                            if (this.get('fnResponseIsError')(responseObject)) {
+                                callback('Server sent an error response');
+                            } else {
+                                callback(null, responseObject);
+                            }
                         },
                         failure : function(transactionId, responseObject, args) {
-                            callback('Error updating the object');
+                            callback('Error updating the object (transport error)');
                         },
                         start : this._fnSetLoading,
                         complete : this._fnSetNotLoading
@@ -168,16 +193,21 @@ XHRSyncLayer.prototype = {
                 break;
 
             case 'delete':
-                var uriDelete = Y.Lang.sub(this.get('TEMPLATE_URI_DELETE'), { id: this.get('id') });
+                var uriDelete = Y.Lang.sub(this.get('TEMPLATE_URI_DELETE'),
+                    { id: this.get('id'), model: this.get('uriController') });
 
                 this._tId = Y.io(uriDelete, {
                     method : 'GET',
                     on : {
                         success : function(transactionId, responseObject, args) {
-                            callback(null, responseObject);
+                            if (this.get('fnResponseIsError')(responseObject)) {
+                                callback('Server sent an error response');
+                            } else {
+                                callback(null, responseObject);
+                            }
                         },
                         failure : function(transactionId, responseObject, args) {
-                            callback('Error deleting the object');
+                            callback('Error deleting the object (transport error)');
                         },
                         start : this._fnSetLoading,
                         complete : this._fnSetNotLoading

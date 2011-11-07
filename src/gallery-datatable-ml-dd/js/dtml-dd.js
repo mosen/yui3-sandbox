@@ -1,32 +1,38 @@
 /**
- *
- * @module DatatableMlSelection
+ * @module DatatableMlDd
  * @author eamonb
- * @requires gallery-datatable-ml
+ * @requires gallery-datatable-ml, dd, dd-drag, dd-drop, dd-proxy, dd-delegate
  */
-var YgetClassName = Y.ClassNameManager.getClassName;
+var YgetClassName = Y.ClassNameManager.getClassName,
+
+    DATATABLE = "datatable",
+    DATATABLE_TBODY_DRAGGING = YgetClassName(DATATABLE, 'tbody', 'dragging'),
+
+    DATATABLE_ROW_DROPTARGET = YgetClassName(DATATABLE, 'row', 'droptarget'),
+    DATATABLE_DIV_DROPTARGET = YgetClassName(DATATABLE, 'droptarget'),
+    DATATABLE_DIV_DROPTARGET_OVER = YgetClassName(DATATABLE, 'droptarget', 'over'),
+
+    // Drop target template
+    DROP_TEMPLATE = '<tr class="{className}"><td colspan="{colSpan}"><div class="{divClassName}">&nbsp;</div></td></tr>';
 
 /**
- * DataTable selection plugin
+ * DataTable DragDrop plugin
  * 
- * Provides an API to make selections and get the current selection.
- * 
- * Originally designed to use recordset-indexer which was found to be unsuitable
- * for carrying the selection.
+ * Allows the user to drag and drop rows
  *
  * @namespace Y.DP
- * @class DatatableMlSelection
+ * @class DatatableMlDd
  * @extends Plugin.Base
  */
-function DatatableMlSelection() {
-    DatatableMlSelection.superclass.constructor.apply(this, arguments);
+function DatatableMlDd() {
+    DatatableMlDd.superclass.constructor.apply(this, arguments);
 }
 
-Y.mix(DatatableMlSelection, {
+Y.mix(DatatableMlDd, {
 
-    NS : "selection",
+    NS : "dd",
 
-    NAME : "selection",
+    NAME : "datatableMlDd",
 
     /**
      * The attribute configuration represents the core user facing state of 
@@ -38,20 +44,11 @@ Y.mix(DatatableMlSelection, {
      * @static
      */
     ATTRS : {
-        
-        selection : {
-            value : [],
-            validator : Y.Lang.isArray
-        },
 
-        multiple : {
-            value : false,
-            validator : Y.Lang.isBoolean
-        }
     }    
 });
 
-Y.extend(DatatableMlSelection, Y.Plugin.Base, {
+Y.extend(DatatableMlDd, Y.Plugin.Base, {
 
     /**
      * Initializer runs when the plugin is constructed or plugged into the host instance.
@@ -60,15 +57,17 @@ Y.extend(DatatableMlSelection, Y.Plugin.Base, {
      * @param config {Object} Configuration object
      */
     initializer : function (config) {
-        
-        Y.log("init", "debug", "gallery-datatable-ml-selection");
-        
-        this.onHostEvent("rowClick", this._onHostRowClick);
-        
-        this.onHostEvent("rowMouseover", this._onHostRowMouseenter);
-        this.onHostEvent("rowMouseout", this._onHostRowMouseleave);
-        
-        this.after('selectionChange', this._uiSetSelection);
+        Y.log('DatatableMlDd:init', 'debug', 'gallery-datatable-ml-dd');
+
+        // Fired when a row is dropped, by default re-orders the modellist
+        this.publish('rowDropped', { defaultFn: Y.bind(this._defFnRowDropped, this) });
+
+        // Fired when the modellist has been re-ordered
+        this.publish('reorder');
+
+        this._initDelegates();
+        this.get('host').after('modelsRendered', this._syncDelegates, this); // Re-sync event delegate on Re-render
+        this.get('host').after('render', this._bindDelegates, this);
     },
 
     /**
@@ -78,109 +77,156 @@ Y.extend(DatatableMlSelection, Y.Plugin.Base, {
      * @method destructor
      */
     destructor: function() { 
-    
+        this._delegate.destroy();
     },
-    
+
     /**
-     * Change item selection on host row click
+     * Initialize delegate DD objects.
      *
-     * @method _onHostRowClick
-     * @param e {Event} attrChange event facade
-     * @returns undefined
+     * @method _initDelegates
+     * @return undefined
      * @protected
      */
-    _onHostRowClick : function(e) {        
-        var rowClicked = e.node;
+    _initDelegates : function() {
+        Y.log('_initDelegates', 'debug', 'gallery-datatable-ml-dd');
 
-        Y.log("_onHostRowClick", "info", "gallery-datatable-ml-selection");
+        var dtContentNode = this.get('host').get('contentBox'); //.one('.yui3-datatable-data')
 
-        if (!e.inThead) {
-            this.select(rowClicked);
-        }
+        this._delegate = new Y.DD.Delegate({
+            container: dtContentNode,
+            nodes: '.yui3-datatable-data tr', // TODO: tr nodes in body need class name to avoid selecting head nodes.
+            target: true, // Drag nodes are also targets
+            dragConfig : {
+                plugins: [
+                    { fn: Y.Plugin.DDProxy, cfg: { moveOnEnd: false }},
+                    { fn: Y.Plugin.DDConstrained, cfg: { constrain2node: dtContentNode }}
+                ]
+            }
+        });
     },
-    
+
     /**
-     * Highlight row on mouse enter
+     * Bind delegate DD Drag object to event handlers.
      *
-     * @method _onHostRowMouseenter
-     * @param e {Event} attrChange event facade
-     * @returns
+     * @method _bindDelegates
+     * @return undefined
      * @protected
      */
-    _onHostRowMouseenter : function(e) {
-        Y.log("_onHostRowMouseenter", "info", "gallery-datatable-ml-selection");
-
-        e.event.currentTarget.addClass(YgetClassName('datatable', 'row', 'over'));
+    _bindDelegates : function() {
+        this._delegate.on('drag:start', this._uiSetDragging, this); // Highlight drop targets when we start dragging
+        this._delegate.on('drag:end', this._uiSetNotDragging, this); // Remove highlights
+        this._delegate.on('drag:over', this._uiSetOver, this);
+        this._delegate.on('drag:exit', this._uiSetOut, this);
+        this._delegate.on('drag:drophit', this._updateOrder, this);
     },
-    
+
     /**
-     * Remove highlighting on row mouse leave
+     * Re-sync delegate drag objects when the parent table re-renders.
      *
-     * @method _onHostRowMouseleave
-     * @param e {Event} attrChange event facade
-     * @returns
+     * @method _syncDelegates
      * @protected
      */
-    _onHostRowMouseleave : function(e) {
-        Y.log("_onHostRowMouseleave", "info", "gallery-datatable-ml-selection");
-        
-        e.event.currentTarget.removeClass(YgetClassName('datatable', 'row', 'over'));
+    _syncDelegates : function() {
+        this._delegate && this._delegate.syncTargets();
     },
-    
-    /**
-     * Update the UI to reflect the selection
-     *
-     * @method _uiSetSelection
-     * @param e {Event} ATTRChange Event Facade
-     * @returns
-     * @protected
-     */
-    _uiSetSelection : function(e) {
-        Y.log("_uiSetSelection", "info", "gallery-datatable-ml-selection");
-        
-        this.get('host')._tableNode.all('.'+YgetClassName('datatable', 'row', 'selected')).removeClass(YgetClassName('datatable', 'row', 'selected'));
-        
-        Y.Array.each(e.newVal, function(trId) {
-            Y.Node.one('TR#' + trId).addClass(YgetClassName('datatable', 'row', 'selected'));
-        }, this);
-    },
-    
-    /**
-     * Select row(s)/record(s)
-     * 
-     * By default does not invert your selection when selected twice
-     *
-     * @method select
-     * @param selector {String|Array} What to select
-     * @param isInverted {Boolean} Whether to invert the selection of things that are already selected
-     * @returns undefined
-     * @public
-     */
-    select : function(selector, isInverted) {
-        Y.log("select", "info", "gallery-datatable-ml-selection");
-        
-        var currentSelection = this.get('selection'),
-            selectedIds;
-        
-        if (selector instanceof Y.Node) {
-            selectedIds = [ selector.get('id') ];
-        }
 
-        if (this.get('multiple') === true) {
-            Y.Array.each(selectedIds, function(v) {
-                var idx = currentSelection.indexOf(v);
-                if (idx > -1) {
-                    currentSelection.splice(idx, 1);
-                } else {
-                    currentSelection.push(v);
-                }
-            }, this);
-        } else {
-            currentSelection = selectedIds;
-        }
-        
-        this.set('selection', currentSelection);
+    /**
+     * Row has been dropped on a valid target. Update the list order.
+     *
+     * @method _updateOrder
+     * @param e {Object} Event facade of Y.DD.Delegate
+     * @private
+     */
+    _updateOrder : function(e) {
+        e.drop.get('node').insert(e.drag.get('node'), 'before');
+        e.drop.get('node').removeClass(DATATABLE_DIV_DROPTARGET_OVER);
+
+        this.fire('rowDropped', {
+            drag: e.drag,
+            drop: e.drop,
+            source: e.drag.get('node'),
+            dest: e.drop.get('node')
+        });
+    },
+
+    /**
+     * A table row has been dragged over a valid target.
+     * Highlight the target.
+     *
+     * @method _uiSetOver
+     * @param e {Object} Event facade of Y.DD.Delegate
+     * @private
+     */
+    _uiSetOver : function(e) {
+        Y.log('_uiSetOver', 'debug', 'gallery-datatable-ml-dd');
+        e.drop.get('node').addClass(DATATABLE_DIV_DROPTARGET_OVER);
+    },
+
+    /**
+     * A table row has exited a valid drop target.
+     * Un-highlight that target if required.
+     *
+     * @method _uiSetOut
+     * @param e {Object} Event facade of Y.DD.Delegate
+     * @private
+     */
+    _uiSetOut : function(e) {
+        e.drop.get('node').removeClass(DATATABLE_DIV_DROPTARGET_OVER);
+    },
+
+    /**
+     * Dragging has started.
+     * Apply a class to the container to indicate this.
+     *
+     * @method _uiSetDragging
+     * @param e {Object} Event facade of Y.DD.Delegate
+     * @private
+     */
+    _uiSetDragging : function(e) {
+        Y.log('_uiSetDragging', 'debug', 'gallery-datatable-ml-dd');
+
+        var tbody = this.get('host').get('contentBox').one('tbody.yui3-datatable-data');
+        tbody.addClass(DATATABLE_TBODY_DRAGGING);
+    },
+
+    /**
+     * Dragging has stopped.
+     * Remove class from container.
+     *
+     * @method _uiSetNotDragging
+     * @param e {Object} Event facade of Y.DD.Delegate
+     * @private
+     */
+    _uiSetNotDragging : function(e) {
+        Y.log('_uiSetNotDragging', 'debug', 'gallery-datatable-ml-dd');
+
+        var tbody = this.get('host').get('contentBox').one('tbody.yui3-datatable-data');
+        tbody.removeClass(DATATABLE_TBODY_DRAGGING);
+    },
+
+    /**
+     * Default handler when the datatable has been reordered due to a drag-drop
+     *
+     * @method _defFnRowDropped
+     * @param e {Object} Event facade (ours)
+     * @private
+     */
+    _defFnRowDropped : function(e) {
+        Y.log('row dropped', 'debug', 'gallery-datatable-ml-dd');
+        var ml = this.get('host').get('models');
+
+        // Gather the order represented by the datatable (Which is what the user expects).
+        var tbodyNode = this.get('host').get('contentBox').one('tbody.yui3-datatable-data'),
+            trNodes = tbodyNode.all('tr'),
+            i = 0;
+
+        trNodes.each(function(tr) {
+            ml.getByClientId(tr.get('id')).set('order', i);
+            i++;
+        });
+
+        this.fire('reorder');
     }
 });
 
-Y.namespace("DP").DatatableMlSelection = DatatableMlSelection;
+Y.namespace("DP").DatatableMlDd = DatatableMlDd;

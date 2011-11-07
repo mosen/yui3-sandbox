@@ -41,7 +41,11 @@ Y.mix(DatalistEditing, {
          */
         strings : {
             value : {
-                add : 'Add an item' // Placeholder string
+                tooltip : 'Add an item',
+                placeholder : 'Add an item',
+                cancel : 'Cancel',
+                submit : 'OK',
+                indicator : 'Saving...'
             }
         }
     }    
@@ -95,15 +99,17 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         
         this._phlistitem = phlistitem;
         
-        
+        // Create 'New item' Placeholder
         list.append(phlistitem);
         placeholder.plug(Y.DP.EditablePlugin, { 
             submitto: Y.bind(this._createItemFromPlaceholder, this),
-            loadfrom: function(n) {return '';}
+            loadfrom: function(n) {return '';},
+            strings: this.get('strings')
         });
         placeholder.editable.on('save', Y.bind(this._newItemSaved, this));
         this._placeholder = placeholder;
-        
+
+        // Create 'Edit existing item' editor
         list.plug(Y.DP.EditablePlugin, {
             delegate: '.' + this.get('host').getClassName('item'),
             event: 'dblclick',

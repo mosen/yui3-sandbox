@@ -1,12 +1,12 @@
 {
-    "name"    : "gallery-dp-datalist",
+    "name"    : "gallery-datatable-ml-footer",
     "type"    : "js",
     "version" : "1.0.0",
     "sourceDir"   : "js",
     "sourceFiles" : [
-        "datalist.js"
+        "dtml-footer.js"
     ],
-    "buildDir"  : "../../build/gallery-dp-datalist",
+    "buildDir"  : "../../build/gallery-datatable-ml-footer",
     "assetsDir" : "assets",
     "details" : {
         "skinnable"  : true

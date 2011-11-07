@@ -94,7 +94,7 @@ Y.extend(DatatableMlSelection, Y.Plugin.Base, {
 
         Y.log("_onHostRowClick", "info", "gallery-datatable-ml-selection");
 
-        if (!e.inThead) {
+        if (!e.inThead && !e.inTfoot) {
             this.select(rowClicked);
         }
     },

@@ -1,5 +1,5 @@
 {
-    "name"    : "gallery-datatable-ml-dd",
+    "name"    : "gallery-datatable-ml-serversort",
     "type"    : "js",
     "version" : "1.0.0",
     "skip"    : {
@@ -10,9 +10,9 @@
     },
     "sourceDir"   : "js",
     "sourceFiles" : [
-        "dtml-dd.js"
+        "dtml-serversort.js"
     ],
-    "buildDir"  : "../../build/gallery-datatable-ml-dd",
+    "buildDir"  : "../../build/gallery-datatable-ml-serversort",
     "assetsDir" : "assets",
     "tools"     : {
         "jslint"  : {
@@ -23,12 +23,6 @@
         }
     },
     "details" : {
-        "use"        : null,      
-        "supersedes" : null,
-        "requires"   : ["gallery-datatable-ml", "dd", "dd-drag", "dd-proxy", "dd-delegate"],
-        "optional"   : null,
-        "after"      : null,
-        "after_map"  : {},
-        "skinnable"  : false
+        "requires"   : ["gallery-datatable-ml", "plugin"]
     }
 }

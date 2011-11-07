@@ -1,12 +1,12 @@
 {
-    "name"    : "gallery-dp-datalist-plugin-editing",
+    "name"    : "gallery-dp-datatable-formatters",
     "type"    : "js",
     "version" : "1.0.0",
     "sourceDir"   : "js",
     "sourceFiles" : [
-        "datalist-editing.js"
+        "dp-datatable-formatters.js"
     ],
-    "buildDir"  : "../../build/gallery-dp-datalist-plugin-editing",
+    "buildDir"  : "../../build/gallery-dp-datatable-formatters",
     "assetsDir" : "assets",
     "details" : {
         "skinnable"  : false

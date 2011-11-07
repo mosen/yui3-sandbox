@@ -67,27 +67,35 @@ var DataTableFormatters = {
      * @return {String} Formatted date string
      * @static
      */
-    getDateFormatter: function(formatString) {
+    getDateFormatter: function(field, formatString) {
         return function(o) {
             
-            var d;
+            var d,
+                datevar = o.data[field];
+
+            d = Date.parse(datevar);
             
-            if (Y.Lang.isDate(o.value)) {
-                d = o.value;
-            } else {
-                d = Y.DP.DataType.DateTime.parse(o.value) || new Date(Date.parse(o.value));
-                
-                if (!Y.Lang.isDate(d)) {
-                    return "";
-                }
-            }
+//           if (Y.Lang.isDate(datevar)) {
+//                d = datevar;
+//            } else {
+//                d = Y.DP.DataType.DateTime.parse(datevar) || new Date(Date.parse(datevar));
+//                if (Y.Lang.isString(datevar)) {
+//                    d = Y.DP.DataType.DateTime.parse(datevar) || new Date(Date.parse(datevar));
+//
+//                    if (!Y.Lang.isDate(d)) {
+//                        return "";
+//                    }
+//                } else {
+//                    return "";
+//                }
+//            }
             
             if (formatString) {
                 return Y.DataType.Date.format(d, {format: formatString});
             } else {
                 return Y.DataType.Date.format(d, {format: "%x"});
             }
-        };
+        }
     },
     
     /**
@@ -136,7 +144,7 @@ var DataTableFormatters = {
             var product = 0;
             
             Y.Array.each(fields, function(field) {
-                product = product + o.record.getValue(field);
+                product = product + o.model.get(field);
             });
             
             if (Y.Lang.isFunction(fnFormatter)) {
@@ -163,17 +171,16 @@ var DataTableFormatters = {
             var returnHash = [];
             
             for (prop in valueHash) {
-                returnHash[prop] = o.record.getValue(valueHash[prop]);
+                returnHash[prop] = o.model.get(valueHash[prop]);
             }
             
             var href = Y.substitute(formatString, returnHash),
-                link = Y.Node.create(Y.substitute('<a href="{location}">{displayText}</a>', {
+                link = Y.substitute('<a href="{location}">{displayText}</a>', {
                     location: href,
-                    displayText: o.record.getValue(displayField)
-                }, DataTableFormatters.fnSubstituteNulls));
-            
-            o.liner.append(link);
-            return true;
+                    displayText: o.model.get(displayField)
+                }, DataTableFormatters.fnSubstituteNulls);
+
+            return link;
         };
     },
     
@@ -181,11 +188,12 @@ var DataTableFormatters = {
     /**
      * Display a percentage as a visual progress bar
      */
-    getProgressFormatter : function() {
+    getProgressFormatter : function(valueFn) {
         
         return function(o) {
 
-            var percentage_value = parseInt(o.value, 0),
+            var vFn = valueFn,
+                percentage_value = vFn ? vFn(o) : parseInt(o.value, 0),
                 CLASS_TEXT = YgetClassName('gallery', 'dp', 'datatable', 'formatter', 'progresstext'),
                 CLASS_BAR = YgetClassName('gallery', 'dp', 'datatable', 'formatter', 'progressbar'),
                 CLASS_BG = YgetClassName('gallery', 'dp', 'datatable', 'formatter', 'progressbg'),
@@ -195,9 +203,10 @@ var DataTableFormatters = {
 
             var text_percent = Y.substitute(TEXT_TEMPLATE, {className: CLASS_TEXT, text: percentage_value + '%'});
             var bar = Y.substitute(BAR_TEMPLATE, {className: CLASS_BAR, width: percentage_value, textnode: text_percent});
-            var back = Y.substitute(BG_TEMPLATE, {className: CLASS_BG, bar: bar});
+            var bg = Y.substitute(BG_TEMPLATE, {className: CLASS_BG, bar: bar});
 
-            o.td.append(Y.Node.create(back));
+            //o.td.append(Y.Node.create(back));
+            return bg;
         };
     }
 
@@ -205,5 +214,4 @@ var DataTableFormatters = {
 
 Y.namespace('DP').DataTableFormatters = DataTableFormatters;
 
-
-}, '@VERSION@' ,{requires:['datatable', 'datatype']});
+}, '1.0.0' , {  });

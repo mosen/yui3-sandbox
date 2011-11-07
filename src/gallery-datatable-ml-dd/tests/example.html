@@ -5,7 +5,8 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <!--        <script src="http://yui.yahooapis.com/3.4.0pr3/build/yui/yui.js"
         charset="utf-8"></script>-->
-<script src="../../../../yui3/build/yui/yui.js"></script>
+        <link rel="stylesheet" type="text/css" media="screen" href="../assets/skins/sam/gallery-datatable-ml-dd.css" />
+        <script src="../../../../yui3/build/yui/yui.js"></script>
     </head>
     <body class="yui3-skin-sam">
         <!-- You can use this node to test new widgets or components -->
@@ -26,12 +27,15 @@
                     'ml-list' : {
                         'fullpath' : './ml-list.js',
                         'requires' : ['model-list']
+                    },
+                    'gallery-datatable-ml-dd' : {
+                        'fullpath' : '../../../build/gallery-datatable-ml-dd/gallery-datatable-ml-dd-debug.js',
+                        'requires' : ['gallery-datatable-ml', 'dd']
                     }
                }
             }).use(
-                "datatable",
-                "model-list",
                 "gallery-datatable-ml",
+                "gallery-datatable-ml-dd",
                 "ml-model",
                 "ml-list",
                 
@@ -39,40 +43,40 @@
                     // Make a ton of random data
                     var cols = [],
                         rows = [],
-                        numrows = 1000,
+                        numrows = 10,
                         crow,
                         abc = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+                    Y.log('init:example');
 
 //                    for (var ci = 0; ci < 40; ci++) {
 //                        cols.push(abc[ci]);
 //                    }
-                    console.profile('ModelList');
+                    //console.profile('ModelList');
+
 
                     var myModels = new Y.MlList();
 
                     cols.push({ key: "title" });
 
-                    for (var cd = 0; cd < numrows; cd++) {
-                        crow = {};
-
-                        for (var cr = 0; cr < cols.length; cr++) {
-                            crow[cols[cr]] = abc[Math.floor(Math.random() * abc.length)];
-                        }
-
-                        myModels.add(crow);
-                    }
-                        
+                    myModels.add({ title: "one" });
+                    myModels.add({ title: "two" });
+                    myModels.add({ title: "three" });
+                    myModels.add({ title: "four" });
+                    myModels.add({ title: "five" });
+                    myModels.add({ title: "six" });
+                    myModels.add({ title: "seven" });
                     
                     var myDt = new Y.DataTable.Base({
                         columnset : cols,
                         models : myModels
+                        , plugins : [
+                            { fn: Y.DP.DatatableMlDd, cfg: {} }
+                        ]
                     });
 
                     myDt.render();
-                    console.profileEnd('ModelList');
-//                    for (var i = 0; i < 100; i++) {
-//                        myModels.add({ title: i+"" });
-//                    }
+
             });
         </script>
     </body>

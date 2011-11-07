@@ -1,5 +1,5 @@
 {
-    "name"    : "gallery-datatable-ml-dd",
+    "name"    : "gallery-dp-editable",
     "type"    : "js",
     "version" : "1.0.0",
     "skip"    : {
@@ -10,9 +10,10 @@
     },
     "sourceDir"   : "js",
     "sourceFiles" : [
-        "dtml-dd.js"
+        "editable-base.js",
+        "editable-plugin.js"
     ],
-    "buildDir"  : "../../build/gallery-datatable-ml-dd",
+    "buildDir"  : "../../build/gallery-dp-editable",
     "assetsDir" : "assets",
     "tools"     : {
         "jslint"  : {
@@ -23,12 +24,6 @@
         }
     },
     "details" : {
-        "use"        : null,      
-        "supersedes" : null,
-        "requires"   : ["gallery-datatable-ml", "dd", "dd-drag", "dd-proxy", "dd-delegate"],
-        "optional"   : null,
-        "after"      : null,
-        "after_map"  : {},
-        "skinnable"  : false
+        "requires"   : ["node", "base", "event", "plugin", "io"]
     }
 }

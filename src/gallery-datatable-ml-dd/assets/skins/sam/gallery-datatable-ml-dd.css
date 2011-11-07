@@ -1,4 +1,7 @@
+
 /* highlight drop targets in drag mode */
-.yui3-datatable-tbody-drop .yui3-datatable-droptarget {
-    background-color: #0000ff;
+.yui3-skin-sam .yui3-datatable-data .yui3-datatable-droptarget-over div {
+    border-top-width: 4px;
+    border-color: #999;
+    border-style: solid;
 }
