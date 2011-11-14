@@ -191,7 +191,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
     _uiUpdateItems : function(change) {
         var fnRender, updatedItem, oldItem, model = change.target;
         
-        if (change.changed.hasOwnProperty('title')) {
+        if (change.changed.hasOwnProperty('title') || change.changed.hasOwnProperty('id')) {
             
             fnRender = Y.bind(this.get('fnRender'), this),
             updatedItem = this._renderItem(fnRender, {value: model, id: model.get('clientId')});

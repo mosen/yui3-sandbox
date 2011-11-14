@@ -8,7 +8,8 @@
         "cakephplayer.js",
         "xhrsynclistlayer.js",
         "cakephplistlayer.js",
-        "modellistsyncattrs.js"
+        "modellistsyncattrs.js",
+        "modelaccessors.js"
     ],
     "buildDir"  : "../../build/gallery-dp-appextras",
     "assetsDir" : "assets",

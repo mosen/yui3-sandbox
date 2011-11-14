@@ -1,0 +1,33 @@
+{
+    "name"    : "gallery-datatable-ml-progress",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "skip"    : {
+        "clean"    : false,
+        "register" : false,
+        "lint"     : false,
+        "logger"   : false
+    },
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "dtml-progress.js"
+    ],
+    "buildDir"  : "../../build/gallery-datatable-ml-progress",
+    "assetsDir" : "assets",
+    "tools"     : {
+        "jslint"  : {
+            "jslint option" : null
+        },
+        "csslint" : {
+            "csslint option" : null
+        }
+    },
+    "details" : {
+        "requires" : [
+            "gallery-datatable-ml",
+            "node",
+            "plugin",
+            "transition"
+        ]
+    }
+}

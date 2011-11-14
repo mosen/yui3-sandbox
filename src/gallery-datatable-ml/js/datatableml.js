@@ -411,7 +411,7 @@ DatatableMl.prototype = {
         // Match change ATTR to column key
         // Get row by model id
         // Set cell inner to formatter(newval)
-    }
+        }
 };
 
 DatatableMl.ATTRS = {

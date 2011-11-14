@@ -198,7 +198,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         //Y.log("_uiUpdateItems", "info", "gallery-dp-datalist");
         var fnRender, updatedItem, oldItem, model = change.target;
         
-        if (change.changed.hasOwnProperty('title')) {
+        if (change.changed.hasOwnProperty('title') || change.changed.hasOwnProperty('id')) {
             Y.log("Title has changed", "info", "gallery-dp-datalist");
             
             fnRender = Y.bind(this.get('fnRender'), this),

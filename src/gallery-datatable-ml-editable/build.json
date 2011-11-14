@@ -1,0 +1,28 @@
+{
+    "name"    : "gallery-datatable-ml-editable",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "skip"    : {
+        "clean"    : false,
+        "register" : false,
+        "lint"     : false,
+        "logger"   : false
+    },
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "dtml-editable.js"
+    ],
+    "buildDir"  : "../../build/gallery-datatable-ml-editable",
+    "assetsDir" : "assets",
+    "tools"     : {
+        "jslint"  : {
+            "jslint option" : null
+        },
+        "csslint" : {
+            "csslint option" : null
+        }
+    },
+    "details" : {
+        "requires"   : ["gallery-datatable-ml", "gallery-dp-editable"]
+    }
+}

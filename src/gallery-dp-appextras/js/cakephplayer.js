@@ -92,8 +92,12 @@ CakePhpLayer.prototype = {
                     error: 'Server side error'
                 });
             } else {
-                var cakeModel = json.response.items[0][this.get('cakeModel')];
-                return cakeModel;
+                if (json.response.items.length > 0) {
+                    var cakeModel = json.response.items[0][this.get('cakeModel')];
+                    return cakeModel;
+                } else {
+                    return null;
+                }
             }
         }
 };

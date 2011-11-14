@@ -186,10 +186,10 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
             sorting[column.get('id')] = dir;
         } else { // Rotate through states
             if (currentDir === undefined || currentDir === SORT_NONE) {
-                sorting[columnId] = SORT_ASC;
-            } else if (currentDir === SORT_ASC) {
                 sorting[columnId] = SORT_DESC;
             } else if (currentDir === SORT_DESC) {
+                sorting[columnId] = SORT_ASC;
+            } else if (currentDir === SORT_ASC) {
                 delete sorting[columnId];
             }
         }

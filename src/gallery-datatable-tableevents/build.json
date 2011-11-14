@@ -1,0 +1,13 @@
+{
+    "name"    : "gallery-datatable-tableevents",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "datatable-events.js"
+    ],
+    "buildDir"  : "../../build/gallery-datatable-tableevents",
+    "details" : {
+        "requires"   : ["datatable"]
+    }
+}

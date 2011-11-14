@@ -1,7 +1,6 @@
 YUI.add('gallery-dp-datalist-plugin-editing', function(Y) {
+
 /**
- * 
- *
  * @module gallery-dp-datalist-plugin-editing
  * @author eamonb
  * @requires plugin, gallery-dp-datalist
@@ -10,7 +9,8 @@ var Node = Y.Node,
     YGetClassName = Y.ClassNameManager.getClassName;
 
 /**
- * Editing plugin for the Datalist (Data driven list element)
+ * Editing plugin for the Datalist (Data driven list element),
+ * Create and Update list elements using a ModelList instance.
  *
  * @class DatalistEditing
  * @namespace Y.DP
@@ -48,6 +48,18 @@ Y.mix(DatalistEditing, {
                 submit : 'OK',
                 indicator : 'Saving...'
             }
+        },
+
+        /**
+         * Function used to generate the default text whenever
+         * starting a new item.
+         *
+         * @attribute fnDefaultText
+         * @type Function
+         */
+        fnDefaultText : {
+            value : function(n) { return ''; },
+            validator : Y.Lang.isFunction
         }
     }    
 });
@@ -79,7 +91,10 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
     },
     
     /**
-     * Render the editing tools into the markup
+     * Render the editing tools into the markup.
+     *
+     * Create the placeholder.
+     * Make list items editable.
      *
      * @method _renderEditingTools
      * @param
@@ -103,59 +118,35 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
         // Create 'New item' Placeholder
         list.append(phlistitem);
         placeholder.plug(Y.DP.EditablePlugin, { 
-            submitto: Y.bind(this._createItemFromPlaceholder, this),
-            loadfrom: function(n) {return '';},
-            strings: this.get('strings')
+            submitto: Y.bind(this._fnCreateListItem, this),
+            loadfrom: this.get('fnDefaultText'),
+            strings: this.get('strings'),
+            select: true
         });
-        placeholder.editable.on('save', Y.bind(this._newItemSaved, this));
+        placeholder.editable.on('save', Y.bind(this._onItemCreated, this));
         this._placeholder = placeholder;
 
         // Create 'Edit existing item' editor
         list.plug(Y.DP.EditablePlugin, {
             delegate: '.' + this.get('host').getClassName('item'),
             event: 'dblclick',
-            loadfrom: function(n) {return n.one('a').get('textContent');},
-            submitto: Y.bind(function(li, fnSavedCallback) {
-                console.log(li.get('id'));
-                var model = this.get('host').get('models').getByClientId(li.get('id'));
-                
-                model.set('title', li.one('input').get('value'));
-                model.save(function(err, response) {
-                    fnSavedCallback();
-                });
-                
-            }, this)
+            loadfrom: function(n) { return n.one('a').get('textContent'); },
+            submitto: Y.bind(this._fnUpdateListItem, this),
+            select: true
         });
-        
-        //list.editable.on('save', Y.bind(this._itemSaved, this));
     },
     
     /**
      * Reposition the editing tools below the list of items
      *
      * @method _repositionEditingTools
-     * @param
-     * @returns
+     * @returns undefined
      * @protected
      */
     _repositionEditingTools : function() {
         Y.log("_repositionEditingTools", "info", "gallery-dp-datalist-plugin-editing");
         
         this.get('host').get('contentBox').append(this._phlistitem); // automatically shifts parentNode
-    },
-    
-    /**
-     * Render the add item control
-     *
-     * @method _renderAddControl
-     * @param config {Object} Configuration object passed through the host's _renderItem method
-     * @returns {String} to be added to a list element.
-     * @protected
-     */
-    _renderAddControl : function(config) {
-        Y.log("_renderAddControl", "info", "gallery-dp-datalist-plugin-editing");
-        
-        return Y.substitute(config.template, config);
     },
     
     /**
@@ -175,13 +166,13 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
     /**
      * 
      *
-     * @method _newItemSaved
+     * @method _onItemCreated
      * @param e {Object} Event facade
      * @returns
      * @public
      */
-    _newItemSaved : function(e) {
-        Y.log("_newItemSaved", "info", "gallery-dp-datalist-plugin-editing");
+    _onItemCreated : function(e) {
+        Y.log("_onItemCreated", "info", "gallery-dp-datalist-plugin-editing");
         
         this._placeholder.editable.clear(); // TODO: subscribe to editable save event
         //this.fire('add'); // TODO: just for now this forces editor repositioning.
@@ -190,19 +181,47 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
     /**
      * Create an item when placeholder is saved
      *
-     * @method _createItemFromPlaceholder
-     * @param
-     * @returns
+     * @method _fnCreateListItem
+     * @param li {Node} HTML List Element
+     * @param fnCallback {Function} Callback to complete the list item creation.
+     * @returns undefined
      * @protected
      */
-    _createItemFromPlaceholder : function(li, fnCallback) {
-        Y.log("_createItemFromPlaceholder", "info", "gallery-dp-datalist-plugin-editing");
-        
-        var added = this.get('host').get('models').add({title: li.one('input').get('value')});
-        added.save(Y.bind(function(err, data) {
-            fnCallback();
-            this.fire('add', { model: added });
-        }, this)); 
+    _fnCreateListItem : function(li, fnCallback) {
+        Y.log("_fnCreateListItem", "info", "gallery-dp-datalist-plugin-editing");
+        var modelList = this.get('host').get('models'),
+            self = this,
+            m = new modelList.model({ title: li.one('input').get('value') }); // TODO: this assumes the model has a title ATTR
+
+
+        modelList.add(m);
+        m.save({}, function(err, response) {
+            fnCallback(err);
+            self.fire('add', { model: m });
+        });
+        // Need to inject default values on the model
+//        modelList.create(m, function (err) {
+//            fnCallback(err);
+//            self.fire('add', { model: m });
+//        });
+    },
+
+    /**
+     * Update an item that has been edited
+     *
+     * @method _fnUpdateListItem
+     * @param li {Node} HTML List Element
+     * @param fnCallback {Function} Callback to complete the list item creation.
+     * @returns undefined
+     * @protected
+     */
+    _fnUpdateListItem : function(li, fnCallback) {
+        var model = this.get('host').get('models').getByClientId(li.get('id'));
+
+        model.set('title', li.one('input').get('value'));
+        model.save(function(err, response) {
+            fnCallback(err, response);
+        });
     },
     
     /**
@@ -231,6 +250,7 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
     
     /**
      * Reference to the placeholder element, used to add new items.
+     * The placeholder always appears at the end of the list.
      *
      * @property _placeholder
      * @type Node
@@ -247,8 +267,8 @@ Y.extend(DatalistEditing, Y.Plugin.Base, {
      */
     _phlistitem: null
 
-
 });
 
 Y.namespace("DP").DatalistEditing = DatalistEditing;
-}, '1.0.0' , {});
+
+}, '1.0.0' , {  });

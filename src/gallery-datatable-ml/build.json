@@ -1,0 +1,35 @@
+{
+    "name"    : "gallery-datatable-ml",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "skip"    : {
+        "clean"    : false,
+        "register" : false,
+        "lint"     : false,
+        "logger"   : false
+    },
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "datatableml.js",
+        "column.js"
+    ],
+    "buildDir"  : "../../build/gallery-datatable-ml",
+    "assetsDir" : "assets",
+    "tools"     : {
+        "jslint"  : {
+            "jslint option" : null
+        },
+        "csslint" : {
+            "csslint option" : null
+        }
+    },
+    "details" : {
+        "use"        : null,      
+        "supersedes" : null,
+        "requires"   : ["datatable"],
+        "optional"   : null,
+        "after"      : null,
+        "after_map"  : {},
+        "skinnable"  : false
+    }
+}

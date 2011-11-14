@@ -1,4 +1,5 @@
 YUI.add('gallery-dp-editable', function(Y) {
+
 /**
  * @module gallery-dp-editable
  * @author eamonb
@@ -657,6 +658,9 @@ EditableBase.prototype = {
         this.set('saving', true);
 
         if (Y.Lang.isFunction(submitto)) {
+            // The submitto function receives the node being edited, as well as a callback function
+            // The callback function takes a signature of err, args - where err is an error, or null
+            // and args will be fired in the 'save' event.
             submitto(editingnode, Y.bind(this.saveComplete, this));
             this.set('editing', false);
             
@@ -710,17 +714,25 @@ EditableBase.prototype = {
      * can clean up the UI and state.
      *
      * @method saveComplete
-     * @param
-     * @returns
+     * @param err {String} Error returned by the save process, or null/false if everything went okay.
+     * @param args {Object} Arguments which will be added to the event facade of the 'save' event.
+     * @returns undefined
      * @public
      */
-    saveComplete : function() {
+    saveComplete : function(err, args) {
         Y.log("saveComplete", "info", "gallery-dp-editable");
-        
-        this.fire('save');
-        this.set('saving', false);
-        this.set('prevContent', null);
-        this.set('editingnode', null);
+
+        if (err) {
+            Y.log("error during save: " + err, "info", "gallery-dp-editable");
+            //TODO: revert content
+            this.set('saving', false);
+            this.set('editingnode', null);
+        } else {
+            this.fire('save', args);
+            this.set('saving', false);
+            this.set('prevContent', null);
+            this.set('editingnode', null);
+        }
     },
     
     /**
@@ -919,4 +931,5 @@ var EditablePlugin = Y.Base.create('editablePlugin', Y.Plugin.Base, [Y.DP.Editab
 });
 
 Y.namespace("DP").EditablePlugin = EditablePlugin;
-}, '1.0.0' , {requires: ['node', 'base', 'event', 'plugin', 'io']});
+
+}, '1.0.0' , { requires: ['node', 'base', 'event', 'plugin', 'io'] });

@@ -77,6 +77,9 @@ DatatableMl.prototype = {
         this.get('models').after('remove', this._afterModelListRemove, this);
         this.get('models').after('reset', this._afterModelListChange, this); // Just rerender
         this.get('models').on('*:change', this._afterModelChange, this);
+
+        // Loading Indicator
+        this.get('models').after('loadingChange', this._afterLoadingChange, this);
     },
     
    /**
@@ -407,6 +410,17 @@ DatatableMl.prototype = {
         // Match change ATTR to column key
         // Get row by model id
         // Set cell inner to formatter(newval)
+    },
+
+    _afterLoadingChange : function(e) {
+        switch (e.newVal) {
+            case true:
+                this._tableNode.set('opacity', 0.1);
+                break;
+            case false:
+                this._tableNode.set('opacity', 1.0);
+                break;
+        }
     }
 };
 
@@ -455,4 +469,4 @@ Y.mix(Y.Column, {
    } 
 }, false, null, 0, true); // Mix with merge
 
-}, '1.0.0' , {requires: ['datatable']});
+}, '1.0.0' , { requires: ['datatable'] });
