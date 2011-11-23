@@ -61,7 +61,8 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
         this.beforeHostMethod("_attachTbodyTdNode", this._beforeAttachTbodyTdNode, this);
         
         dt.delegate("click", Y.bind(this._handleHeaderClick, this), "th");
-        
+
+        // TODO: sync UI when 'sorting' attribute is specified via constructor
         this.publish('sort', {defaultFn: this._uiSetSort});
     },
 
@@ -72,7 +73,6 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
      * @protected
      */
     destructor: function() { },
-    
     
    /**
     * Before header cell element is created, inserts link markup around {value}.
@@ -176,7 +176,6 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
             currentDir = sorting[columnId];
         
         Y.log("sort", "info", "DataTableMlServerSort");
-        Y.log("dir:" + currentDir, "info", this.NS);
 
 //        if (this.get('multiple') == false) {
 //           sorting = {};
@@ -279,6 +278,13 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
      */
     ATTRS : {
 
+        /**
+         * Keep the state of sorting for each defined column.
+         *
+         * @attribute sorting
+         * @default []
+         * @type array
+         */
         sorting : {
             value : []
         },
@@ -294,7 +300,14 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
             value : true,
             validator : Y.Lang.isBoolean
         },
-        
+
+        /**
+         * Template for the link which is appended to the th cell.
+         *
+         * @attribute template
+         * @default
+         * @type String
+         */
         template : {
             value : TEMPLATE
         }
