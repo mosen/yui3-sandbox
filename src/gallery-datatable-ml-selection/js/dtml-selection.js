@@ -47,6 +47,13 @@ Y.mix(DatatableMlSelection, {
         multiple : {
             value : false,
             validator : Y.Lang.isBoolean
+        },
+
+        /**
+         * Row clicked must be a descendant of this attribute.
+         */
+        ancestor : {
+            value : null
         }
     }    
 });
@@ -95,7 +102,14 @@ Y.extend(DatatableMlSelection, Y.Plugin.Base, {
         Y.log("_onHostRowClick", "info", "gallery-datatable-ml-selection");
 
         if (!e.inThead && !e.inTfoot) {
-            this.select(rowClicked);
+
+            if (this.get('ancestor') !== null) {
+                if (rowClicked.ancestor(this.get('ancestor'))) {
+                    this.select(rowClicked);
+                }
+            } else {
+                this.select(rowClicked);
+            }
         }
     },
     

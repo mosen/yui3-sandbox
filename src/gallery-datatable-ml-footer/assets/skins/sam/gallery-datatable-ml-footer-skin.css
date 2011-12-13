@@ -4,3 +4,8 @@
 	border-width: 1px 0px 0px 0px;
 	background-color: #E2E2E2;
 }
+
+/* sort plugin adds a 10px 4px padding */
+.yui3-skin-sam .yui3-datatable .yui3-datatable-footer-tr .yui3-datatable-liner {
+    padding: 4px 10px;
+}

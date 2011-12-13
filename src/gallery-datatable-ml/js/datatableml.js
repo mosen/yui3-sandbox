@@ -94,6 +94,28 @@ DatatableMl.prototype = {
         // CAPTION
         this._uiSetCaption(this.get("caption"));
     },
+
+    /**
+     * Display or hide the 'no rows available' message.
+     *
+     * @method _uiSetMessage
+     * @protected
+     */
+    _uiSetMessage : function() {
+        var msgNode = this.get('contentBox').one('.'+CLASS_MSG),
+            TEMPLATE_MSG_ROW = '<tr id="{id}"><td colspan="{span}"><div class="{linerClass}">{message}</div></td></tr>';
+
+        if (this.get('models').size() == 0) {
+            msgNode.set('innerHTML', Y.Lang.sub(TEMPLATE_MSG_ROW, {
+                id: Y.guid(),
+                span: this.get('columnset').keys.length,
+                linerClass: CLASS_LINER,
+                message: "There are no items to show."
+            }));
+        } else {
+            msgNode.set('innerHTML', '');
+        }
+    },
     
    /**
      * Updates TBODY.
@@ -182,7 +204,12 @@ DatatableMl.prototype = {
         o.rowspan = column.rowSpan;
         o.abbr = column.get("abbr");
         o.classnames = column.get("classnames");
-        o.value = fromTemplate(this.get("thValueTemplate"), o);
+
+        if (Y.Lang.isFunction(column.get("thFormatter"))) {
+            o.value = column.get("thFormatter")(column);
+        } else {
+            o.value = fromTemplate(this.get("thValueTemplate"), o);
+        }
 
         var thNode = Ycreate(fromTemplate(this.thTemplate, o));
 
@@ -343,6 +370,7 @@ DatatableMl.prototype = {
     _afterModelListAdd : function(e) {
         Y.log("_afterModelListAdd", "info", "DatatableMl");
         this._addModel(e.model);
+        this._uiSetMessage(); // Remove message if size changes from zero items to one.
     },
     
     /**
@@ -360,17 +388,20 @@ DatatableMl.prototype = {
     },
     
     /**
-     * After an entire model list is swapped
+     * After an entire model list is swapped.
+     * If there are no items then display a 'no items' message
      *
      * @method _afterModelListChange
-     * @param
-     * @returns
+     * @returns undefined
      * @protected
      */
     _afterModelListChange : function() {
         Y.log("_afterModelListChange", "info", "DatatableMl");
-        
+
+        //console.profile('DatatableMl');
         this._uiSetModelList(this.get('models'));
+        //console.profileEnd('DatatableMl');
+        this._uiSetMessage();
     },
 
     /**
@@ -380,38 +411,44 @@ DatatableMl.prototype = {
      * @protected
      */
     _afterModelChange : function(e) {
-        Y.log('Model has changed');
+        Y.log('_afterModelChange (' + Y.Object.keys(e.changed).join(', ') + ')', "debug", "DatatableMl");
 
-        var displayKeys = Y.Object.keys(this.get('columnset').keyHash),
-            changedKeys = Y.Object.keys(e.changed),
-            keysToUpdate = Y.Array.filter(changedKeys, function(v) {
-                if (displayKeys.indexOf(v) !== -1) {
-                    return true;
+        if (this.get('rendered') == true) {
+
+            var displayKeys = Y.Object.keys(this.get('columnset').keyHash),
+                changedKeys = Y.Object.keys(e.changed),
+                keysToUpdate = Y.Array.filter(changedKeys, function(v) {
+                    if (displayKeys.indexOf(v) !== -1) {
+                        return true;
+                    }
+                }),
+                columnHash = this.get('columnset').keyHash;
+
+            Y.Array.each(keysToUpdate, function(k) {
+                var column = columnHash[k],
+                    fnFormatter = column.get('formatter'),
+                    o = {
+                        value : e.changed[k].newVal,
+                        formatter : Y.Lang.isFunction(fnFormatter) ? fnFormatter : Y.bind(fromTemplate, this, this.get('tdValueTemplate'))
+                    },
+                    clientRowId = 'tr#' + e.target.get('clientId'),
+                    modelRow = Y.one(clientRowId);
+
+                if (modelRow !== null) { // Some changes can cause DatatableMl to try to change a cell value before it is rendered.
+                    var modelColumnId = 'td[headers="' + column.get('id') + '"]',
+                        modelCell = modelRow.one(modelColumnId),
+                        modelLiner = modelCell.one('div');
+
+                    modelLiner.setContent(o.formatter.call(this, o));
                 }
-            }),
-            columnHash = this.get('columnset').keyHash;
-
-        Y.Array.each(keysToUpdate, function(k) {
-            var column = columnHash[k],
-                fnFormatter = column.get('formatter'),
-                o = {
-                    value : e.changed[k].newVal,
-                    formatter : Y.Lang.isFunction(fnFormatter) ? fnFormatter : Y.bind(fromTemplate, this, this.get('tdValueTemplate'))
-                },
-                clientRowId = 'tr#' + e.target.get('clientId'),
-                modelRow = Y.one(clientRowId),
-                modelColumnId = 'td[headers="' + column.get('id') + '"]',
-                modelCell = modelRow.one(modelColumnId),
-                modelLiner = modelCell.one('div');
-
-            modelLiner.setContent(o.formatter.call(this, o));
-        }, this);
+            }, this);
 
 
         // Match change ATTR to column key
         // Get row by model id
         // Set cell inner to formatter(newval)
         }
+    }
 };
 
 DatatableMl.ATTRS = {

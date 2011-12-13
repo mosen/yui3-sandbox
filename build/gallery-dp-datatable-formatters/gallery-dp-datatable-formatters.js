@@ -193,6 +193,7 @@ var DataTableFormatters = {
 
             var vFn = valueFn,
                 percentage_value = vFn ? vFn(o) : parseInt(o.value, 0),
+                progress_width = percentage_value > 100 ? 100 : percentage_value,
                 CLASS_TEXT = YgetClassName('gallery', 'dp', 'datatable', 'formatter', 'progresstext'),
                 CLASS_BAR = YgetClassName('gallery', 'dp', 'datatable', 'formatter', 'progressbar'),
                 CLASS_BG = YgetClassName('gallery', 'dp', 'datatable', 'formatter', 'progressbg'),
@@ -201,7 +202,7 @@ var DataTableFormatters = {
                 BG_TEMPLATE = '<div class="{className}">{bar}</div>';
 
             var text_percent = Y.substitute(TEXT_TEMPLATE, {className: CLASS_TEXT, text: percentage_value + '%'});
-            var bar = Y.substitute(BAR_TEMPLATE, {className: CLASS_BAR, width: percentage_value, textnode: text_percent});
+            var bar = Y.substitute(BAR_TEMPLATE, {className: CLASS_BAR, width: progress_width, textnode: text_percent});
             var bg = Y.substitute(BG_TEMPLATE, {className: CLASS_BG, bar: bar});
 
             //o.td.append(Y.Node.create(back));
@@ -209,6 +210,10 @@ var DataTableFormatters = {
         };
     },
 
+    /**
+     * Get a formatter which generates a checkbox with the value being the clientId of the current row's model.
+     * @param options
+     */
     getCheckboxFormatter : function(options) {
         options.callback = options.callback || function() {};
 

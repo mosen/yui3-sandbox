@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DataList Manual Test</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="http://yui.yahooapis.com/3.4.0/build/yui/yui-min.js"
+    charset="utf-8"></script>
+    <link href="../../../../build/gallery-dp-datalist/assets/skins/sam/gallery-dp-datalist.css" type="text/css" rel="stylesheet" />
+</head>
+<body class="yui3-skin-sam">
+    <div id="yui3-datalist"></div>
+
+    <script type="text/javascript">
+        (function() {
+            YUI({
+                filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'min',
+                allowRollup: false,
+                modules : {
+                    'gallery-dp-datalist' : {
+                        'fullpath' : '../../../../build/gallery-dp-datalist/gallery-dp-datalist-debug.js',
+                        'requires' : ['base', 'widget', 'model-list']
+                    }
+                }
+            }).use("console", "dump", "model-list", "gallery-dp-datalist", function(Y) {
+
+                var myConsole = new Y.Console().render();
+
+                Y.MockModel = Y.Base.create('mockModel', Y.Model, [], {}, {
+                    ATTRS : {
+                        title: {
+                            value: ''
+                        }
+                    }
+                });
+
+                var mockModelList = new Y.ModelList();
+                mockModelList.add([
+                    new Y.MockModel({ "title" : "Joe" }),
+                    new Y.MockModel({ "title" : "Bob" }),
+                    new Y.MockModel({ "title" : "Andrew" })
+                ]);
+
+                Y.log(mockModelList.size() + ' mock items created', 'info', 'mockModelList');
+                mockModelList.each(function(m) {
+                   Y.log(m.get('title'));
+                });
+
+                var dl = new Y.DP.DataList({
+                    models: mockModelList,
+                    fnRender: function(model) {
+                        var ITEM_TEMPLATE_REMOVE = '<a href="#{anchor}" class="{classNameSelect}">{title}</a><a href="#{anchor}" class="remove">remove</a>';
+
+                        return Y.substitute(ITEM_TEMPLATE_REMOVE, {
+                            className: this.getClassName('item'),
+                            classNameSelect: this.getClassName('item', 'select'),
+                            anchor: model.get('clientId'),
+                            title: model.get('title')
+                        });
+                    }
+                });
+
+                dl.render('#yui3-datalist');
+
+                dl.get('contentBox').delegate('click', function(e) {
+                    var models = dl.get('models'),
+                        removeModelId = e.target.ancestor('li').get('id'),
+                        removeModel = models.getByClientId(removeModelId);
+
+                    Y.log(removeModelId);
+
+                    models.remove(removeModel);
+                }, 'li .remove');
+            });
+        })();
+    </script>
+
+</body>
+</html>

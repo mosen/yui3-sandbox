@@ -3,7 +3,7 @@
     <head>
         <title>DataList Test</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"
+        <script src="http://yui.yahooapis.com/3.4.1/build/yui/yui-min.js"
         charset="utf-8"></script>
     </head>
     <body class="yui3-skin-sam">
@@ -17,10 +17,10 @@
                     modules : {
                         'gallery-dp-datalist' : {
                             'fullpath' : '../../../build/gallery-dp-datalist/gallery-dp-datalist-debug.js',
-                            'requires' : ['widget', 'datasource']
+                            'requires' : ['base', 'widget', 'model-list']
                         }
                     }
-                }).use("console", "test", "dump", "gallery-dp-datalist", function(Y) {
+                }).use("console", "test", "dump", "model-list", "gallery-dp-datalist", function(Y) {
                 
                     var myConsole = new Y.Console().render();
 
@@ -29,19 +29,14 @@
                     
                         setUp: function() {
                             
-                            this.mockresponse = [
-                                        { "id" : "1", "title" : "Joe" },
-                                        { "id" : "2", "title" : "Bob" },
-                                        { "id" : "3", "title" : "Andrew" }
-                                    ];
-                            
-                            this.testDataSource = new Y.DataSource.Local({ 
-                                source: this.mockresponse
-                            });
+                            this.mockModelList = new Y.ModelList();
+                            this.mockModelList.model = Y.Model;
+                            this.mockModelList.add({ "id" : "1", "title" : "Joe" });
+                            this.mockModelList.add({ "id" : "2", "title" : "Bob" });
+                            this.mockModelList.add({ "id" : "3", "title" : "Andrew" });
                             
                             this.dl = new Y.DP.DataList({ 
-                                source: this.testDataSource,
-                                titlekey : "name"
+                                models: this.mockModelList
                             });
                         },
                     

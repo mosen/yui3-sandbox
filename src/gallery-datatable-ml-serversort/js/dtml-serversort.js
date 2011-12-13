@@ -63,7 +63,7 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
         dt.delegate("click", Y.bind(this._handleHeaderClick, this), "th");
 
         // TODO: sync UI when 'sorting' attribute is specified via constructor
-        this.publish('sort', {defaultFn: this._uiSetSort});
+        this.publish('sort', {defaultFn: this._defFnSort});
     },
 
     /**
@@ -103,18 +103,24 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
     * @protected
     */
     _beforeAttachTheadThNode: function(o) {
-        var lastSortedBy = this.get("lastSortedBy"),
-            key = lastSortedBy && lastSortedBy.key,
-            dir = lastSortedBy && lastSortedBy.dir,
-            notdir = lastSortedBy && lastSortedBy.notdir;
+        var initialSort = this.get('initialSort');
 
         // This Column is sortable
         if(o.column.get("sortable")) {
+            var columnKey = o.column.get('key');
+
             o.th.addClass(YgetClassName(DATATABLE, "sortable"));
-        }
-        // This Column is currently sorted
-        if(key && (key === o.column.get("key"))) {
-            o.th.replaceClass(YgetClassName(DATATABLE, notdir), YgetClassName(DATATABLE, dir));
+
+//            if (initialSort.hasOwnProperty(columnKey)) {
+//                var columnId = o.column.get('id'),
+//                    columnSortDirection = initialSort[columnKey];
+//
+//                this._uiSetSort({
+//                    thNode: o.th,
+//                    direction: columnSortDirection
+//                });
+//                this.set('sorting', { columnId : columnSortDirection });
+//            }
         }
     },
 
@@ -126,18 +132,9 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
     * @protected
     */
     _beforeAttachTbodyTdNode: function(o) {
-        var lastSortedBy = this.get("lastSortedBy"),
-            key = lastSortedBy && lastSortedBy.key,
-            dir = lastSortedBy && lastSortedBy.dir,
-            notdir = lastSortedBy && lastSortedBy.notdir;
-
         // This Column is sortable
         if(o.column.get("sortable")) {
             o.td.addClass(YgetClassName(DATATABLE, "sortable"));
-        }
-        // This Column is currently sorted
-        if(key && (key === o.column.get("key"))) {
-            o.td.replaceClass(YgetClassName(DATATABLE, notdir), YgetClassName(DATATABLE, dir));
         }
     },
     
@@ -195,6 +192,18 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
         
         this.fire("sort", { column: column, direction: sorting[columnId], columns: sorting });
     },
+
+    /**
+     * Default handler for the 'sort' event.
+     *
+     * @param e {Object} Event facade from 'sort'
+     */
+    _defFnSort : function(e) {
+        this._uiSetSort({
+            thNode: e.column.thNode,
+            direction: e.direction
+        });
+    },
     
     /**
      * Update the UI with the sort state
@@ -203,14 +212,13 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
      * @protected
      * @param e {Event} Event facade
      */
-    _uiSetSort : function(e) {
+    _uiSetSort : function(o) {
         Y.log("_uiSetSort direction:" + e.direction, "info", "DataTableServerSort");
         
-        var col = e.column.thNode;
+        var col = o.thNode;
         
-        switch(e.direction) {
+        switch(o.direction) {
             case SORT_ASC:
-                Y.log("sort ascending", "info", "DataTableServerSort");
                 col.removeClass(YgetClassName(DATATABLE, DESC));
                 col.addClass(YgetClassName(DATATABLE, ASC));
                 break;
@@ -290,6 +298,20 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
         },
 
         /**
+         * Initial sorting state.
+         * TODO: figure out a much better design for this.
+         * Hash is column key -> sort state
+         *
+         *
+         * @attribute initialSort
+         * @default []
+         * @type Array
+         */
+        initialSort : {
+            value : []
+        },
+
+        /**
          * Whether multiple sort rules/columns may be active.
          *
          * @attribute multiple
@@ -312,5 +334,18 @@ Y.namespace('DP').DatatableMlServerSort = Y.Base.create( 'gallery-datatable-ml-s
             value : TEMPLATE
         }
         
+    },
+
+    /**
+     * Sort types that can be referred to by external plugins etc.
+     *
+     * Y.DP.DatatableMlServerSort.SORT.ASC
+     * Y.DP.DatatableMlServerSort.SORT.DESC
+     * Y.DP.DatatableMlServerSort.SORT.NONE
+     */
+    SORT : {
+        ASC : SORT_ASC,
+        DESC : SORT_DESC,
+        NONE : SORT_NONE
     }
 });

@@ -9,6 +9,7 @@
     "buildDir"  : "../../build/gallery-dp-datalist",
     "assetsDir" : "assets",
     "details" : {
-        "skinnable"  : true
+        "skinnable"  : true,
+        "requires" : ["base", "widget"]
     }
 }

@@ -1,6 +1,6 @@
 .yui3-gallery-dp-datalist ul{margin-left:0.2em;list-style-type:square;}
 .yui3-gallery-dp-datalist a.remove{visibility:hidden;font-size:75%;margin:0em 0.5em 0em 0.5em;}
 .yui3-gallery-dp-datalist-item-selected{font-weight:bold;margin-left:0.25em;}
-.yui3-gallery-dp-datalist ul{margin-left:0.2em;}
+.yui3-gallery-dp-datalist ul{margin-left:0.2em;padding-left:0.75em;}
 .yui3-gallery-dp-datalist a.remove{visibility:hidden;}
 .yui3-gallery-dp-datalist ul li:hover a.remove{visibility:visible;}

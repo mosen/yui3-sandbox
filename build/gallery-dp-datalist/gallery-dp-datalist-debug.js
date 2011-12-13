@@ -67,6 +67,14 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         }));
     },
 
+    renderUI : function() {
+        var models = this.get('models');
+
+        if (models.size() > 0) {
+            this._renderItems(models);
+        }
+    },
+
     /**
      * @method bindUI
      * @public
@@ -81,6 +89,7 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         
         // Item selection
         this.get('contentBox').delegate('click', Y.bind(this._handleItemClicked, this), '.' + this.getClassName('item')); // TODO make this classname configurable
+        this.get('contentBox').delegate('click', Y.bind(this._handleRemoveClicked, this), '.' + this.getClassName('item') + ' .remove'); // TODO make remove item configurable
     },
     
     /**
@@ -118,11 +127,31 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
             model = this.get('models').getByClientId(clientId);
         
         this.set('selection', [ model ]);
-        //this.fire('select', {itemid: clientId, item: model});
+    },
+
+    /**
+     * Remove a list item if its 'remove' link was clicked.
+     *
+     * @method _handleRemoveClicked
+     * @param e {Object} Event facade
+     * @returns undefined
+     * @protected
+     */
+    _handleRemoveClicked : function(e) {
+        Y.log("_handleRemoveClicked", "info", "gallery-dp-datalist");
+
+        var models = this.get('models'),
+            removeModelId = e.target.ancestor('li').get('id'),
+            removeModel = models.getByClientId(removeModelId);
+
+        // TODO: fire beforeRemove event
+        removeModel.destroy({ delete: true }, function(err) {
+            // TODO: fire afterRemove event
+        });
     },
     
     /**
-     * Update the UI with new data when recordset changes.
+     * Update the UI with new data when modelList changes.
      *
      * @method _uiSetItems
      * @param e {Object} ATTR Event facade
@@ -158,8 +187,6 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         
         newItem = this._renderItem(Y.bind(fnRender, this), {value: added, id: added.get('clientId')});
         this.get('contentBox').append(newItem);
-        
-        //console.dir(e);
     },
     
     /**
@@ -178,7 +205,12 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
         Y.log("_uiRemoveItem", "info", "gallery-dp-datalist");
         
         if (selectionIdx > -1) {
-            newSelection = [ this.get('models').item(this.get('models').size() -1) ];
+            if (this.get('models').size() === 0) {
+                newSelection = [];
+            } else {
+                newSelection = [ this.get('models').item(this.get('models').size() -1) ];
+            }
+
             this.set('selection', newSelection);
         }
         
@@ -335,11 +367,12 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
          * @type Function
          */
         fnRender : {
-            value : function(item) { // Default renderer
+            value : function(model) { // Default renderer
+
                 return Y.substitute(this.ITEM_TEMPLATE, {
                     className: this.getClassName('item'),
-                    anchor: item['id'],
-                    title: item['title']
+                    anchor: model.get('id'),
+                    title: model.get('title')
                 });           
             },
             validator : Y.Lang.isFunction
@@ -372,4 +405,4 @@ Y.namespace('DP').DataList = Y.Base.create( 'gallery-dp-datalist', Y.Widget, [],
 });
 
 
-}, '1.0.0' , { skinnable: true });
+}, '1.0.0' , { requires: ['base', 'widget'], skinnable: true });

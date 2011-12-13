@@ -1,0 +1,14 @@
+{
+    "name"    : "gallery-dp-datalist-plugin-remove",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "datalist-remove.js"
+    ],
+    "buildDir"  : "../../build/gallery-dp-datalist-plugin-remove",
+    "assetsDir" : "assets",
+    "details" : {
+        "skinnable"  : false
+    }
+}

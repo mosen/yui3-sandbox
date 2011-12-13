@@ -77,9 +77,6 @@ DatatableMl.prototype = {
         this.get('models').after('remove', this._afterModelListRemove, this);
         this.get('models').after('reset', this._afterModelListChange, this); // Just rerender
         this.get('models').on('*:change', this._afterModelChange, this);
-
-        // Loading Indicator
-        this.get('models').after('loadingChange', this._afterLoadingChange, this);
     },
     
    /**
@@ -97,6 +94,28 @@ DatatableMl.prototype = {
         this._uiSetSummary(this.get("summary"));
         // CAPTION
         this._uiSetCaption(this.get("caption"));
+    },
+
+    /**
+     * Display or hide the 'no rows available' message.
+     *
+     * @method _uiSetMessage
+     * @protected
+     */
+    _uiSetMessage : function() {
+        var msgNode = this.get('contentBox').one('.'+CLASS_MSG),
+            TEMPLATE_MSG_ROW = '<tr id="{id}"><td colspan="{span}"><div class="{linerClass}">{message}</div></td></tr>';
+
+        if (this.get('models').size() == 0) {
+            msgNode.set('innerHTML', Y.Lang.sub(TEMPLATE_MSG_ROW, {
+                id: Y.guid(),
+                span: this.get('columnset').keys.length,
+                linerClass: CLASS_LINER,
+                message: "There are no items to show."
+            }));
+        } else {
+            msgNode.set('innerHTML', '');
+        }
     },
     
    /**
@@ -186,7 +205,12 @@ DatatableMl.prototype = {
         o.rowspan = column.rowSpan;
         o.abbr = column.get("abbr");
         o.classnames = column.get("classnames");
-        o.value = fromTemplate(this.get("thValueTemplate"), o);
+
+        if (Y.Lang.isFunction(column.get("thFormatter"))) {
+            o.value = column.get("thFormatter")(column);
+        } else {
+            o.value = fromTemplate(this.get("thValueTemplate"), o);
+        }
 
         var thNode = Ycreate(fromTemplate(this.thTemplate, o));
 
@@ -345,6 +369,7 @@ DatatableMl.prototype = {
      */
     _afterModelListAdd : function(e) {
         this._addModel(e.model);
+        this._uiSetMessage(); // Remove message if size changes from zero items to one.
     },
     
     /**
@@ -361,16 +386,19 @@ DatatableMl.prototype = {
     },
     
     /**
-     * After an entire model list is swapped
+     * After an entire model list is swapped.
+     * If there are no items then display a 'no items' message
      *
      * @method _afterModelListChange
-     * @param
-     * @returns
+     * @returns undefined
      * @protected
      */
     _afterModelListChange : function() {
-        
+
+        //console.profile('DatatableMl');
         this._uiSetModelList(this.get('models'));
+        //console.profileEnd('DatatableMl');
+        this._uiSetMessage();
     },
 
     /**
@@ -381,45 +409,40 @@ DatatableMl.prototype = {
      */
     _afterModelChange : function(e) {
 
-        var displayKeys = Y.Object.keys(this.get('columnset').keyHash),
-            changedKeys = Y.Object.keys(e.changed),
-            keysToUpdate = Y.Array.filter(changedKeys, function(v) {
-                if (displayKeys.indexOf(v) !== -1) {
-                    return true;
+        if (this.get('rendered') == true) {
+
+            var displayKeys = Y.Object.keys(this.get('columnset').keyHash),
+                changedKeys = Y.Object.keys(e.changed),
+                keysToUpdate = Y.Array.filter(changedKeys, function(v) {
+                    if (displayKeys.indexOf(v) !== -1) {
+                        return true;
+                    }
+                }),
+                columnHash = this.get('columnset').keyHash;
+
+            Y.Array.each(keysToUpdate, function(k) {
+                var column = columnHash[k],
+                    fnFormatter = column.get('formatter'),
+                    o = {
+                        value : e.changed[k].newVal,
+                        formatter : Y.Lang.isFunction(fnFormatter) ? fnFormatter : Y.bind(fromTemplate, this, this.get('tdValueTemplate'))
+                    },
+                    clientRowId = 'tr#' + e.target.get('clientId'),
+                    modelRow = Y.one(clientRowId);
+
+                if (modelRow !== null) { // Some changes can cause DatatableMl to try to change a cell value before it is rendered.
+                    var modelColumnId = 'td[headers="' + column.get('id') + '"]',
+                        modelCell = modelRow.one(modelColumnId),
+                        modelLiner = modelCell.one('div');
+
+                    modelLiner.setContent(o.formatter.call(this, o));
                 }
-            }),
-            columnHash = this.get('columnset').keyHash;
-
-        Y.Array.each(keysToUpdate, function(k) {
-            var column = columnHash[k],
-                fnFormatter = column.get('formatter'),
-                o = {
-                    value : e.changed[k].newVal,
-                    formatter : Y.Lang.isFunction(fnFormatter) ? fnFormatter : Y.bind(fromTemplate, this, this.get('tdValueTemplate'))
-                },
-                clientRowId = 'tr#' + e.target.get('clientId'),
-                modelRow = Y.one(clientRowId),
-                modelColumnId = 'td[headers="' + column.get('id') + '"]',
-                modelCell = modelRow.one(modelColumnId),
-                modelLiner = modelCell.one('div');
-
-            modelLiner.setContent(o.formatter.call(this, o));
-        }, this);
+            }, this);
 
 
         // Match change ATTR to column key
         // Get row by model id
         // Set cell inner to formatter(newval)
-    },
-
-    _afterLoadingChange : function(e) {
-        switch (e.newVal) {
-            case true:
-                this._tableNode.set('opacity', 0.1);
-                break;
-            case false:
-                this._tableNode.set('opacity', 1.0);
-                break;
         }
     }
 };
@@ -454,6 +477,16 @@ Y.mix(Y.Column, {
        align : {
            value : undefined
        },
+
+       /**
+        * Value which will become the title attribute of the TH node.
+        *
+        * @attribute title
+        * @default null
+        */
+       title : {
+           value : null
+       },
        
        /**
         * Function used for sorting column values, applied to recordset.
@@ -464,6 +497,16 @@ Y.mix(Y.Column, {
         * @default null
         */
        sortFn : {
+           value : null
+       },
+
+       /**
+        * Function used to produce the TH node content.
+        *
+        * @attribute thFormatter
+        * @default null
+        */
+       thFormatter : {
            value : null
        }
    } 

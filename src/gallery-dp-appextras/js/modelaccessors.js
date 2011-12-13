@@ -14,10 +14,14 @@ Y.namespace('DP').ModelAccessors = {
      * @return {Date} Instance of Date.
      */
     _attrSetterDate : function(data) {
-
-        if (!(Y.Lang.isDate(data))) {
-                // MySQL DATETIME Default Formatting, Quote:
-                // "MySQL retrieves and displays DATETIME values in 'YYYY-MM-DD HH:MM:SS' format."
+        if (data === null || data === undefined) {
+            return null;
+        } else {
+            if (Y.Lang.isDate(data)) {
+                return data;
+            } else {
+                // date.js was extremely slow with large numbers of objects
+                // so we roll our own date parser for MSSQL DATETIME
                 if (data !== null && data.match(/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/)) {
                         var datetimeParts = data.split(DATETIME_SEPARATOR),
                             timeParts = datetimeParts[1].split(TIME_SEPARATOR),
@@ -34,9 +38,7 @@ Y.namespace('DP').ModelAccessors = {
                 } else {
                         return Date.parse(data);
                 }
-        }
-        else {
-            return data;
+            }
         }
     }
 };

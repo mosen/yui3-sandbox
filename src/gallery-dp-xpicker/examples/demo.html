@@ -65,7 +65,8 @@
                 Y.one('#pickerinput').on('focus', function(e) { xp.show(); });
 
                 xp.on('select', function(e) {
-                   Y.one('#pickerinput').set('value', e.selection["year"] + ' ' + e.selection["month"]);
+                   Y.log(e.selection);
+                   Y.one('#pickerinput').set('value', e.selection["year"]["value"] + ' ' + e.selection["month"]["value"]);
                 });
             });
         </script>

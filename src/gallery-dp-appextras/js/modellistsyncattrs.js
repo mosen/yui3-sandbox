@@ -82,7 +82,8 @@ ModelListSyncAttrs.prototype = {
      */
     syncAttrs : function(options, callback) {
         var uriUpdate = Y.Lang.sub(this.get('TEMPLATE_URI_UPDATE_MANY'),
-            { model: this.get('uriController') });
+            { model: this.get('uriController') }),
+            callback = callback || function(err, response) {};
 
         this._tId = Y.io(uriUpdate, {
             method : 'POST',
