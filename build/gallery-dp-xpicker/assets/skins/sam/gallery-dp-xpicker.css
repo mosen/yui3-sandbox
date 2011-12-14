@@ -1,0 +1,10 @@
+.yui3-gallery-dp-xpicker{display:block;margin:5px;left:0;position:relative;background:transparent;}
+.yui3-gallery-dp-xpicker-hidden{left:-9999em;position:absolute;}
+.yui3-gallery-dp-xpicker{text-align:left;}
+.yui3-gallery-dp-xpicker ol{display:block;position:relative;left:0;margin:0px;padding:0px;height:2em;text-align:left;-webkit-transition:left 0.1s ease-in;}
+.yui3-gallery-dp-xpicker li{list-style:none;display:block;float:left;position:relative;left:0;overflow:hidden;text-align:center;cursor:pointer;}
+.yui3-gallery-dp-xpicker li{font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;height:16px;line-height:16px;text-shadow:1px 1px #EFEFEF;border:1px solid #959595;padding:2px 4px;color:#3A3A3A;background-color:#DDDDDD;}
+.yui3-gallery-dp-xpicker li.yui3-gallery-dp-xpicker-active{background:#fff;-moz-box-shadow:2px 2px 2px #ccc;-webkit-box-shadow:2px 2px 2px #ccc;}
+.yui3-gallery-dp-xpicker li.yui3-gallery-dp-xpicker-null:hover{background:#ffffdd;}
+.yui3-gallery-dp-xpicker-content-left{float:left;}
+.yui3-gallery-dp-xpicker-content-right{float:left;}
