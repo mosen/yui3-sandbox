@@ -35,6 +35,7 @@ Y.namespace('DP').DatatableMlFooter = Y.Base.create( 'gallery-datatable-ml-foote
         this.afterHostMethod("render", this._renderFooter);
         this.afterHostMethod("_afterModelListChange", this._renderColumnValues);
         this.afterHostMethod("_afterModelListAdd", this._renderColumnValues);
+        this.afterHostMethod("_afterModelListRemove", this._renderColumnValues);
         this.afterHostMethod("_afterModelChange", this._renderColumnValues);
     },
 
