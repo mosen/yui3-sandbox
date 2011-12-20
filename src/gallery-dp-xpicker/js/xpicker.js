@@ -169,7 +169,7 @@ Y.namespace('DP').Xpicker = Y.Base.create('gallery-dp-xpicker', Y.Widget, [], {
     },
 
     _uiSetIndent : function() {
-        var lists = this.get('contentBox').all('ol'),
+        var lists = this.get('contentBox').one('.' + RIGHT_PANE_CLASS).all('ol'),
             classActive = this.getClassName(ACTIVE_CLASS),
             baseLeft = lists.item(0).getX(),
             left = 0, i = 0;
