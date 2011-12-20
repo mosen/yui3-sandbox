@@ -1,0 +1,28 @@
+{
+    "name"    : "gallery-dp-modellist-pasteable",
+    "type"    : "js",
+    "version" : "1.0.0",
+    "skip"    : {
+        "clean"    : false,
+        "register" : false,
+        "lint"     : false,
+        "logger"   : false
+    },
+    "sourceDir"   : "js",
+    "sourceFiles" : [
+        "dp-modellist-pasteable.js"
+    ],
+    "buildDir"  : "../../build/gallery-dp-modellist-pasteable",
+    "assetsDir" : "assets",
+    "tools"     : {
+        "jslint"  : {
+            "jslint option" : null
+        },
+        "csslint" : {
+            "csslint option" : null
+        }
+    },
+    "details" : {
+        "requires"   : ["json", "base", "model-list"]
+    }
+}
